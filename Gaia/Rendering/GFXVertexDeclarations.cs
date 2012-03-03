@@ -1,0 +1,259 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Gaia.Rendering
+{
+    #region Custom Vertex Formats
+    public struct VertexAnimation
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+        public Vector2 Texcoord;
+        public Vector2 IndexCoord;
+        public Vector3 Tangent;
+
+        public static int SizeInBytes = (14) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+             new VertexElement( 0, sizeof(float)*7, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 0),
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 1),
+             new VertexElement( 0, sizeof(float)*11, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Tangent, 0),
+         };
+        public VertexAnimation(Vector3 position, Vector3 normal, Vector2 texCoord, Vector2 indexCoord, Vector3 tangent)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+            Texcoord = texCoord;
+            IndexCoord = indexCoord;
+            Tangent = tangent;
+        }
+    }
+
+    public struct VertexPosition
+    {
+        public Vector4 Position;
+
+        public static int SizeInBytes = (4) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+        {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+        };
+        public VertexPosition(Vector3 position)
+        {
+            Position = new Vector4(position, 1.0f);
+        }
+    }
+
+    public struct VertexPNTan
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+        public Vector3 Tangent;
+
+        public static int SizeInBytes = (10) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Tangent, 0),
+         };
+        public VertexPNTan(Vector3 position, Vector3 normal, Vector3 tangent)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+            Tangent = tangent;
+        }
+    }
+
+    public struct VertexPNTT
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+        public Vector2 Texcoord;
+        public Vector3 Tangent;
+
+        public static int SizeInBytes = (12) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+             new VertexElement( 0, sizeof(float)*7, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 0),
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Tangent, 0),
+         };
+        public VertexPNTT(Vector3 position, Vector3 normal, Vector2 texCoord, Vector3 tangent)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+            Texcoord = texCoord;
+            Tangent = tangent;
+        }
+    }
+
+    public struct VertexPNTTI
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+        public Vector2 Texcoord;
+        public Vector3 Tangent;
+        public Single Index;
+
+        public static int SizeInBytes = (13) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+             new VertexElement( 0, sizeof(float)*7, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 0),
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Tangent, 0),
+             new VertexElement( 0, sizeof(float)*12, VertexElementFormat.Single,
+                                      VertexElementMethod.Default, VertexElementUsage.TextureCoordinate, 1),
+         };
+        public VertexPNTTI(Vector3 position, Vector3 normal, Vector2 texCoord, Vector3 tangent, float index)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+            Texcoord = texCoord;
+            Tangent = tangent;
+            Index = index;
+        }
+
+        public VertexPNTTI(Vector4 position, Vector3 normal, Vector2 texCoord, Vector3 tangent, float index)
+        {
+            Position = position;
+            Normal = normal;
+            Texcoord = texCoord;
+            Tangent = tangent;
+            Index = index;
+        }
+    }
+
+    public struct VertexPNTTB
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+        public Vector2 Texcoord;
+        public float Bone;
+        public Vector3 Tangent;
+
+
+        public static int SizeInBytes = (13) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+             new VertexElement( 0, sizeof(float)*7, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 0),
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Single, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 1),
+             new VertexElement( 0, sizeof(float)*10, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Tangent, 0),
+         };
+        public VertexPNTTB(Vector3 position, Vector3 normal, Vector2 texCoord, float bone, Vector3 tangent)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+            Texcoord = texCoord;
+            Bone = bone;
+            Tangent = tangent;
+
+        }
+    }
+
+    public struct VertexPN
+    {
+        public Vector4 Position;
+        public Vector3 Normal;
+
+        public static int SizeInBytes = (7) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector3, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Normal, 0),
+         };
+        public VertexPN(Vector3 position, Vector3 normal)
+        {
+            Position = new Vector4(position, 1.0f);
+            Normal = normal;
+        }
+    }
+    #endregion
+
+    public static class GFXVertexDeclarations
+    {
+        public static VertexDeclaration PDec;
+        public static VertexDeclaration PTDec;
+        public static VertexDeclaration PNTTDec;
+        public static VertexDeclaration PNTTIDec;
+        public static VertexDeclaration PNTanDec;
+        public static VertexDeclaration PNTTBDec;
+        public static VertexDeclaration AnimDec;
+        public static VertexDeclaration PNDec;
+
+        public static void Initialize()
+        {
+            PDec = new VertexDeclaration(GFX.Device, VertexPosition.VertexElements);
+            PNDec = new VertexDeclaration(GFX.Device, VertexPN.VertexElements);
+            PNTTDec = new VertexDeclaration(GFX.Device, VertexPNTT.VertexElements);
+            PNTTIDec = new VertexDeclaration(GFX.Device, VertexPNTTI.VertexElements);
+            PNTanDec = new VertexDeclaration(GFX.Device, VertexPNTan.VertexElements);
+            PNTTBDec = new VertexDeclaration(GFX.Device, VertexPNTTB.VertexElements);
+            PTDec = new VertexDeclaration(GFX.Device, VertexPositionTexture.VertexElements);
+            AnimDec = new VertexDeclaration(GFX.Device, VertexAnimation.VertexElements);
+        }
+    }
+}
