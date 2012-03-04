@@ -1,0 +1,7 @@
+#define VC_MODELVIEW C0
+#define VC_WORLD C4
+#define VC_EYEPOS C4
+#define VC_INVTEXRES C5
+#define PC_EYEPOS C4
+#define PC_FARPLANE C5
+#define PC_LIGHTPOS C6
