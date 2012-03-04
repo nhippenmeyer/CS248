@@ -7,9 +7,16 @@ namespace Gaia.Rendering
 {
     public class ShadowElementManager : RenderElementManager
     {
-        public SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();
+        SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();
 
         Shader shadowShader;
+
+        public void AddElement(Material material, RenderElement element)
+        {
+            if (!Elements.ContainsKey(material))
+                Elements.Add(material, new Queue<RenderElement>());
+            Elements[material].Enqueue(element);
+        }
 
         public ShadowElementManager(RenderView renderView)
             : base(renderView)

@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gaia.Rendering
 {
-
     public enum GFXTextureDataType
     {
         BYTE,
@@ -48,11 +47,11 @@ namespace Gaia.Rendering
         RenderTarget2D GBuffer;
         DepthStencilBuffer DSBufferScene;
 
-        public GFX(GraphicsDevice _device, IServiceProvider _services)
+        public GFX(GraphicsDevice device)
         {
             Inst = this;
             GFXShaderConstants.AuthorShaderConstantFile();
-            RegisterDevice(_device);
+            RegisterDevice(device);
 
         }
         ~GFX()
@@ -67,32 +66,6 @@ namespace Gaia.Rendering
             InitializeSurfaceModes();
             InitializeSamplerStates();
             InitializeTextures();
-        }
-
-        public void Render()
-        {
-            DepthStencilBuffer dsOld = GFX.Device.DepthStencilBuffer;
-
-            /*
-            Device.SetVertexShaderConstant(GFXShaderConstants.ModelView, ActiveView.ViewProjection);
-            Device.SetVertexShaderConstant(GFXShaderConstants.EyePos, new Vector4(ActiveView.Position, ActiveView.FarPlane));
-            Device.SetPixelShaderConstant(GFXShaderConstants.EyePos, new Vector4(ActiveView.Position, ActiveView.FarPlane));
-            */
-            /*
-            Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, DefaultRenderView.GetViewProjection());
-            GFX.Device.DepthStencilBuffer = DSBufferScene;
-            GFX.Device.SetRenderTarget(0, GBuffer);
-            GFX.Device.Clear(Color.TransparentBlack);
-            GFX.Device.SetRenderTarget(0, null);
-            GFX.Device.DepthStencilBuffer = dsOld;
-
-            GFX.Device.Clear(Color.CornflowerBlue);
-            ElementManager[(int)RenderPass.Sky].Render();
-            ElementManager[(int)RenderPass.Voxels].Render();
-            ElementManager[(int)RenderPass.Scene].Render();
-            */
-
-            //GFX.Device.Vertices[0].SetSource(null, 0, 0);
         }
 
         public void ResetState()
@@ -140,7 +113,6 @@ namespace Gaia.Rendering
             GBuffer = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.HalfVector4);
 
             dsBufferLarge = new DepthStencilBuffer(Device, 2048, 2048, Device.DepthStencilBuffer.Format);
-
         }
     }
 }

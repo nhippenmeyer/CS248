@@ -20,28 +20,9 @@ namespace Gaia.Resources
             {
                 foreach (XmlAttribute attrib in node.Attributes)
                 {
-                    /*
-                    switch (attrib.Name.ToLower())
-                    {
-                        case "psfilename":
-                            psFileName = attrib.Value;
-                            break;
-                        case "vsfilename":
-                            vsFileName = attrib.Value;
-                            break;
-                        case "pstarget":
-                            PSTarget = int.Parse(attrib.Value);
-                            break;
-                        case "vstarget":
-                            VSTarget = int.Parse(attrib.Value);
-                            break;
-                        case "name":
-                            Name = attrib.Value;
-                            break;
-                    }*/
+
                 }
-                //CompileFromFiles(psFileName, vsFileName);
-                //ResourceManager.Inst.AddShader(this);
+
             }
             catch { }
         }

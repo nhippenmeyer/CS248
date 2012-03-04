@@ -4,7 +4,7 @@
     <ProjectTypeGuids>{6D335F3A-9D43-41b4-9D22-F6F17C4BE596};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Gaia</RootNamespace>
     <AssemblyName>Gaia</AssemblyName>
@@ -29,6 +29,8 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -84,6 +86,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Time.cs" />
+    <Compile Include="Input\InputManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="GameCore.cs" />
@@ -105,6 +109,13 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Resources\Shader.cs" />
     <Compile Include="Resources\TextureResource.cs" />
+    <Compile Include="SceneGraph\GameEntities\Player.cs" />
+    <Compile Include="SceneGraph\Entity.cs" />
+    <Compile Include="SceneGraph\GameEntities\Sky.cs" />
+    <Compile Include="SceneGraph\GameEntities\Terrain.cs" />
+    <Compile Include="SceneGraph\Scene.cs" />
+    <Compile Include="Voxels\VoxelGeometry.cs" />
+    <Compile Include="Voxels\VoxelHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

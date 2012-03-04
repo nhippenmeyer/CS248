@@ -9,9 +9,16 @@ namespace Gaia.Rendering
 
     public class SceneElementManager : RenderElementManager
     {
-        public SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();
+        SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();
 
         public SceneElementManager(RenderView renderView) : base(renderView) { }
+
+        public void AddElement(Material material, RenderElement element)
+        {
+            if (!Elements.ContainsKey(material))
+                Elements.Add(material, new Queue<RenderElement>());
+            Elements[material].Enqueue(element);
+        }
 
         public override void Render()
         {

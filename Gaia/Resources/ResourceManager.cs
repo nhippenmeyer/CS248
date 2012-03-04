@@ -28,6 +28,10 @@ namespace Gaia.Resources
         {
             Inst = this;
             resources = new SortedList<string, IResource>[(int)ResourceTypes.Count];
+            for (int i = 0; i < resources.Length; i++)
+            {
+                resources[i] = new SortedList<string, IResource>();
+            }
             RegisterResourceTypes();
         }
 
@@ -51,7 +55,7 @@ namespace Gaia.Resources
 
         public void LoadResources()
         {
-            string[] filePaths = Directory.GetFiles("Data/", "*.res", SearchOption.AllDirectories);
+            string[] filePaths = Directory.GetFiles("./", "*.res", SearchOption.AllDirectories);
             Queue<XmlNodeList>[] nodesToProcess = new Queue<XmlNodeList>[(int)ResourceTypes.Count];
             for (int i = 0; i < filePaths.Length; i++)
             {
@@ -67,7 +71,7 @@ namespace Gaia.Resources
             }
             for (int i = 0; i < nodesToProcess.Length; i++)
             {
-                while (nodesToProcess[i].Count > 0)
+                while (nodesToProcess[i] != null && nodesToProcess[i].Count > 0)
                 {
                     XmlNodeList nodeCollection = nodesToProcess[i].Dequeue();
                     foreach (XmlNode node in nodeCollection)

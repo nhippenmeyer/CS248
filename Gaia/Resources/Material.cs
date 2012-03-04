@@ -14,10 +14,7 @@ namespace Gaia.Resources
 
         public string Name { get { return name; } }
 
-        Material prepassMaterial;
-        string prepassMaterialName;
-
-        const int textureCounts = 8;
+        const int textureCounts = 12;
 
         TextureResource[] textures = new TextureResource[textureCounts];
 
@@ -45,7 +42,8 @@ namespace Gaia.Resources
         {
             foreach (XmlAttribute attrib in node.Attributes)
             {
-                switch (attrib.Name.ToLower())
+                string[] attribs = attrib.Name.ToLower().Split('_');
+                switch (attribs[0])
                 {
                     case "reflect":
                         Reflect = bool.Parse(attrib.Value);
@@ -89,33 +87,13 @@ namespace Gaia.Resources
                         kRimCoeff = float.Parse(attrib.Value);
                         break;
 
-                    case "texture0":
-                        textures[0] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture1":
-                        textures[1] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture2":
-                        textures[2] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture3":
-                        textures[3] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture4":
-                        textures[4] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture5":
-                        textures[5] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture6":
-                        textures[6] = ResourceManager.Inst.GetTexture(attrib.Value);
-                        break;
-                    case "texture7":
-                        textures[7] = ResourceManager.Inst.GetTexture(attrib.Value);
+                    case "texture":
+                        int index = int.Parse(attribs[1]);
+                        textures[index] = ResourceManager.Inst.GetTexture(attrib.Value);
                         break;
 
-                    case "prepassmaterial":
-                        name = attrib.Value;
+                    case "shader":
+                        shader = ResourceManager.Inst.GetShader(attrib.Value);
                         break;
 
                     case "name":

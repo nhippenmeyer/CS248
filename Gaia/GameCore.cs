@@ -11,12 +11,20 @@ using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Net;
 using Microsoft.Xna.Framework.Storage;
 
+
+
+using Gaia.Core;
+using Gaia.Input;
+using Gaia.Rendering;
+using Gaia.Resources;
+using Gaia.SceneGraph;
+
 namespace Gaia
 {
     public class GameCore : Microsoft.Xna.Framework.Game
     {
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        Scene mainScene; //Our default level
 
         public GameCore()
         {
@@ -43,10 +51,13 @@ namespace Gaia
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            new GFX(this.GraphicsDevice);
+            new InputManager();
+            new ResourceManager();
+            ResourceManager.Inst.LoadResources();
 
-            // TODO: use this.Content to load your game content here
+            mainScene = new Scene();
+            mainScene.Initialize();
         }
 
         /// <summary>
@@ -55,7 +66,7 @@ namespace Gaia
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+
         }
 
         /// <summary>
@@ -65,11 +76,14 @@ namespace Gaia
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            Time.GameTime.Elapse(gameTime.ElapsedGameTime.Milliseconds);
+            Time.GameTime.DT = (float)gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
+            //Update functions here
+            InputManager.Inst.Update();
+            if(InputManager.Inst.IsKeyDown(GameKey.Pause))
                 this.Exit();
 
-            // TODO: Add your update logic here
+            mainScene.Update();
 
             base.Update(gameTime);
         }
@@ -81,6 +95,7 @@ namespace Gaia
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            mainScene.Render();
 
             base.Draw(gameTime);
         }

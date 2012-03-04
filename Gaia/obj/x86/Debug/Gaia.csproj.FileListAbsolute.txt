@@ -4,3 +4,9 @@ C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\bin\x86\Debug\Gaia.exe
 C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\bin\x86\Debug\Gaia.pdb
 C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\obj\x86\Debug\Gaia.exe
 C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\obj\x86\Debug\Gaia.pdb
+C:\Users\Matt\CS248\Gaia\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Matt\CS248\Gaia\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\Matt\CS248\Gaia\obj\x86\Debug\Gaia.exe
+C:\Users\Matt\CS248\Gaia\obj\x86\Debug\Gaia.pdb
+C:\Users\Matt\CS248\Gaia\bin\x86\Debug\Gaia.exe
+C:\Users\Matt\CS248\Gaia\bin\x86\Debug\Gaia.pdb

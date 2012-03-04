@@ -6,10 +6,10 @@
       <TargetPlatform>Windows</TargetPlatform>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\Content\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\Content\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Matt\CS248\Gaia\Content\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Matt\CS248\Gaia\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Matt\CS248\Gaia\Content\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Matt\CS248\Gaia\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
