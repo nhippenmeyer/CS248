@@ -19,7 +19,7 @@ float4 main(float3 Direction : TEXCOORD0, float4 TexCoord : TEXCOORD1,
     float3 v3Dir = normalize(Direction);
     float fCos = dot(v3SunDir, -v3Dir);
     float fCos2 = fCos * fCos;
-    float4 finalColor = tex2D(BaseMap, TC) + getMiePhase(fCos, fCos2)*saturate(v3SunDir.y);
+    float3 finalColor = tex2D(BaseMap, TC) + getMiePhase(fCos, fCos2)*saturate(v3SunDir.y);
 
-    return finalColor;
+    return float4(finalColor,0);
 }

@@ -8,5 +8,6 @@
   <Shader name="BoxV" psfilename="Shaders/PostProcess/BoxV.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="3" vstarget="2"/>
 
   <Shader name="MotionBlur" psfilename="Shaders/PostProcess/MotionBlurP.hlsl" vsfilename="Shaders/PostProcess/GenericSpatialV.hlsl" pstarget="3" vstarget="2"/>
-  
+  <Shader name="Composite" psfilename="Shaders/PostProcess/CompositeP.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="2" vstarget="2"/>
+  <Shader name="Fog" psfilename="Shaders/PostProcess/FogP.hlsl" vsfilename="Shaders/PostProcess/GenericSpatialV.hlsl" pstarget="3" vstarget="2"/>
 </Resources>

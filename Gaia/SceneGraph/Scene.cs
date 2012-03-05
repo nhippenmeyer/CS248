@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 
 using Gaia.Rendering.RenderViews;
 using Gaia.SceneGraph.GameEntities;
@@ -11,11 +12,15 @@ namespace Gaia.SceneGraph
         public List<Entity> Entities = new List<Entity>();
         public List<RenderView> RenderViews = new List<RenderView>();
 
+        public Light MainLight; //Our sunlight
+
         public Scene()
         {
             Entities.Add(new Player());
             Entities.Add(new Terrain());
             Entities.Add(new Sky());
+            MainLight = new Light(LightType.Directional, new Vector3(0.95f, 1.26f, 0.356f), Vector3.Up, true);
+            Entities.Add(MainLight);
         }
 
         public void Initialize()

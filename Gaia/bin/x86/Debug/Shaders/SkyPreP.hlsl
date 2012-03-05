@@ -71,6 +71,7 @@ float4 main(float3 Direction : TEXCOORD0, uniform float3 InvWavelength : registe
     float Kr4PI = HeightParams.x * PI4;
     float Km4PI = HeightParams.y * PI4;
 	const float3 v3PointPv = float3( 0, InnerRadius + 1e-3, 0 );
+	Direction.y = max(0.0, Direction.y);
 	float3 v3Dir = normalize(Direction);
 	float fFarPvPa = HitOuterSphere( v3PointPv, v3Dir );
 	float3 v3Ray = v3Dir;

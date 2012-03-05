@@ -1,4 +1,5 @@
 #include "../ShaderConst.h"
+#include "../Common.h"
 
 float2 ComputeMoments(float3 Depth)
 {

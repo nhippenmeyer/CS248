@@ -7,17 +7,17 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
 			uniform float3 LightPos : register(PC_LIGHTPOS)
 ) : COLOR
 {
-	clip(tex2D(DepthMap, TexCoord).r-EPS);
-	float3 N = DecompressNormal(tex2D(GBuffer, TexCoord).xy);
+	float2 TC = TexCoord.xy / TexCoord.w;
+	clip(tex2D(DepthMap, TC).r-EPS);
+	float3 N = DecompressNormal(tex2D(GBuffer, TC).xy);
 	float3 L = normalize(LightPos);
 	float3 V = normalize(Direction);
 	
 	float NDL = max(0.0, dot(N,L));
 	float3 R = 2*N*NDL-L;
-	float4 data = tex2D(DataMap, TexCoord);
+	float4 data = tex2D(DataMap, TC);
 	float spec = pow(dot(R,V),data.r*255)*data.g;
 	
-	float4 finalColor = 0;
-	finalColor = float4(NDL*LightColor, spec);
+	float4 finalColor = float4(NDL*LightColor, spec);
     return finalColor;
 }

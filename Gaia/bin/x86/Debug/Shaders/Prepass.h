@@ -19,3 +19,11 @@ float3 DecompressNormal(float2 G)
    n.z = g-1;
    return normalize(n);
 }
+
+struct GBUFFER
+{
+	float4 Color		: COLOR0;
+	float4 Normal		: COLOR1;
+	float4 Depth		: COLOR2;
+	float4 Data			: COLOR3;
+};

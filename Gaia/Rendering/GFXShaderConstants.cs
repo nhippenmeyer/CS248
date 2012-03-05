@@ -7,9 +7,10 @@ namespace Gaia.Rendering
     public static class GFXShaderConstants
     {
         public static int VC_MODELVIEW = 0;
-        public static int VC_EYEPOS = 4;
-        public static int VC_INVTEXRES = 5;
         public static int VC_WORLD = 4;
+        public static int VC_TEXGEN = 8;
+        public static int VC_EYEPOS = 12;
+        public static int VC_INVTEXRES = 13;
 
         public static int PC_EYEPOS = 8;
         public static int PC_FARPLANE = 9;
@@ -36,6 +37,7 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "VC_WORLD", VC_WORLD);
                     WriteCommand(wr, "VC_EYEPOS", VC_EYEPOS);
                     WriteCommand(wr, "VC_INVTEXRES", VC_INVTEXRES);
+                    WriteCommand(wr, "VC_TEXGEN", VC_TEXGEN);
                     WriteCommand(wr, "PC_EYEPOS", PC_EYEPOS);
                     WriteCommand(wr, "PC_FARPLANE", PC_FARPLANE);
                     WriteCommand(wr, "PC_LIGHTPOS", PC_LIGHTPOS);

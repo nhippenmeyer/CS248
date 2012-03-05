@@ -9,9 +9,9 @@ namespace Gaia.SceneGraph
     {
         protected Scene scene;
 
-        public Transform Transformation;
+        public Transform Transformation = new Transform();
 
-        public virtual void OnAdd(Scene scene) { this.scene = scene; Transformation = new Transform(); }
+        public virtual void OnAdd(Scene scene) { this.scene = scene; }
         public virtual void OnDestroy() { }
 
         public virtual void OnUpdate() { }

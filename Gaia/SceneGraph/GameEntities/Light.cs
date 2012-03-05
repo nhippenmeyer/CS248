@@ -25,6 +25,15 @@ namespace Gaia.SceneGraph.GameEntities
         bool castsShadows;
         ShadowRenderView renderView;
 
+        public Light(LightType lightType, Vector3 color, Vector3 position, bool castsShadows)
+            : base()
+        {
+            this.type = lightType;
+            this.Color = color;
+            this.Transformation.SetPosition(position);
+            this.castsShadows = castsShadows;
+        }
+
         public Vector4 Parameters
         {
             get { return parameters; }
@@ -38,7 +47,9 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnRender(RenderView view)
         {
-            if (view.GetFrustum().Contains(Transformation.GetBounds()) != ContainmentType.Disjoint)
+            bool canRender = (view.GetFrustum().Contains(Transformation.GetBounds()) != ContainmentType.Disjoint);
+            canRender |= (type == LightType.Directional);
+            if (canRender)
             {
                 LightElementManager lightMgr = (LightElementManager)view.GetRenderElementManager(RenderPass.Light);
                 if (lightMgr != null)

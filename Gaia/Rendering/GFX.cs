@@ -46,7 +46,6 @@ namespace Gaia.Rendering
         public SurfaceFormat ByteSurfaceFormat = SurfaceFormat.Luminance8;
         public GFXTextureDataType ByteSurfaceDataType = GFXTextureDataType.BYTE;
 
-        RenderTarget2D GBuffer;
         DepthStencilBuffer DSBufferScene;
 
         public GFX(GraphicsDevice device)
@@ -58,6 +57,30 @@ namespace Gaia.Rendering
         }
         ~GFX()
         {
+        }
+
+        public Matrix ComputeTextureMatrix(Vector2 resolution)
+        {
+            Vector2 offset = Vector2.One * 0.5f / resolution;
+            Matrix mat = Matrix.Identity;
+
+            mat.M11 = 0.5f;
+            mat.M12 = 0;
+            mat.M13 = 0;
+            mat.M14 = 0.5f + offset.X;
+            mat.M21 = 0;
+            mat.M22 = -0.5f;
+            mat.M23 = 0;
+            mat.M24 = 0.5f + offset.Y;
+            mat.M31 = 0;
+            mat.M32 = 0;
+            mat.M33 = 1;
+            mat.M34 = 0;
+            mat.M41 = 0;
+            mat.M42 = 0;
+            mat.M43 = 0;
+            mat.M44 = 1;
+            return mat;
         }
 
         public void RegisterDevice(GraphicsDevice device)
@@ -72,6 +95,7 @@ namespace Gaia.Rendering
 
         public void ResetState()
         {
+            InitializeSamplerStates();
             Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
             Device.RenderState.DepthBufferEnable = true;
             Device.RenderState.DepthBufferFunction = CompareFunction.LessEqual;
@@ -94,7 +118,7 @@ namespace Gaia.Rendering
             ByteSurfaceDataType = formatDataType[i];
         }
 
-        void InitializeSamplerStates()
+        public void InitializeSamplerStates()
         {
             for (int i = 0; i < 8; i++)
             {
@@ -112,7 +136,6 @@ namespace Gaia.Rendering
             int height = (int)DisplayRes.Y;
 
             DSBufferScene = new DepthStencilBuffer(GFX.Device, width, height, Device.DepthStencilBuffer.Format);
-            GBuffer = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.HalfVector4);
 
             dsBufferLarge = new DepthStencilBuffer(Device, 2048, 2048, Device.DepthStencilBuffer.Format);
         }

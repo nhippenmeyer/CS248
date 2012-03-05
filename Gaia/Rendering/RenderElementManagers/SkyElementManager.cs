@@ -48,7 +48,6 @@ namespace Gaia.Rendering
 
             skyShaderPrepass.SetupShader();
 
-            GFX.Device.SetPixelShaderConstant(3, Vector3.One); //Light Direction
             GFX.Device.SetPixelShaderConstant(4, Vector4.One * -3.0f); //Exposure
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjectionLocal());
             

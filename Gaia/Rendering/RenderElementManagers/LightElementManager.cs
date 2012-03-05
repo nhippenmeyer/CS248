@@ -23,10 +23,10 @@ namespace Gaia.Rendering
         public LightElementManager(RenderView renderView)
             : base(renderView)
         {
-            directionalLightShader = ResourceManager.Inst.GetShader("SkyShaderPrepass");
-            directionalLightShadowsShader = ResourceManager.Inst.GetShader("SkyShader");
-            pointLightShader = ResourceManager.Inst.GetShader("SkyShaderPrepass");
-            spotLightShader = ResourceManager.Inst.GetShader("SkyShader");
+            directionalLightShader = ResourceManager.Inst.GetShader("DirectionalLightShader");
+            directionalLightShadowsShader = ResourceManager.Inst.GetShader("PointLightShader");
+            pointLightShader = ResourceManager.Inst.GetShader("PointLightShader");
+            spotLightShader = ResourceManager.Inst.GetShader("PointLightShader");
         }
 
         void SetupLightParameters(Light light)

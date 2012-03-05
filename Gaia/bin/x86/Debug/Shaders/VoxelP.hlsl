@@ -1,3 +1,6 @@
+#include "Prepass.h"
+#include "ShaderConst.h"
+
 struct PSIN_Voxel
 {
     float4 Position : POSITION0;
@@ -6,11 +9,13 @@ struct PSIN_Voxel
     float3 LocalPos : TEXCOORD2;
 };
 
-float4 main(PSIN_Voxel input, uniform sampler ColorSAMP0 : register(S0), uniform sampler NormalSAMP0 : register(S1), uniform sampler ColorSAMP1 : register(S2),
+GBUFFER main(PSIN_Voxel input, uniform sampler ColorSAMP0 : register(S0), uniform sampler NormalSAMP0 : register(S1), uniform sampler ColorSAMP1 : register(S2),
 uniform sampler NormalSAMP1 : register(S3), uniform sampler ColorSAMP2 : register(S4), uniform sampler NormalSAMP2 : register(S5), uniform sampler ColorSAMP3 : register(S6),
-uniform sampler NormalSAMP3 : register(S7), uniform sampler ColorSAMP4 : register(S8), uniform sampler NormalSAMP4 : register(S9), uniform sampler ClimateSAMP : register(S10)
+uniform sampler NormalSAMP3 : register(S7), uniform sampler ColorSAMP4 : register(S8), uniform sampler NormalSAMP4 : register(S9), uniform sampler ClimateSAMP : register(S10),
+uniform float4 EyePos : register(PC_EYEPOS)
 ) : COLOR
 {
+	GBUFFER OUT;
     float3 N = normalize(input.Normal);
 	float3 T = N.zxy;
 	float3x3 TBN = float3x3(T,cross(N,T), N);
@@ -23,9 +28,9 @@ uniform sampler NormalSAMP3 : register(S7), uniform sampler ColorSAMP4 : registe
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
 	float3 TC = input.WorldPos*0.125;
 	
-	float4 col1 = (N.x < 0.0f)?pow(tex2D(ColorSAMP3, TC.zy),2.2):pow(tex2D(ColorSAMP4, TC.zy),2.2);
-	float4 col2 = (N.y < 0.0f)? pow(tex2D(ColorSAMP1, TC.xz),2.2) : pow(tex2D(ColorSAMP0, TC.xz),2.2);//pow(tex2D(ColorSAMP0, TC.xz),2.2);
-	float4 col3 = pow(tex2D(ColorSAMP2, TC.xy),2.2);
+	float4 col1 = (N.x < 0.0f)? tex2D(ColorSAMP3, TC.zy) : tex2D(ColorSAMP4, TC.zy);
+	float4 col2 = (N.y < 0.0f)? tex2D(ColorSAMP1, TC.xz) : tex2D(ColorSAMP0, TC.xz);
+	float4 col3 = tex2D(ColorSAMP2, TC.xy);
 	
 	float3 n1 = (N.x < 0.0f)?tex2D(NormalSAMP3, TC.zy)*2-1:tex2D(NormalSAMP4, TC.zy)*2-1;
 	float3 n2 = ((N.y < 0.0f)?tex2D(NormalSAMP1, TC.xz):tex2D(NormalSAMP0, TC.xz))*2-1;
@@ -40,7 +45,9 @@ uniform sampler NormalSAMP3 : register(S7), uniform sampler ColorSAMP4 : registe
                    n3.xyz * blend_weights.z;
     N = normalize(mul(blendBump, TBN)); 
     float3 climate = pow(tex2D(ClimateSAMP, float2(input.LocalPos.y*0.5+0.5, 0.5)), 2.2);
-    float4 outColor = blendColor*(max(dot(N, normalize(float3(0,0.6,1))),0)+0.06)*float4(climate,1);
-    outColor.rgb = pow(outColor.rgb,1.0/2.2);
-    return outColor;
+    OUT.Color = float4(blendColor*0.8 + climate*0.15,1);
+    OUT.Normal = float4(CompressNormal(N),0,0);
+    OUT.Depth = length(input.WorldPos-EyePos.xyz)/EyePos.w;
+    OUT.Data = 0;
+    return OUT;
 }

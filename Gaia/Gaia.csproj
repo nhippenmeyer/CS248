@@ -96,6 +96,7 @@
     <Compile Include="Rendering\GFXPrimitives.cs" />
     <Compile Include="Rendering\GFXShaderConstants.cs" />
     <Compile Include="Rendering\GFXVertexDeclarations.cs" />
+    <Compile Include="Rendering\RenderElementManagers\PostProcessElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\LightElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\RenderElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\SkyElementManager.cs" />

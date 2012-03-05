@@ -21,7 +21,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
-            renderView = new MainRenderView(Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.0001f, 1000);
+            renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.0001f, 1000);
 
             scene.RenderViews.Add(renderView);
 
