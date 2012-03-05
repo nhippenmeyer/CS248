@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using Gaia.Core;
 using Gaia.Rendering.RenderViews;
 namespace Gaia.SceneGraph
 {
@@ -8,7 +9,9 @@ namespace Gaia.SceneGraph
     {
         protected Scene scene;
 
-        public virtual void OnAdd(Scene scene) { this.scene = scene; }
+        public Transform Transformation;
+
+        public virtual void OnAdd(Scene scene) { this.scene = scene; Transformation = new Transform(); }
         public virtual void OnDestroy() { }
 
         public virtual void OnUpdate() { }

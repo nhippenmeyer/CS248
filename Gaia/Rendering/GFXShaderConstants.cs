@@ -11,9 +11,11 @@ namespace Gaia.Rendering
         public static int VC_INVTEXRES = 5;
         public static int VC_WORLD = 4;
 
-        public static int PC_EYEPOS = 4;
-        public static int PC_FARPLANE = 5;
-        public static int PC_LIGHTPOS = 6;
+        public static int PC_EYEPOS = 8;
+        public static int PC_FARPLANE = 9;
+        public static int PC_LIGHTPOS = 10;
+        public static int PC_LIGHTCOLOR = 11;
+        public static int PC_LIGHTPARAMS = 12;
 
         static void WriteCommand(StreamWriter writer, string commandName, int index)
         {
@@ -37,6 +39,8 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "PC_EYEPOS", PC_EYEPOS);
                     WriteCommand(wr, "PC_FARPLANE", PC_FARPLANE);
                     WriteCommand(wr, "PC_LIGHTPOS", PC_LIGHTPOS);
+                    WriteCommand(wr, "PC_LIGHTCOLOR", PC_LIGHTCOLOR);
+                    WriteCommand(wr, "PC_LIGHTPARAMS", PC_LIGHTPARAMS);
                 }
             }
 

@@ -6,7 +6,6 @@ using Gaia.Rendering.RenderViews;
 using Gaia.Resources;
 namespace Gaia.Rendering
 {
-
     public class SceneElementManager : RenderElementManager
     {
         SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();

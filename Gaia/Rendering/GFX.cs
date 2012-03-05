@@ -16,10 +16,12 @@ namespace Gaia.Rendering
     public enum RenderPass
     {
         Shadows = 0,
-        Sky,
         Scene,
         Light,
+        Sky,
         Translucent,
+        Emissive,
+        PostProcess,
         UI,
         Count
     };

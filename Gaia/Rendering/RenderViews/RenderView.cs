@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Microsoft.Xna.Framework;
 
+using Gaia.Resources;
 namespace Gaia.Rendering.RenderViews
 {
     public enum RenderViewType
@@ -42,9 +42,14 @@ namespace Gaia.Rendering.RenderViews
             ElementManagers = new SortedList<RenderPass, RenderElementManager>();
         }
 
+        public virtual void AddElement(Material material, RenderElement element)
+        {
+        }
+
         public virtual void Render()
         {
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, GetViewProjection());
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_EYEPOS, GetEyePosShader());
             for (int i = 0; i < ElementManagers.Keys.Count; i++)
             {
                 RenderPass pass = ElementManagers.Keys[i];

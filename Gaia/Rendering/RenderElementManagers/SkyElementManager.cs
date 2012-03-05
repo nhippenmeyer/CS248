@@ -70,8 +70,6 @@ namespace Gaia.Rendering
 
             GFXPrimitives.Cube.Render();
 
-            //RenderClouds();
-
             GFX.Inst.ResetState();
             Elements.Clear();
         }

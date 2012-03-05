@@ -23,6 +23,10 @@ namespace Gaia.Resources
         bool Reflect;
         bool Transmissive;
 
+        public bool IsTranslucent { get { return (Transmissive || Refract || Transparent); } }
+        public bool IsEmissive;
+        public string EmissiveMaterial;
+
         float kReflect;
         float kRefract;
         float kIOR;
@@ -32,6 +36,8 @@ namespace Gaia.Resources
         Vector3 kSpecular;
         float kSpecularPower;
         float kRimCoeff;
+
+        
 
         void IResource.Destroy()
         {
@@ -56,6 +62,12 @@ namespace Gaia.Resources
                         break;
                     case "transparent":
                         Transparent = bool.Parse(attrib.Value);
+                        break;
+                    case "emissive":
+                        IsEmissive = bool.Parse(attrib.Value);
+                        break;
+                    case "emissivematerial":
+                        EmissiveMaterial = attrib.Value;
                         break;
 
                     case "kreflect":

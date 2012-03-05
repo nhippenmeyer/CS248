@@ -22,7 +22,7 @@ namespace Gaia.Rendering
             : base(renderView)
         {
             shadowShader = new Shader();
-            shadowShader.CompileFromFiles("Shaders/Lighting/ShadowP.hlsl", "Shaders/Lighting/ShadowV.hlsl");
+            shadowShader.CompileFromFiles("Shaders/Lighting/ShadowVSMGatherP.hlsl", "Shaders/Lighting/ShadowGatherV.hlsl");
         }
 
         public override void Render()
