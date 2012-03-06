@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
+using Gaia.Core;
 using Gaia.Rendering.RenderViews;
 using Gaia.SceneGraph.GameEntities;
 
@@ -10,17 +11,29 @@ namespace Gaia.SceneGraph
     public class Scene
     {
         public List<Entity> Entities = new List<Entity>();
-        public List<RenderView> RenderViews = new List<RenderView>();
+        PriorityQueue<int, RenderView> RenderViews = new PriorityQueue<int, RenderView>();
 
         public Light MainLight; //Our sunlight
-
+        
+        public RenderView MainCamera;
+       
         public Scene()
         {
             Entities.Add(new Player());
             Entities.Add(new Terrain());
             Entities.Add(new Sky());
-            MainLight = new Light(LightType.Directional, new Vector3(0.95f, 1.26f, 0.356f), Vector3.Up, true);
+            MainLight = new Sunlight();
             Entities.Add(MainLight);
+        }
+
+        public void AddRenderView(RenderView view)
+        {
+            RenderViews.Enqueue(view, (int)view.GetRenderType());
+        }
+
+        public void RemoveRenderView(RenderView view)
+        {
+            RenderViews.RemoveAt((int)view.GetRenderType(), view);
         }
 
         public void Initialize()
@@ -49,17 +62,22 @@ namespace Gaia.SceneGraph
 
         public void Render()
         {
-            for (int i = 0; i < RenderViews.Count; i++)
+            int renderViewCount = RenderViews.Count;
+            RenderView[] views = new RenderView[renderViewCount];
+            
+            for (int i = 0; i < renderViewCount; i++)
             {
+                RenderView renderView = RenderViews.ExtractMin();
                 for (int j = 0; j < Entities.Count; j++)
                 {
-                    Entities[j].OnRender(RenderViews[i]);
+                    Entities[j].OnRender(renderView);
                 }
-
+                views[i] = renderView;
             }
-            for (int i = 0; i < RenderViews.Count; i++)
+            for (int i = 0; i < views.Length; i++)
             {
-                RenderViews[i].Render();
+                views[i].Render();
+                RenderViews.Enqueue(views[i], (int)views[i].GetRenderType());
             }
         }
     }

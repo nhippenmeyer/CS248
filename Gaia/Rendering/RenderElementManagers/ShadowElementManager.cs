@@ -21,8 +21,7 @@ namespace Gaia.Rendering
         public ShadowElementManager(RenderView renderView)
             : base(renderView)
         {
-            shadowShader = new Shader();
-            shadowShader.CompileFromFiles("Shaders/Lighting/ShadowVSMGatherP.hlsl", "Shaders/Lighting/ShadowGatherV.hlsl");
+            shadowShader = ResourceManager.Inst.GetShader("ShadowVSM");
         }
 
         public override void Render()

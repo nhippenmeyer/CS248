@@ -86,6 +86,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\PriorityQueue.cs" />
     <Compile Include="Core\Time.cs" />
     <Compile Include="Core\Transform.cs" />
     <Compile Include="Input\InputManager.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="SceneGraph\GameEntities\Player.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
     <Compile Include="SceneGraph\GameEntities\Sky.cs" />
+    <Compile Include="SceneGraph\GameEntities\Sunlight.cs" />
     <Compile Include="SceneGraph\GameEntities\Terrain.cs" />
     <Compile Include="SceneGraph\Scene.cs" />
     <Compile Include="Voxels\VoxelGeometry.cs" />

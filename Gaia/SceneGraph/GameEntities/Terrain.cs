@@ -23,7 +23,6 @@ namespace Gaia.SceneGraph.GameEntities
         BoundingBox[] VoxelBounds;
         public byte[] DensityField;
 
-        Matrix worldMatrix;
         Material terrainMaterial;
 
         public override void OnAdd(Scene scene)
@@ -60,6 +59,7 @@ namespace Gaia.SceneGraph.GameEntities
             Shader islandShader = ResourceManager.Inst.GetShader("ProceduralIsland");
             islandShader.SetupShader();
 
+            GFX.Device.SetPixelShaderConstant(0, Vector3.One / (float)DensityFieldSize);
             //Lets activate our textures
             for (int i = 0; i < noiseTextures.Length; i++)
                 GFX.Device.Textures[i] = noiseTextures[i];
@@ -134,7 +134,7 @@ namespace Gaia.SceneGraph.GameEntities
             VoxelBounds = new BoundingBox[Voxels.Length];
             float ratio = 2.0f * (float)VoxelGridSize / (float)(DensityFieldSize - 1);
 
-            worldMatrix = Matrix.CreateScale(512.0f);
+            Transformation.SetScale(Vector3.One*512.0f);
 
             for (int z = 0; z < voxelCount; z++)
             {
@@ -148,11 +148,11 @@ namespace Gaia.SceneGraph.GameEntities
                         int idx = x + yOff + zOff;
 
                         VoxelBounds[idx] = new BoundingBox(new Vector3(x, y, z) * ratio - Vector3.One, new Vector3(x + 1, y + 1, z + 1) * ratio - Vector3.One);
-                        VoxelBounds[idx].Min = Vector3.Transform(VoxelBounds[idx].Min, worldMatrix);
-                        VoxelBounds[idx].Max = Vector3.Transform(VoxelBounds[idx].Max, worldMatrix);
+                        VoxelBounds[idx].Min = Vector3.Transform(VoxelBounds[idx].Min, Transformation.GetTransform());
+                        VoxelBounds[idx].Max = Vector3.Transform(VoxelBounds[idx].Max, Transformation.GetTransform());
 
                         Voxels[idx] = new VoxelGeometry();
-                        Voxels[idx].renderElement.Transform = new Matrix[1]{ worldMatrix };
+                        Voxels[idx].renderElement.Transform = new Matrix[1] { Transformation.GetTransform() };
                         Voxels[idx].GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, VoxelGridSize, VoxelGridSize, VoxelGridSize, x * VoxelGridSize, y * VoxelGridSize, z * VoxelGridSize, 2.0f / (float)(DensityFieldSize - 1));
                     }
                 }
@@ -161,14 +161,12 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnRender(RenderView view)
         {
-            SceneElementManager renderMgr = (SceneElementManager)view.GetRenderElementManager(Gaia.Rendering.RenderPass.Scene);
-
             BoundingFrustum frustm = view.GetFrustum();
             for (int i = 0; i < Voxels.Length; i++)
             {
                 if (frustm.Contains(VoxelBounds[i]) != ContainmentType.Disjoint && Voxels[i].CanRender)
                 {
-                    renderMgr.AddElement(terrainMaterial, Voxels[i].renderElement);
+                    view.AddElement(terrainMaterial, Voxels[i].renderElement);
                 }
             }
             base.OnRender(view);

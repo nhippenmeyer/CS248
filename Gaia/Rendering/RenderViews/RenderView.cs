@@ -26,13 +26,17 @@ namespace Gaia.Rendering.RenderViews
         Matrix viewProjectionLocal;
         Matrix inverseViewProjection;
         Matrix inverseViewProjectionLocal;
+        Matrix worldMatrix;
 
         protected SortedList<RenderPass, RenderElementManager> ElementManagers;
 
         bool dirtyMatrix;
 
-        public RenderView(Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
+        protected RenderViewType renderType;
+
+        public RenderView(RenderViewType renderType, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
         {
+            this.renderType = renderType;
             this.nearPlane = nearPlane;
             this.farPlane = farPlane;
             this.position = position;
@@ -50,6 +54,7 @@ namespace Gaia.Rendering.RenderViews
         {
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, GetViewProjection());
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_EYEPOS, GetEyePosShader());
+            GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_EYEPOS, GetEyePosShader());
             for (int i = 0; i < ElementManagers.Keys.Count; i++)
             {
                 RenderPass pass = ElementManagers.Keys[i];
@@ -78,6 +83,12 @@ namespace Gaia.Rendering.RenderViews
             frustum = new BoundingFrustum(viewProjection);
             inverseViewProjection = Matrix.Invert(viewProjection);
             inverseViewProjectionLocal = Matrix.Invert(viewProjectionLocal);
+            worldMatrix = Matrix.Invert(view);
+        }
+
+        public RenderViewType GetRenderType()
+        {
+            return renderType;
         }
 
         public void SetView(Matrix view)
@@ -89,6 +100,33 @@ namespace Gaia.Rendering.RenderViews
         public Matrix GetView()
         {
             return view;
+        }
+
+        public void SetFarPlane(float value)
+        {
+            farPlane = value;
+        }
+
+        public float GetFarPlane()
+        {
+            return farPlane;
+        }
+
+        public void SetNearPlane(float value)
+        {
+            nearPlane = value;
+        }
+
+        public float GetNearPlane()
+        {
+            return nearPlane;
+        }
+
+        public Matrix GetWorldMatrix()
+        {
+            if (dirtyMatrix)
+                ComputeMatrix();
+            return worldMatrix;
         }
 
         public void SetProjection(Matrix projection)

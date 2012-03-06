@@ -22,7 +22,7 @@ namespace Gaia.Rendering.RenderViews
         Scene scene;
 
         public MainRenderView(Scene scene, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
-            : base(view, projection, position, nearPlane, farPlane)
+            : base(RenderViewType.MAIN, view, projection, position, nearPlane, farPlane)
         {
             this.scene = scene;
             this.ElementManagers.Add(RenderPass.Sky, new SkyElementManager(this));

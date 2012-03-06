@@ -1,10 +1,8 @@
 #include "../ShaderConst.h"
-#include "../Common.h"
 
-float2 ComputeMoments(float3 Depth)
+float2 ComputeMoments(float D)
 {
 	float2 Moments;
-	float D = length(Depth);
 	Moments.x = D;
 	float dx = ddx(D);
 	float dy = ddy(D);
@@ -13,7 +11,8 @@ float2 ComputeMoments(float3 Depth)
 	return Moments;
 }
 
-float4 main(PSSHADOW input, uniform float4 LightPos : register(PC_EYEPOS) ) : COLOR
+float4 main(float4 WorldPos : TEXCOORD0, uniform float4 LightPos : register(PC_EYEPOS) ) : COLOR
 {
-    return float4(ComputeMoments((LightPos.xyz-input.WorldPos.xyz)/LightPos.w),0,0);
+    return WorldPos.z / WorldPos.w;
+    //return float4(ComputeMoments(WorldPos.z / WorldPos.w),0,0);
 }

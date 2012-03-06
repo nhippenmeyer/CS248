@@ -26,16 +26,24 @@ uniform float4 EyePos : register(PC_EYEPOS)
 	blend_weights = max(blend_weights, 0);      
 	// Force weights to sum to 1.0 (very important!)  
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
-	float3 TC = input.WorldPos*0.125;
+	float3 TC = input.WorldPos*0.0125;
 	
 	float4 col1 = (N.x < 0.0f)? tex2D(ColorSAMP3, TC.zy) : tex2D(ColorSAMP4, TC.zy);
 	float4 col2 = (N.y < 0.0f)? tex2D(ColorSAMP1, TC.xz) : tex2D(ColorSAMP0, TC.xz);
 	float4 col3 = tex2D(ColorSAMP2, TC.xy);
 	
+	float2 b1 = -0.5+(N.x < 0.0f)?tex2D(NormalSAMP3, TC.zy).xy:tex2D(NormalSAMP4, TC.zy).xy;
+	float2 b2 = -0.5+(N.y < 0.0f)?tex2D(NormalSAMP1, TC.xz).xy:tex2D(NormalSAMP0, TC.xz).xy;
+	float2 b3 = tex2D(NormalSAMP2, TC.xy).xy-0.5;
+	
+	/*
 	float3 n1 = (N.x < 0.0f)?tex2D(NormalSAMP3, TC.zy)*2-1:tex2D(NormalSAMP4, TC.zy)*2-1;
 	float3 n2 = ((N.y < 0.0f)?tex2D(NormalSAMP1, TC.xz):tex2D(NormalSAMP0, TC.xz))*2-1;
 	float3 n3 = tex2D(NormalSAMP2, TC.xy)*2-1;
-
+	*/
+	float3 n1 = float3(0, b1.x, b1.y);
+	float3 n2 = float3(b2.y, 0, b2.x);
+	float3 n3 = float3(b3.x, b3.y, 0);
 	// Finally, blend the results of the 3 planar projections.  
 	float4 blendColor = col1.xyzw * blend_weights.x +  
                 col2.xyzw * blend_weights.y +  
@@ -43,9 +51,9 @@ uniform float4 EyePos : register(PC_EYEPOS)
 	float3 blendBump = n1.xyz * blend_weights.x +  
                    n2.xyz * blend_weights.y +  
                    n3.xyz * blend_weights.z;
-    N = normalize(mul(blendBump, TBN)); 
+    N = normalize(blendBump+N);//mul(blendBump, TBN)); 
     float3 climate = pow(tex2D(ClimateSAMP, float2(input.LocalPos.y*0.5+0.5, 0.5)), 2.2);
-    OUT.Color = float4(blendColor*0.8 + climate*0.15,1);
+    OUT.Color = float4(blendColor*0.5 + climate*0.15,1);
     OUT.Normal = float4(CompressNormal(N),0,0);
     OUT.Depth = length(input.WorldPos-EyePos.xyz)/EyePos.w;
     OUT.Data = 0;

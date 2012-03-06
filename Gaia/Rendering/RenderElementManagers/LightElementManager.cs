@@ -12,6 +12,7 @@ namespace Gaia.Rendering
     {
 
         public Queue<Light> DirectionalLights = new Queue<Light>();
+        public Queue<Light> DirectionalShadowLights = new Queue<Light>();
         public Queue<Light> PointLights = new Queue<Light>();
         public Queue<Light> SpotLights = new Queue<Light>();
 
@@ -24,7 +25,7 @@ namespace Gaia.Rendering
             : base(renderView)
         {
             directionalLightShader = ResourceManager.Inst.GetShader("DirectionalLightShader");
-            directionalLightShadowsShader = ResourceManager.Inst.GetShader("PointLightShader");
+            directionalLightShadowsShader = ResourceManager.Inst.GetShader("DirectionalLightShadowShader");
             pointLightShader = ResourceManager.Inst.GetShader("PointLightShader");
             spotLightShader = ResourceManager.Inst.GetShader("PointLightShader");
         }
@@ -54,14 +55,32 @@ namespace Gaia.Rendering
 
             directionalLightShader.SetupShader();
 
-            GFX.Device.SetPixelShaderConstant(3, Vector3.One); //Light Direction
-            GFX.Device.SetPixelShaderConstant(4, Vector4.One * -3.0f); //Exposure
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjectionLocal());
 
             while (DirectionalLights.Count > 0)
             {
                 Light currLight = DirectionalLights.Dequeue();
                 SetupLightParameters(currLight);
+                GFXPrimitives.Cube.Render();
+            }
+
+            directionalLightShadowsShader.SetupShader();
+            GFX.Device.SamplerStates[3].MagFilter = TextureFilter.Point;
+            GFX.Device.SamplerStates[3].MinFilter = TextureFilter.Point;
+            GFX.Device.SamplerStates[3].MipFilter = TextureFilter.None;
+
+            GFX.Device.SetPixelShaderConstant(0, renderView.GetView());
+            while (DirectionalShadowLights.Count > 0)
+            {
+                Light currLight = DirectionalShadowLights.Dequeue();
+                SetupLightParameters(currLight);
+                Texture2D shadowMap = currLight.GetShadowMap();
+                GFX.Device.Textures[3] = shadowMap;
+                
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTMODELVIEW, currLight.GetModelViews());
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTCLIPPLANE, currLight.GetClipPlanes());
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTCLIPPOS, currLight.GetClipPositions());
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_INVSHADOWRES, Vector2.One / new Vector2(shadowMap.Width, shadowMap.Height));
                 GFXPrimitives.Cube.Render();
             }
 

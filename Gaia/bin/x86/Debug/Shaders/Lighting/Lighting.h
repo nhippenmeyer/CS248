@@ -2,14 +2,15 @@
 //-----------------------------
 // Lighting Functions
 //-----------------------------
-float Chebyshev(float t, float2 Moment)
+float Chebyshev(float2 Moment, float t)
 {
-   float p = (t <= Moment.x);
-   float V = Moment.y - dot(Moment.x,Moment.x);
-   V = max(V, 0.001f);
-   float d = t-Moment.x;
-   float pMax = V / (V+d*d);
-   return smoothstep(0,1,max(p,pMax));
+	float minV = 0.03f;
+	float p = (t <= Moment.x);
+	float V = Moment.y - dot(Moment.x,Moment.x);
+	V = max(V, minV);
+	float d = t-Moment.x;
+	float pMax = V / (V+d*d);
+	return max(p,pMax);
 
 }
 

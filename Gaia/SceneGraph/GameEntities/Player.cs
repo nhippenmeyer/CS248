@@ -21,9 +21,10 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
-            renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.0001f, 1000);
+            renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
-            scene.RenderViews.Add(renderView);
+            scene.MainCamera = renderView;
+            scene.AddRenderView(renderView);
 
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
@@ -33,7 +34,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnDestroy()
         {
-            scene.RenderViews.Remove(renderView);
+            scene.RemoveRenderView(renderView);
             base.OnDestroy();
         }
 
@@ -65,9 +66,14 @@ namespace Gaia.SceneGraph.GameEntities
             moveDir *= speed;
             position += moveDir;
 
+            float nearPlane = 0.1f;
+            float farPlane = 3000;
+
             renderView.SetPosition(position);
             renderView.SetView(Matrix.CreateLookAt(position, position + transform.Forward, Vector3.Up));
-            renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, 0.01f, 5000));
+            renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
+            renderView.SetNearPlane(nearPlane);
+            renderView.SetFarPlane(farPlane);
 
             base.OnUpdate();
         }

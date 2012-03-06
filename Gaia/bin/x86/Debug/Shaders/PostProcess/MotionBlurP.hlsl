@@ -13,13 +13,13 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
 		
 	float4 color = 0;
 	
-	int sampCount = 32;
+	int sampCount = 16;
 	float4 d =  float4(normalize(Direction)*z+EyePos.xyz,1);
 	float4 currPos = mul(d, CurrProj);
-	currPos.xy /= currPos.w;
+	currPos.xy = (currPos.xy/currPos.w)*0.5+0.5;
 	float4 lastPos = mul(d, LastProj);
-	lastPos.xy /= lastPos.w;
-	float2 velocity = (((currPos.xy-lastPos.xy))/sampCount)*0.5;
+	lastPos.xy = (lastPos.xy/lastPos.w)*0.5+0.5;
+	float2 velocity = (((currPos.xy-lastPos.xy))/sampCount);
 	for(int i = 0; i < sampCount; i++)  
 	{  
 		TC += velocity;

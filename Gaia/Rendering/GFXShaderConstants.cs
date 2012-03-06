@@ -18,11 +18,30 @@ namespace Gaia.Rendering
         public static int PC_LIGHTCOLOR = 11;
         public static int PC_LIGHTPARAMS = 12;
 
+        public static int NUM_SPLITS = 4;
+
+        public static int PC_LIGHTMODELVIEW = 13;
+
+        public static int PC_LIGHTCLIPPLANE = PC_LIGHTMODELVIEW + 4 * NUM_SPLITS;
+
+        public static int PC_LIGHTCLIPPOS = PC_LIGHTCLIPPLANE + NUM_SPLITS;
+
+        public static int PC_INVSHADOWRES = PC_LIGHTCLIPPOS + NUM_SPLITS;
+
         static void WriteCommand(StreamWriter writer, string commandName, int index)
         {
             writer.Write("#define ");
             writer.Write(commandName);
             writer.Write(" C");
+            writer.Write(index);
+            writer.Write("\n");
+        }
+
+        static void WriteDefine(StreamWriter writer, string commandName, int index)
+        {
+            writer.Write("#define ");
+            writer.Write(commandName);
+            writer.Write(" ");
             writer.Write(index);
             writer.Write("\n");
         }
@@ -33,6 +52,7 @@ namespace Gaia.Rendering
             {
                 using (StreamWriter wr = new StreamWriter(fs))
                 {
+                    WriteDefine(wr, "NUM_SPLITS", NUM_SPLITS); //Cascade shadow maps
                     WriteCommand(wr, "VC_MODELVIEW", VC_MODELVIEW);
                     WriteCommand(wr, "VC_WORLD", VC_WORLD);
                     WriteCommand(wr, "VC_EYEPOS", VC_EYEPOS);
@@ -43,6 +63,10 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "PC_LIGHTPOS", PC_LIGHTPOS);
                     WriteCommand(wr, "PC_LIGHTCOLOR", PC_LIGHTCOLOR);
                     WriteCommand(wr, "PC_LIGHTPARAMS", PC_LIGHTPARAMS);
+                    WriteCommand(wr, "PC_LIGHTMODELVIEW", PC_LIGHTMODELVIEW);
+                    WriteCommand(wr, "PC_LIGHTCLIPPLANE", PC_LIGHTCLIPPLANE);
+                    WriteCommand(wr, "PC_LIGHTCLIPPOS", PC_LIGHTCLIPPOS);
+                    WriteCommand(wr, "PC_INVSHADOWRES", PC_INVSHADOWRES);
                 }
             }
 

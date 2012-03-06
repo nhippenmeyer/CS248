@@ -48,7 +48,7 @@ namespace Gaia.Rendering
             fogShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, Vector3.One * 0.5f);
-            GFX.Device.SetPixelShaderConstant(1, new Vector3(3.71754f, 20.91412f, 0.197203f)); //Fog parameters 
+            GFX.Device.SetPixelShaderConstant(1, new Vector3(3.71754f, 0.91412f, 0.197203f)); //Fog parameters 
             
             GFXPrimitives.Quad.Render();
         }
@@ -59,6 +59,7 @@ namespace Gaia.Rendering
 
             motionBlurShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            //GFX.Device.Textures[0] = shadowMap.GetTexture();
             GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, mainRenderView.GetViewProjection());
             GFX.Device.SetPixelShaderConstant(4, prevViewProjection);
@@ -88,12 +89,11 @@ namespace Gaia.Rendering
             
             RenderComposite();
 
-            RenderFog();
+            //RenderFog();
 
             GFX.Device.RenderState.AlphaBlendEnable = false;
 
             RenderMotionBlur();
-
 
             GFX.Inst.ResetState();
         }
