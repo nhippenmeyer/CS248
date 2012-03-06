@@ -24,6 +24,7 @@ namespace Gaia.SceneGraph
             Entities.Add(new Sky());
             MainLight = new Sunlight();
             Entities.Add(MainLight);
+            Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
         }
 
         public void AddRenderView(RenderView view)

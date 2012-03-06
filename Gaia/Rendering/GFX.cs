@@ -124,9 +124,10 @@ namespace Gaia.Rendering
             {
                 GFX.Device.SamplerStates[i].AddressU = TextureAddressMode.Wrap;
                 GFX.Device.SamplerStates[i].AddressV = TextureAddressMode.Wrap;
-                GFX.Device.SamplerStates[i].MagFilter = TextureFilter.Linear;
-                GFX.Device.SamplerStates[i].MinFilter = TextureFilter.Linear;
-                GFX.Device.SamplerStates[i].MipFilter = TextureFilter.Linear;
+                GFX.Device.SamplerStates[i].MagFilter = TextureFilter.Anisotropic;
+                GFX.Device.SamplerStates[i].MinFilter = TextureFilter.Anisotropic;
+                GFX.Device.SamplerStates[i].MipFilter = TextureFilter.Anisotropic;
+                GFX.Device.SamplerStates[i].MaxAnisotropy = 16;
             }
         }
 

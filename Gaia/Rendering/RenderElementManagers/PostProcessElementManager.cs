@@ -13,6 +13,8 @@ namespace Gaia.Rendering
         Shader compositeShader;
         Shader fogShader;
         Shader motionBlurShader;
+        Shader colorCorrectShader;
+        TextureResource colorCorrectTexture;
 
         Matrix prevViewProjection = Matrix.Identity; //Used for motion blur
 
@@ -25,6 +27,8 @@ namespace Gaia.Rendering
             motionBlurShader = ResourceManager.Inst.GetShader("MotionBlur");
             compositeShader = ResourceManager.Inst.GetShader("Composite");
             fogShader = ResourceManager.Inst.GetShader("Fog");
+            colorCorrectShader = ResourceManager.Inst.GetShader("ColorCorrect");
+            colorCorrectTexture = ResourceManager.Inst.GetTexture("Textures/Color Correction/colorRamp0.dds");
         }
 
         void RenderComposite()
@@ -59,13 +63,23 @@ namespace Gaia.Rendering
 
             motionBlurShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
-            //GFX.Device.Textures[0] = shadowMap.GetTexture();
             GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, mainRenderView.GetViewProjection());
             GFX.Device.SetPixelShaderConstant(4, prevViewProjection);
 
             GFXPrimitives.Quad.Render();
             prevViewProjection = mainRenderView.GetViewProjection();
+        }
+
+        void RenderColorCorrection()
+        {
+            GFX.Device.ResolveBackBuffer(mainRenderView.BackBufferTexture);
+
+            colorCorrectShader.SetupShader();
+            GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            GFX.Device.Textures[1] = colorCorrectTexture.GetTexture();
+
+            GFXPrimitives.Quad.Render();
         }
 
         public override void Render()
@@ -92,6 +106,8 @@ namespace Gaia.Rendering
             //RenderFog();
 
             GFX.Device.RenderState.AlphaBlendEnable = false;
+
+            RenderColorCorrection();
 
             RenderMotionBlur();
 

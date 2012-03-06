@@ -10,4 +10,6 @@
   <Shader name="MotionBlur" psfilename="Shaders/PostProcess/MotionBlurP.hlsl" vsfilename="Shaders/PostProcess/GenericSpatialV.hlsl" pstarget="3" vstarget="2"/>
   <Shader name="Composite" psfilename="Shaders/PostProcess/CompositeP.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="2" vstarget="2"/>
   <Shader name="Fog" psfilename="Shaders/PostProcess/FogP.hlsl" vsfilename="Shaders/PostProcess/GenericSpatialV.hlsl" pstarget="3" vstarget="2"/>
+  <Shader name="ColorCorrect" psfilename="Shaders/PostProcess/ColorCorrectP.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="2" vstarget="2"/>
+  <Texture filename="Textures/Color Correction/colorRamp0.dds"/>
 </Resources>
