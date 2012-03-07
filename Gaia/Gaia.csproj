@@ -113,12 +113,14 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Resources\Shader.cs" />
     <Compile Include="Resources\TextureResource.cs" />
+    <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
     <Compile Include="SceneGraph\GameEntities\Player.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
     <Compile Include="SceneGraph\GameEntities\Sky.cs" />
     <Compile Include="SceneGraph\GameEntities\Sunlight.cs" />
     <Compile Include="SceneGraph\GameEntities\Terrain.cs" />
+    <Compile Include="SceneGraph\GameEntities\TerrainGenerator.cs" />
     <Compile Include="SceneGraph\Scene.cs" />
     <Compile Include="Voxels\VoxelGeometry.cs" />
     <Compile Include="Voxels\VoxelHelper.cs" />

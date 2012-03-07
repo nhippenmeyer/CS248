@@ -16,15 +16,26 @@ namespace Gaia.SceneGraph
         public Light MainLight; //Our sunlight
         
         public RenderView MainCamera;
+
+        public Terrain MainTerrain;
+
+        BoundingBox sceneDimensions;
        
         public Scene()
         {
             Entities.Add(new Player());
-            Entities.Add(new Terrain());
             Entities.Add(new Sky());
             MainLight = new Sunlight();
+            MainTerrain = new Terrain();
+            Entities.Add(MainTerrain);
             Entities.Add(MainLight);
+            //Entities.Add(new FoliageCluster(20, 1, 5));
             Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
+        }
+
+        public BoundingBox GetSceneDimensions()
+        {
+            return sceneDimensions;
         }
 
         public void AddRenderView(RenderView view)
@@ -53,11 +64,24 @@ namespace Gaia.SceneGraph
             }
         }
 
-        public void Update()
+        void DetermineSceneDimensions()
         {
+            sceneDimensions.Max = Vector3.One * float.NegativeInfinity;
+            sceneDimensions.Min = Vector3.One * float.PositiveInfinity;
             for (int i = 0; i < Entities.Count; i++)
             {
-                Entities[i].OnUpdate();
+                BoundingBox bounds = Entities[i].Transformation.GetBounds();
+                sceneDimensions.Min = Vector3.Min(sceneDimensions.Min, bounds.Min);
+                sceneDimensions.Max = Vector3.Max(sceneDimensions.Max, bounds.Max);
+            }
+        }
+
+        public void Update()
+        {
+            DetermineSceneDimensions();
+            for (int i = 0; i < Entities.Count; i++)
+            {
+                Entities[i].OnUpdate();       
             }
         }
 

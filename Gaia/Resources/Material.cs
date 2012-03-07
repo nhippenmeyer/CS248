@@ -7,7 +7,7 @@ using Gaia.Rendering;
 
 namespace Gaia.Resources
 {
-    public class Material : IResource
+    public class Material : IResource, IComparable
     {
         Shader shader;
         string name;
@@ -37,7 +37,16 @@ namespace Gaia.Resources
         float kSpecularPower;
         float kRimCoeff;
 
-        
+        public int CompareTo(object obj)
+        {
+            if (obj == null) return 1;
+
+            Material otherMaterial = obj as Material;
+            if (otherMaterial != null)
+                return string.Compare(otherMaterial.name, this.name);
+            else
+                throw new ArgumentException("Object is not a materials");
+        }
 
         void IResource.Destroy()
         {

@@ -104,7 +104,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             int width = shadowMapSize * GFXShaderConstants.NUM_SPLITS;
             int height = shadowMapSize;
-            shadowMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Vector2);
+            shadowMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Single);
             dsShadowMap = new DepthStencilBuffer(GFX.Device, width, height, GFX.Device.DepthStencilBuffer.Format);
             renderViews = new ShadowRenderView[GFXShaderConstants.NUM_SPLITS];
 
@@ -136,18 +136,14 @@ namespace Gaia.SceneGraph.GameEntities
 
             Vector3.Transform(splitFrustumCornersVS, ref cameraMatrix, frustumCornersWS);
 
-            // Find the centroid
-            Vector3 frustumCentroid = new Vector3(0, 0, 0);
-            for (int i = 0; i < 8; i++)
-                frustumCentroid += frustumCornersWS[i];
-            frustumCentroid /= 8.0f;
-
             // Position the shadow-caster camera so that it's looking at the centroid,
             // and backed up in the direction of the sunlight
+            BoundingBox sceneBounds = scene.GetSceneDimensions();
+            Vector3 sceneCenter = (sceneBounds.Min + sceneBounds.Max) * 0.5f;
+            Vector3 sceneExtents = (sceneBounds.Max - sceneBounds.Min) * 0.5f;
             Vector3 lightDir = -this.Transformation.GetPosition();
             lightDir.Normalize();
-            float distFromCentroid = MathHelper.Max((maxZ - minZ), Vector3.Distance(splitFrustumCornersVS[4], splitFrustumCornersVS[5])) + 50.0f;
-            Matrix viewMatrix = Matrix.CreateLookAt(frustumCentroid - (lightDir * distFromCentroid), frustumCentroid, new Vector3(0, 1, 0));
+            Matrix viewMatrix = Matrix.CreateLookAt(sceneCenter - (lightDir * sceneExtents.Length()), sceneCenter, new Vector3(0, 1, 0));
 
             // Determine the position of the frustum corners in light space
             Vector3.Transform(frustumCornersWS, ref viewMatrix, frustumCornersLS);
@@ -158,24 +154,14 @@ namespace Gaia.SceneGraph.GameEntities
             Vector3 maxes = frustumCornersLS[0];
             for (int i = 0; i < 8; i++)
             {
-                if (frustumCornersLS[i].X > maxes.X)
-                    maxes.X = frustumCornersLS[i].X;
-                else if (frustumCornersLS[i].X < mins.X)
-                    mins.X = frustumCornersLS[i].X;
-                if (frustumCornersLS[i].Y > maxes.Y)
-                    maxes.Y = frustumCornersLS[i].Y;
-                else if (frustumCornersLS[i].Y < mins.Y)
-                    mins.Y = frustumCornersLS[i].Y;
-                if (frustumCornersLS[i].Z > maxes.Z)
-                    maxes.Z = frustumCornersLS[i].Z;
-                else if (frustumCornersLS[i].Z < mins.Z)
-                    mins.Z = frustumCornersLS[i].Z;
+                maxes = Vector3.Max(frustumCornersLS[i], maxes);
+                mins = Vector3.Min(frustumCornersLS[i], mins);
             }
 
             // Create an orthographic camera for use as a shadow caster
-            const float nearClipOffset = 300.0f;
+            //const float nearClipOffset = 380.0f;
             
-            float nearPlane = -maxes.Z - nearClipOffset;
+            float nearPlane = -maxes.Z-sceneExtents.Length();
             float farPlane = -mins.Z;
 
             renderViews[split].SetPosition(viewMatrix.Translation);

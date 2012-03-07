@@ -7,7 +7,7 @@ namespace Gaia.Rendering
     public static class GFXShaderConstants
     {
         public static int VC_MODELVIEW = 0;
-        public static int VC_WORLD = 4;
+        public static int VC_WORLD = 14;
         public static int VC_TEXGEN = 8;
         public static int VC_EYEPOS = 12;
         public static int VC_INVTEXRES = 13;
@@ -19,6 +19,8 @@ namespace Gaia.Rendering
         public static int PC_LIGHTPARAMS = 12;
 
         public static int NUM_SPLITS = 4;
+        
+        public static int NUM_INSTANCES = 60;
 
         public static int PC_LIGHTMODELVIEW = 13;
 
@@ -52,6 +54,7 @@ namespace Gaia.Rendering
             {
                 using (StreamWriter wr = new StreamWriter(fs))
                 {
+                    WriteDefine(wr, "NUM_INSTANCES", NUM_INSTANCES); //Instancing
                     WriteDefine(wr, "NUM_SPLITS", NUM_SPLITS); //Cascade shadow maps
                     WriteCommand(wr, "VC_MODELVIEW", VC_MODELVIEW);
                     WriteCommand(wr, "VC_WORLD", VC_WORLD);

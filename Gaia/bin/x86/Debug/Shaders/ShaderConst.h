@@ -1,6 +1,7 @@
+#define NUM_INSTANCES 60
 #define NUM_SPLITS 4
 #define VC_MODELVIEW C0
-#define VC_WORLD C4
+#define VC_WORLD C14
 #define VC_EYEPOS C12
 #define VC_INVTEXRES C13
 #define VC_TEXGEN C8

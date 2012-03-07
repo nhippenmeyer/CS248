@@ -29,8 +29,8 @@ namespace Gaia.SceneGraph.GameEntities
             phi += Time.GameTime.ElapsedTime * PhiCycle;
             if (theta >= MathHelper.TwoPi)
                 theta -= MathHelper.TwoPi;
-            if (phi >= MathHelper.TwoPi)
-                phi -= MathHelper.TwoPi;
+            if (phi >= MathHelper.Pi)
+                phi -= MathHelper.Pi;
 
             Vector3 pos = Vector3.Normalize(new Vector3((float)Math.Sin(theta), (float)Math.Sin(phi), (float)Math.Cos(theta)));
             this.Transformation.SetPosition(pos);

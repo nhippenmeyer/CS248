@@ -14,7 +14,10 @@ namespace Gaia.Rendering
         Shader fogShader;
         Shader motionBlurShader;
         Shader colorCorrectShader;
+        Shader godRayShader;
         TextureResource colorCorrectTexture;
+
+        public RenderTarget2D ShadowMap;
 
         Matrix prevViewProjection = Matrix.Identity; //Used for motion blur
 
@@ -29,6 +32,7 @@ namespace Gaia.Rendering
             fogShader = ResourceManager.Inst.GetShader("Fog");
             colorCorrectShader = ResourceManager.Inst.GetShader("ColorCorrect");
             colorCorrectTexture = ResourceManager.Inst.GetTexture("Textures/Color Correction/colorRamp0.dds");
+            godRayShader = ResourceManager.Inst.GetShader("GodRay");
         }
 
         void RenderComposite()
@@ -63,6 +67,7 @@ namespace Gaia.Rendering
 
             motionBlurShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            //GFX.Device.Textures[0] = ShadowMap.GetTexture();
             GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, mainRenderView.GetViewProjection());
             GFX.Device.SetPixelShaderConstant(4, prevViewProjection);
@@ -78,6 +83,24 @@ namespace Gaia.Rendering
             colorCorrectShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
             GFX.Device.Textures[1] = colorCorrectTexture.GetTexture();
+
+            GFXPrimitives.Quad.Render();
+        }
+
+        void RenderGodRays()
+        {
+            GFX.Device.ResolveBackBuffer(mainRenderView.BackBufferTexture);
+            
+            godRayShader.SetupShader();
+            GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
+            Vector4 lightVec = new Vector4(mainRenderView.scene.MainLight.Transformation.GetPosition(), 1);
+            Vector4 ssSunPos = Vector4.Transform(lightVec, mainRenderView.GetViewProjectionLocal());
+            ssSunPos /= ssSunPos.W;
+            ssSunPos = ssSunPos*0.5f+Vector4.One*0.5f;
+            GFX.Device.SetPixelShaderConstant(0, ssSunPos);
+            GFX.Device.SetPixelShaderConstant(1, new Vector3(1.0f, 0.36f, 0.7f));
+            GFX.Device.SetPixelShaderConstant(2, Vector3.One);
 
             GFXPrimitives.Quad.Render();
         }
@@ -105,7 +128,9 @@ namespace Gaia.Rendering
 
             //RenderFog();
 
-            GFX.Device.RenderState.AlphaBlendEnable = false;
+            //RenderGodRays();
+            
+            GFX.Device.RenderState.AlphaBlendEnable = false;            
 
             RenderColorCorrection();
 

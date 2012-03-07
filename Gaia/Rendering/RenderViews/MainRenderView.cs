@@ -19,7 +19,7 @@ namespace Gaia.Rendering.RenderViews
         public ResolveTexture2D BackBufferTexture;
 
         Matrix TexGen;
-        Scene scene;
+        public Scene scene;
 
         public MainRenderView(Scene scene, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
             : base(RenderViewType.MAIN, view, projection, position, nearPlane, farPlane)

@@ -79,7 +79,6 @@ namespace Gaia.Rendering
                 
                 GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTMODELVIEW, currLight.GetModelViews());
                 GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTCLIPPLANE, currLight.GetClipPlanes());
-                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTCLIPPOS, currLight.GetClipPositions());
                 GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_INVSHADOWRES, Vector2.One / new Vector2(shadowMap.Width, shadowMap.Height));
                 GFXPrimitives.Cube.Render();
             }

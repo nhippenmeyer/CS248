@@ -10,6 +10,9 @@ namespace Gaia.Rendering
         VertexBuffer vertexBuffer;
         IndexBuffer indexBuffer;
 
+        VertexBuffer vertexBufferInstanced;
+        IndexBuffer indexBufferInstanced;
+
         public ScreenAlignedQuad()
         {
             VertexPositionTexture[] verts = new VertexPositionTexture[]
@@ -35,12 +38,51 @@ namespace Gaia.Rendering
 
             indexBuffer = new IndexBuffer(GFX.Device, sizeof(short) * ib.Length, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
             indexBuffer.SetData<short>(ib);
+
+            CreateInstancedBuffers(verts, ib);
         }
 
         ~ScreenAlignedQuad()
         {
             vertexBuffer.Dispose();
             indexBuffer.Dispose();
+        }
+
+        public VertexBuffer GetInstanceVertexBuffer()
+        {
+            return vertexBufferInstanced;
+        }
+
+        public IndexBuffer GetInstanceIndexBuffer()
+        {
+            return indexBufferInstanced;
+        }
+
+        void CreateInstancedBuffers(VertexPositionTexture[] verts, short[] ib)
+        {
+            VertexPTI[] instVerts = new VertexPTI[verts.Length * GFXShaderConstants.NUM_INSTANCES];
+            for (int i = 0; i < GFXShaderConstants.NUM_INSTANCES; i++)
+            {
+                for (int j = 0; j < verts.Length; j++)
+                {
+                    instVerts[i * verts.Length + j] = new VertexPTI(verts[j].Position, verts[j].TextureCoordinate, i);
+                }
+            }
+
+            short[] instIB = new short[ib.Length * GFXShaderConstants.NUM_INSTANCES];
+            for (int i = 0; i < GFXShaderConstants.NUM_INSTANCES; i++)
+            {
+                for(int j = 0; j < ib.Length; j++)
+                {
+                    instIB[i * ib.Length + j] = (short)(ib[j] + i * verts.Length);
+                }
+            }
+
+            vertexBufferInstanced = new VertexBuffer(GFX.Device, instVerts.Length * VertexPTI.SizeInBytes, BufferUsage.WriteOnly);
+            vertexBufferInstanced.SetData<VertexPTI>(instVerts);
+
+            indexBufferInstanced = new IndexBuffer(GFX.Device, sizeof(short) * instIB.Length, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
+            indexBufferInstanced.SetData<short>(instIB);
         }
 
 

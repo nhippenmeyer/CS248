@@ -62,6 +62,34 @@ namespace Gaia.Rendering
         }
     }
 
+    public struct VertexPTI
+    {
+        public Vector4 Position;
+        public Vector2 TexCoord;
+        public float Index;
+
+        public static int SizeInBytes = (7) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 0),
+             new VertexElement( 0, sizeof(float)*6, VertexElementFormat.Single, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 1),
+         };
+        public VertexPTI(Vector3 position, Vector2 texcoord, float index)
+        {
+            Position = new Vector4(position, 1.0f);
+            TexCoord = texcoord;
+            Index = index;
+        }
+    }
+
     public struct VertexPNTan
     {
         public Vector4 Position;
@@ -237,6 +265,7 @@ namespace Gaia.Rendering
     {
         public static VertexDeclaration PDec;
         public static VertexDeclaration PTDec;
+        public static VertexDeclaration PTIDec;
         public static VertexDeclaration PNTTDec;
         public static VertexDeclaration PNTTIDec;
         public static VertexDeclaration PNTanDec;
@@ -253,6 +282,7 @@ namespace Gaia.Rendering
             PNTanDec = new VertexDeclaration(GFX.Device, VertexPNTan.VertexElements);
             PNTTBDec = new VertexDeclaration(GFX.Device, VertexPNTTB.VertexElements);
             PTDec = new VertexDeclaration(GFX.Device, VertexPositionTexture.VertexElements);
+            PTIDec = new VertexDeclaration(GFX.Device, VertexPTI.VertexElements);
             AnimDec = new VertexDeclaration(GFX.Device, VertexAnimation.VertexElements);
         }
     }

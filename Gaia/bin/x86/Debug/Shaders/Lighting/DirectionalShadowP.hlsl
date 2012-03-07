@@ -10,7 +10,6 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
 			uniform float3 LightPos : register(PC_LIGHTPOS), uniform float4 EyePos : register(PC_EYEPOS),
 			uniform float4x4 LightModelView[NUM_SPLITS] : register(PC_LIGHTMODELVIEW), 
 			uniform float2 LightClipPlanes[NUM_SPLITS] : register(PC_LIGHTCLIPPLANE),
-			uniform float4 LightClipPositions[NUM_SPLITS] : register(PC_LIGHTCLIPPOS),
 			uniform float2 InvShadowRes : register(PC_INVSHADOWRES)
 			
 ) : COLOR
@@ -43,7 +42,7 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
     // Offset the coordinate by half a texel so we sample it correctly
     shadowTC += 0.5 * InvShadowRes;
     
-    float Depth = shadowProjPos.z/shadowProjPos.w-0.0015;
+    float Depth = shadowProjPos.z/shadowProjPos.w-0.0035;
     float w = 0;
     float shade = 0;
     for(float i = -1.5; i <= 1.5; i++)
