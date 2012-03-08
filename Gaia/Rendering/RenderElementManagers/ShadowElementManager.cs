@@ -26,7 +26,7 @@ namespace Gaia.Rendering
 
         public override void Render()
         {
-            GFX.Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+            GFX.Device.RenderState.CullMode = CullMode.None;
             GFX.Device.RenderState.DepthBufferEnable = true;
             GFX.Device.RenderState.DepthBufferWriteEnable = true;
             GFX.Device.RenderState.DepthBufferFunction = CompareFunction.Less;

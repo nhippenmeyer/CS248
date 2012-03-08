@@ -22,8 +22,8 @@ namespace Gaia.SceneGraph.GameEntities
         int minSides = 1;
         int maxSides = 5;
         int clusterSize;
-        public Vector3 minScale = Vector3.One * 0.35f;
-        public Vector3 maxScale = Vector3.One * 2.5f;
+        public Vector3 minScale = Vector3.One * 5.35f;
+        public Vector3 maxScale = Vector3.One * 37.5f;
 
         Random randomHelper = new Random();
 
@@ -59,7 +59,7 @@ namespace Gaia.SceneGraph.GameEntities
 
                 float randAngle = MathHelper.TwoPi * (float)randomHelper.NextDouble();
                 cluster.Transform[i] = Matrix.CreateScale(randScale) * Matrix.CreateFromAxisAngle(surfaceNormal, randAngle);
-                cluster.Transform[i].Translation = position;
+                cluster.Transform[i].Translation = position + surfaceNormal*0.35f;
                 Vector3 min = Vector3.Transform(Vector3.One * -1, cluster.Transform[i]);
                 Vector3 max = Vector3.Transform(Vector3.One, cluster.Transform[i]);
                 cluster.Bounds.Min = Vector3.Min(min, cluster.Bounds.Min);
@@ -73,9 +73,9 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 Cluster cluster = new Cluster();
                 Material mat = materials[randomHelper.Next(materials.Count)];
-                Vector3 randPosition;
-                Vector3 randNormal;
-                scene.MainTerrain.GenerateRandomTransform(out randPosition, out randNormal);
+                Vector3 randPosition = Vector3.Zero;
+                Vector3 randNormal = Vector3.Zero;
+                scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
                 RandomizeOrientation(cluster, randPosition, randNormal);
                 if (!clusters.ContainsKey(mat))
                 {

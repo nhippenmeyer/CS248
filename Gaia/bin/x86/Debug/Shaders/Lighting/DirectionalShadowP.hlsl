@@ -42,7 +42,7 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
     // Offset the coordinate by half a texel so we sample it correctly
     shadowTC += 0.5 * InvShadowRes;
     
-    float Depth = shadowProjPos.z/shadowProjPos.w-0.0035;
+    float Depth = shadowProjPos.z/shadowProjPos.w;
     float w = 0;
     float shade = 0;
     for(float i = -1.5; i <= 1.5; i++)
@@ -51,7 +51,7 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 Direction : TEXCOORD1, uniform s
 		{
 			float2 tcShadow = shadowTC.xy+float2(i,j)*InvShadowRes;
 			w++;
-			shade += (Depth <= tex2D(ShadowMap, tcShadow).r)?1:0;
+			shade += (Depth <= tex2D(ShadowMap, tcShadow).r+0.0025)?1:0;
 		}
     }
     

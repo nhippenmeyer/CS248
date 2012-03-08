@@ -69,20 +69,20 @@ namespace Gaia.Rendering
                 }
             }
 
-            short[] instIB = new short[ib.Length * GFXShaderConstants.NUM_INSTANCES];
+            ushort[] instIB = new ushort[ib.Length * GFXShaderConstants.NUM_INSTANCES];
             for (int i = 0; i < GFXShaderConstants.NUM_INSTANCES; i++)
             {
                 for(int j = 0; j < ib.Length; j++)
                 {
-                    instIB[i * ib.Length + j] = (short)(ib[j] + i * verts.Length);
+                    instIB[i * ib.Length + j] = (ushort)(ib[j] + i * verts.Length);
                 }
             }
 
-            vertexBufferInstanced = new VertexBuffer(GFX.Device, instVerts.Length * VertexPTI.SizeInBytes, BufferUsage.WriteOnly);
+            vertexBufferInstanced = new VertexBuffer(GFX.Device, instVerts.Length * VertexPTI.SizeInBytes, BufferUsage.None);
             vertexBufferInstanced.SetData<VertexPTI>(instVerts);
 
-            indexBufferInstanced = new IndexBuffer(GFX.Device, sizeof(short) * instIB.Length, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
-            indexBufferInstanced.SetData<short>(instIB);
+            indexBufferInstanced = new IndexBuffer(GFX.Device, sizeof(ushort) * instIB.Length, BufferUsage.None, IndexElementSize.SixteenBits);
+            indexBufferInstanced.SetData<ushort>(instIB);
         }
 
 

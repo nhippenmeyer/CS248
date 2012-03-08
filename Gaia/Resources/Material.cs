@@ -43,7 +43,7 @@ namespace Gaia.Resources
 
             Material otherMaterial = obj as Material;
             if (otherMaterial != null)
-                return string.Compare(otherMaterial.name, this.name);
+                return string.Compare(this.name, otherMaterial.name);
             else
                 throw new ArgumentException("Object is not a materials");
         }

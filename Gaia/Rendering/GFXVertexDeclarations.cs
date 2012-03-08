@@ -64,27 +64,27 @@ namespace Gaia.Rendering
 
     public struct VertexPTI
     {
-        public Vector4 Position;
+        public Vector3 Position;
         public Vector2 TexCoord;
         public float Index;
 
-        public static int SizeInBytes = (7) * sizeof(float);
+        public static int SizeInBytes = 6 * sizeof(float);
 
         public static VertexElement[] VertexElements = new VertexElement[]
          {
-             new VertexElement( 0, 0, VertexElementFormat.Vector4, 
+             new VertexElement( 0, 0, VertexElementFormat.Vector3, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.Position, 0),
-             new VertexElement( 0, sizeof(float)*4, VertexElementFormat.Vector2, 
+             new VertexElement( 0, sizeof(float)*3, VertexElementFormat.Vector2, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.TextureCoordinate, 0),
-             new VertexElement( 0, sizeof(float)*6, VertexElementFormat.Single, 
+             new VertexElement( 0, sizeof(float)*5, VertexElementFormat.Single, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.TextureCoordinate, 1),
          };
         public VertexPTI(Vector3 position, Vector2 texcoord, float index)
         {
-            Position = new Vector4(position, 1.0f);
+            Position = position;
             TexCoord = texcoord;
             Index = index;
         }

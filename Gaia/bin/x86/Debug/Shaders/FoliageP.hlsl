@@ -17,14 +17,15 @@ GBUFFER main(PSIN IN, uniform sampler BaseMap : register(S0),
 {
 	GBUFFER OUT;
 	float4 baseColor = tex2D(BaseMap, IN.TexCoord);
-	//clip(baseColor.w-1.0f/255.0f);
+	clip(baseColor.w-1.0f/255.0f);
+	clip(1.0-IN.TexCoord.y-1.0/512.0);
     float3 N = normalize(IN.Normal);
 	float3 T = normalize(IN.Tangent);
 	float3x3 TBN = float3x3(T,cross(N,T), N);
 	
-	N = normalize(mul(tex2D(NormalMap, IN.TexCoord).rgb*2-1, TBN));
+	//N = normalize(mul(tex2D(NormalMap, IN.TexCoord).rgb*2-1, TBN));
 	
-    OUT.Color = float4(1,0,0,1);//baseColor;
+    OUT.Color = baseColor;
     OUT.Normal = float4(CompressNormal(N),0,0);
     OUT.Depth = length(IN.WorldPos-EyePos.xyz)/EyePos.w;
     OUT.Data = 0;

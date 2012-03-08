@@ -22,6 +22,5 @@ PSIN main(float4 Position : POSITION0, float2 TexCoord : TEXCOORD0,
 	OUT.WorldPos = worldPos.xyz;
 	OUT.Normal = float3(worldMat._m02, worldMat._m12, worldMat._m22);
 	OUT.Tangent = float3(worldMat._m00, worldMat._m10, worldMat._m20);
-	
 	return OUT;
 }

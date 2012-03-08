@@ -35,18 +35,12 @@ namespace Gaia.SceneGraph.GameEntities
         public Terrain()
         {
             Transformation.SetScale(Vector3.One * TerrainSize);
-        }
-
-        public override void OnAdd(Scene scene)
-        {
             GenerateFloatingIslands(256);
             terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
-            base.OnAdd(scene);
         }
 
-        public void GenerateRandomTransform(out Vector3 position, out Vector3 normal)
+        public void GenerateRandomTransform(Random rand, out Vector3 position, out Vector3 normal)
         {
-            Random rand = new Random();
             int bestY = -1;
             int randX = 0;
             int randZ = 0;
@@ -66,8 +60,8 @@ namespace Gaia.SceneGraph.GameEntities
                 }
             }
 
-            position = new Vector3(randX, bestY, randZ) / (float)(DensityFieldSize - 1);
-            position = Vector3.Transform(position, Transformation.GetTransform());
+            Vector3 vec = new Vector3((float)randX, 1.0f+(float)bestY, (float)randZ) / (float)(DensityFieldSize - 1);
+            position = Vector3.Transform(2.0f * vec - Vector3.One, Transformation.GetTransform());
             normal = ComputeNormal(randX, bestY, randZ);
         }
 
