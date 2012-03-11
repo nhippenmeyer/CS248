@@ -7,8 +7,8 @@ namespace Gaia.Rendering.RenderViews
 {
     public enum RenderViewType
     {
-        SHADOWS = 0,
-        REFLECTION,
+        SHADOWS=0,
+        REFLECTIONS,
         MAIN
     };
 

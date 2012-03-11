@@ -12,6 +12,7 @@ PSSHADOW main(float4 Position : POSITION0, uniform float4x4 ModelView : register
 
     float4 worldPos = mul(float4(Position.xyz,1.0f), World);
     output.Position = mul(worldPos, ModelView);
-	output.WorldPos = output.Position;//worldPos;
+	output.WorldPos = output.Position;
+	//output.WorldPos = worldPos;
     return output;
 }

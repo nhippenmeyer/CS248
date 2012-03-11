@@ -44,6 +44,24 @@ namespace Gaia.Rendering
         }
     }
 
+    public struct VertexParticles
+    {
+        public Vector2 Index;
+
+        public static int SizeInBytes = (2) * sizeof(float);
+
+        public static VertexElement[] VertexElements = new VertexElement[]
+         {
+             new VertexElement( 0, 0, VertexElementFormat.Vector2, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.Position, 0),
+         };
+        public VertexParticles(Vector2 index)
+        {
+            Index = index;
+        }
+    }
+
     public struct VertexPosition
     {
         public Vector4 Position;
@@ -272,6 +290,7 @@ namespace Gaia.Rendering
         public static VertexDeclaration PNTTBDec;
         public static VertexDeclaration AnimDec;
         public static VertexDeclaration PNDec;
+        public static VertexDeclaration ParticlesDec;
 
         public static void Initialize()
         {
@@ -284,6 +303,7 @@ namespace Gaia.Rendering
             PTDec = new VertexDeclaration(GFX.Device, VertexPositionTexture.VertexElements);
             PTIDec = new VertexDeclaration(GFX.Device, VertexPTI.VertexElements);
             AnimDec = new VertexDeclaration(GFX.Device, VertexAnimation.VertexElements);
+            ParticlesDec = new VertexDeclaration(GFX.Device, VertexParticles.VertexElements);
         }
     }
 }

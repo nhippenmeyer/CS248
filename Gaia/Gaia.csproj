@@ -93,10 +93,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="GameCore.cs" />
+    <Compile Include="Rendering\Geometry\ProjectiveOcean.cs" />
     <Compile Include="Rendering\GFX.cs" />
     <Compile Include="Rendering\GFXPrimitives.cs" />
     <Compile Include="Rendering\GFXShaderConstants.cs" />
     <Compile Include="Rendering\GFXVertexDeclarations.cs" />
+    <Compile Include="Rendering\RenderElementManagers\ParticleElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\PostProcessElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\LightElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\RenderElementManager.cs" />
@@ -107,6 +109,8 @@
     <Compile Include="Rendering\RenderElementManagers\SceneElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\ShadowElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\TransparentElementManager.cs" />
+    <Compile Include="Rendering\Simulators\ParticleSimulator.cs" />
+    <Compile Include="Resources\ParticleEffect.cs" />
     <Compile Include="Resources\IResource.cs" />
     <Compile Include="Resources\Material.cs" />
     <Compile Include="Resources\Mesh.cs" />
@@ -115,6 +119,7 @@
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
+    <Compile Include="SceneGraph\GameEntities\ParticleEmitter.cs" />
     <Compile Include="SceneGraph\GameEntities\Player.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
     <Compile Include="SceneGraph\GameEntities\Sky.cs" />

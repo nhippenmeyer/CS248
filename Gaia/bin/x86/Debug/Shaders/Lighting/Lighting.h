@@ -4,7 +4,7 @@
 //-----------------------------
 float Chebyshev(float2 Moment, float t)
 {
-	float minV = 0.03f;
+	float minV = 0.00003f;
 	float p = (t <= Moment.x);
 	float V = Moment.y - dot(Moment.x,Moment.x);
 	V = max(V, minV);

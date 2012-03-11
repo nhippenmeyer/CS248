@@ -16,6 +16,8 @@ namespace Gaia.Rendering.RenderViews
         public RenderTarget2D LightMap;
         public RenderTarget2D GlowBuffer;
 
+        public RenderTarget2D ParticleBuffer;
+
         public ResolveTexture2D BackBufferTexture;
 
         Matrix TexGen;
@@ -30,6 +32,7 @@ namespace Gaia.Rendering.RenderViews
             this.ElementManagers.Add(RenderPass.Emissive, new SceneElementManager(this));
             this.ElementManagers.Add(RenderPass.PostProcess, new PostProcessElementManager(this));
             this.ElementManagers.Add(RenderPass.Light, new LightElementManager(this));
+            this.ElementManagers.Add(RenderPass.Particles, new ParticleElementManager(this));
 
             InitializeTextures();
         }
@@ -48,6 +51,8 @@ namespace Gaia.Rendering.RenderViews
             LightMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
 
             GlowBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
+
+            ParticleBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
 
             BackBufferTexture = new ResolveTexture2D(GFX.Device, width, height, 1, SurfaceFormat.Color);//GFX.Device.PresentationParameters.BackBufferFormat);
         }
@@ -108,12 +113,19 @@ namespace Gaia.Rendering.RenderViews
             ElementManagers[RenderPass.Light].Render();
             GFX.Device.SetRenderTarget(0, null);
 
+            GFX.Device.SetRenderTarget(0, ParticleBuffer);
+            GFX.Device.SetPixelShaderConstant(0, Vector2.One / new Vector2(ParticleBuffer.Width, ParticleBuffer.Height));
+            GFX.Inst.SetPointSampling(2);
+            GFX.Device.Textures[2] = DepthMap.GetTexture();
+            GFX.Device.Clear(Color.TransparentBlack);
+            ElementManagers[RenderPass.Particles].Render();
+            GFX.Device.SetRenderTarget(0, null);
+
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Device.SetPixelShaderConstant(3, scene.MainLight.Transformation.GetPosition()); //Light Direction for sky
             ElementManagers[RenderPass.Sky].Render(); //This'll change the modelview
 
-            ElementManagers[RenderPass.PostProcess].Render();
-            
+            ElementManagers[RenderPass.PostProcess].Render();            
         }
     }
 }

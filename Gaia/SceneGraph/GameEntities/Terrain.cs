@@ -409,10 +409,10 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnRender(RenderView view)
         {
-            BoundingFrustum frustm = view.GetFrustum();
+            BoundingFrustum frustum = view.GetFrustum();
             for (int i = 0; i < Voxels.Length; i++)
             {
-                if (frustm.Contains(VoxelBounds[i]) != ContainmentType.Disjoint && Voxels[i].CanRender)
+                if (frustum.Contains(VoxelBounds[i]) != ContainmentType.Disjoint && Voxels[i].CanRender)
                 {
                     view.AddElement(terrainMaterial, Voxels[i].renderElement);
                 }

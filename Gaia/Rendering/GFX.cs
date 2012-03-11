@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using Gaia.Rendering.Simulators;
 namespace Gaia.Rendering
 {
     public enum GFXTextureDataType
@@ -18,6 +19,7 @@ namespace Gaia.Rendering
         Shadows = 0,
         Scene,
         Light,
+        Particles,
         Sky,
         Translucent,
         Emissive,
@@ -48,6 +50,9 @@ namespace Gaia.Rendering
 
         DepthStencilBuffer DSBufferScene;
 
+        public ParticleSimulator particleSystem;
+        
+
         public GFX(GraphicsDevice device)
         {
             Inst = this;
@@ -57,6 +62,19 @@ namespace Gaia.Rendering
         }
         ~GFX()
         {
+        }
+
+        void InitializeSimulations()
+        {
+            particleSystem = new ParticleSimulator();
+        }
+
+        public void AdvanceSimulations(float timeDT)
+        {
+            DepthStencilBuffer dsOld = GFX.Device.DepthStencilBuffer;
+            GFX.Device.DepthStencilBuffer = dsBufferLarge;
+            particleSystem.AdvanceSimulation(timeDT);
+            GFX.Device.DepthStencilBuffer = dsOld;
         }
 
         public Matrix ComputeTextureMatrix(Vector2 resolution)
@@ -91,6 +109,7 @@ namespace Gaia.Rendering
             InitializeSurfaceModes();
             InitializeSamplerStates();
             InitializeTextures();
+            InitializeSimulations();
         }
 
         public void ResetState()
@@ -116,6 +135,13 @@ namespace Gaia.Rendering
             }
             ByteSurfaceFormat = formatEnum[i];
             ByteSurfaceDataType = formatDataType[i];
+        }
+
+        public void SetPointSampling(int index)
+        {
+            GFX.Device.SamplerStates[index].MagFilter = TextureFilter.Point;
+            GFX.Device.SamplerStates[index].MinFilter = TextureFilter.Point;
+            GFX.Device.SamplerStates[index].MipFilter = TextureFilter.Point;
         }
 
         public void InitializeSamplerStates()

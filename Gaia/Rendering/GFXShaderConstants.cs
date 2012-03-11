@@ -22,6 +22,18 @@ namespace Gaia.Rendering
         
         public static int NUM_INSTANCES = 60;
 
+        public static int MAX_PARTICLES = 256*256; //That's a LOT of particles. Interestingly enough, this only takes up about a kilobyte
+
+        public static int MAX_PARTICLECOLORS = 16;
+
+        public static int MAX_PARTICLEFORCES = 4;
+
+        public static int PC_PARTICLECOLORS = 2;
+
+        public static int PC_PARTICLETIMES = PC_PARTICLECOLORS + MAX_PARTICLECOLORS;
+
+        public static int PC_PARTICLEVARS = PC_PARTICLETIMES + MAX_PARTICLECOLORS;
+
         public static int PC_LIGHTMODELVIEW = 13;
 
         public static int PC_LIGHTCLIPPLANE = PC_LIGHTMODELVIEW + 4 * NUM_SPLITS;
@@ -54,6 +66,9 @@ namespace Gaia.Rendering
             {
                 using (StreamWriter wr = new StreamWriter(fs))
                 {
+                    WriteDefine(wr, "MAX_PARTICLES", MAX_PARTICLES);
+                    WriteDefine(wr, "MAX_PARTICLECOLORS", MAX_PARTICLECOLORS);
+                    WriteDefine(wr, "MAX_PARTICLEFORCES", MAX_PARTICLEFORCES);
                     WriteDefine(wr, "NUM_INSTANCES", NUM_INSTANCES); //Instancing
                     WriteDefine(wr, "NUM_SPLITS", NUM_SPLITS); //Cascade shadow maps
                     WriteCommand(wr, "VC_MODELVIEW", VC_MODELVIEW);
@@ -70,6 +85,9 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "PC_LIGHTCLIPPLANE", PC_LIGHTCLIPPLANE);
                     WriteCommand(wr, "PC_LIGHTCLIPPOS", PC_LIGHTCLIPPOS);
                     WriteCommand(wr, "PC_INVSHADOWRES", PC_INVSHADOWRES);
+                    WriteCommand(wr, "PC_PARTICLECOLORS", PC_PARTICLECOLORS);
+                    WriteCommand(wr, "PC_PARTICLETIMES", PC_PARTICLETIMES);
+                    WriteCommand(wr, "PC_PARTICLEVARS", PC_PARTICLEVARS);
                 }
             }
 

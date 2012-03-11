@@ -104,7 +104,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             int width = shadowMapSize * GFXShaderConstants.NUM_SPLITS;
             int height = shadowMapSize;
-            shadowMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Single);
+            shadowMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Vector2);
             dsShadowMap = new DepthStencilBuffer(GFX.Device, width, height, GFX.Device.DepthStencilBuffer.Format);
             renderViews = new ShadowRenderView[GFXShaderConstants.NUM_SPLITS];
 

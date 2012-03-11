@@ -5,11 +5,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 using Gaia.Resources;
 using Gaia.Rendering.RenderViews;
+using Gaia.Rendering.Geometry;
 
 namespace Gaia.Rendering
 {
     public class PostProcessElementManager : RenderElementManager
     {
+        Shader basicImageShader;
         Shader compositeShader;
         Shader fogShader;
         Shader motionBlurShader;
@@ -17,8 +19,10 @@ namespace Gaia.Rendering
         Shader godRayShader;
         TextureResource colorCorrectTexture;
 
-        public RenderTarget2D ShadowMap;
-
+        Shader oceanShader;
+        Shader oceanScreenSpaceShader;
+        ProjectiveOcean oceanGeometry;
+        
         Matrix prevViewProjection = Matrix.Identity; //Used for motion blur
 
         MainRenderView mainRenderView; //Used to access GBuffer
@@ -27,12 +31,17 @@ namespace Gaia.Rendering
             : base(renderView)
         {
             mainRenderView = renderView;
+            basicImageShader = ResourceManager.Inst.GetShader("Generic2D");
             motionBlurShader = ResourceManager.Inst.GetShader("MotionBlur");
             compositeShader = ResourceManager.Inst.GetShader("Composite");
             fogShader = ResourceManager.Inst.GetShader("Fog");
             colorCorrectShader = ResourceManager.Inst.GetShader("ColorCorrect");
             colorCorrectTexture = ResourceManager.Inst.GetTexture("Textures/Color Correction/colorRamp0.dds");
             godRayShader = ResourceManager.Inst.GetShader("GodRay");
+
+            oceanShader = ResourceManager.Inst.GetShader("Ocean");
+            oceanScreenSpaceShader = ResourceManager.Inst.GetShader("OceanPP");
+            oceanGeometry = new ProjectiveOcean(128);
         }
 
         void RenderComposite()
@@ -41,10 +50,18 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
             
             compositeShader.SetupShader();
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / GFX.Inst.DisplayRes);
             GFX.Device.Textures[0] = mainRenderView.ColorMap.GetTexture();
             GFX.Device.Textures[1] = mainRenderView.LightMap.GetTexture();
             GFX.Device.Textures[2] = mainRenderView.DepthMap.GetTexture();
 
+            GFXPrimitives.Quad.Render();
+
+            GFX.Device.RenderState.SourceBlend = Blend.One;
+            GFX.Device.RenderState.DestinationBlend = Blend.One;
+            basicImageShader.SetupShader();
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / new Vector2(mainRenderView.ParticleBuffer.Width, mainRenderView.ParticleBuffer.Height));
+            GFX.Device.Textures[0] = mainRenderView.ParticleBuffer.GetTexture();
             GFXPrimitives.Quad.Render();
         }
 
@@ -67,7 +84,6 @@ namespace Gaia.Rendering
 
             motionBlurShader.SetupShader();
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
-            //GFX.Device.Textures[0] = ShadowMap.GetTexture();
             GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, mainRenderView.GetViewProjection());
             GFX.Device.SetPixelShaderConstant(4, prevViewProjection);
@@ -105,6 +121,17 @@ namespace Gaia.Rendering
             GFXPrimitives.Quad.Render();
         }
 
+        void RenderOcean()
+        {
+            GFX.Device.ResolveBackBuffer(mainRenderView.BackBufferTexture);
+
+            oceanScreenSpaceShader.SetupShader();
+
+            godRayShader.SetupShader();
+            GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
+        }
+
         public override void Render()
         {
             for(int i = 0; i < 4; i++)
@@ -120,17 +147,19 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.DepthBufferWriteEnable = false;
             GFX.Device.RenderState.AlphaBlendEnable = true;
 
-            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / GFX.Inst.DisplayRes);
-
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, mainRenderView.GetInverseViewProjectionLocal());
             
             RenderComposite();
 
+            
+
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / GFX.Inst.DisplayRes);
+
             //RenderFog();
 
             //RenderGodRays();
-            
-            GFX.Device.RenderState.AlphaBlendEnable = false;            
+
+            GFX.Device.RenderState.AlphaBlendEnable = false;                      
 
             RenderColorCorrection();
 

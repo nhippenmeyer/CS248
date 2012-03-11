@@ -18,6 +18,9 @@
   <Texture filename="Textures/Terrain/rock_normal.dds"/>
 
   <Texture filename="Textures/Climates/climate_volcano.dds"/>
+
+  <Texture filename="Textures/Animal/hair3_diffus.tga"/>
+  <Texture filename="Textures/Animal/hair3_normal.tga"/>
   
   <Material name="TerrainMaterial" shader="TerrainShader" 
             texture_4 = "Textures/Terrain/sand3_diffus.dds"

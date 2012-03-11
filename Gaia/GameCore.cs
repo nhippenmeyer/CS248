@@ -97,6 +97,7 @@ namespace Gaia
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            GFX.Inst.AdvanceSimulations((float)gameTime.ElapsedGameTime.Milliseconds / 1000.0f);
             mainScene.Render();
 
             base.Draw(gameTime);

@@ -5,6 +5,29 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gaia.Rendering
 {
+
+    public class ParticleGeometry
+    {
+        public VertexParticles[] particles = new VertexParticles[GFXShaderConstants.MAX_PARTICLES];
+
+        float[] particleSizeBuffer = new float[GFXShaderConstants.MAX_PARTICLES];
+
+        public void UpdateParticles(int textureSize)
+        {
+            Vector2 invRes = Vector2.One / (float)textureSize;
+            for (int j = 0; j < textureSize; j++)
+            {
+                for (int i = 0; i < textureSize; i++)
+                {
+                    int index = i + j * textureSize;
+                    particles[index].Index.X = invRes.X * i;
+                    particles[index].Index.Y = invRes.Y * j;
+                    particles[index].Index += 0.5f * invRes;
+                }
+            }
+        }
+    }
+
     public class ScreenAlignedQuad
     {
         VertexBuffer vertexBuffer;
@@ -12,6 +35,8 @@ namespace Gaia.Rendering
 
         VertexBuffer vertexBufferInstanced;
         IndexBuffer indexBufferInstanced;
+
+        IndexBuffer indexBufferInstancedDoubleSided;
 
         public ScreenAlignedQuad()
         {
@@ -58,6 +83,11 @@ namespace Gaia.Rendering
             return indexBufferInstanced;
         }
 
+        public IndexBuffer GetInstanceIndexBufferDoubleSided()
+        {
+            return indexBufferInstancedDoubleSided;
+        }
+
         void CreateInstancedBuffers(VertexPositionTexture[] verts, short[] ib)
         {
             VertexPTI[] instVerts = new VertexPTI[verts.Length * GFXShaderConstants.NUM_INSTANCES];
@@ -78,11 +108,22 @@ namespace Gaia.Rendering
                 }
             }
 
+            //Our double-sided index buffer
+            ushort[] instIBDouble = new ushort[ib.Length * 2 * GFXShaderConstants.NUM_INSTANCES];
+            Array.Copy(instIB, instIBDouble, instIB.Length);
+            for (int i = 0; i < instIB.Length; i++)
+            {
+                instIBDouble[i+instIB.Length] = instIBDouble[instIB.Length - 1 - i];
+            }
+
             vertexBufferInstanced = new VertexBuffer(GFX.Device, instVerts.Length * VertexPTI.SizeInBytes, BufferUsage.None);
             vertexBufferInstanced.SetData<VertexPTI>(instVerts);
 
             indexBufferInstanced = new IndexBuffer(GFX.Device, sizeof(ushort) * instIB.Length, BufferUsage.None, IndexElementSize.SixteenBits);
             indexBufferInstanced.SetData<ushort>(instIB);
+
+            indexBufferInstancedDoubleSided = new IndexBuffer(GFX.Device, sizeof(ushort) * instIBDouble.Length, BufferUsage.None, IndexElementSize.SixteenBits);
+            indexBufferInstancedDoubleSided.SetData<ushort>(instIBDouble);
         }
 
 
@@ -211,6 +252,7 @@ namespace Gaia.Rendering
 
     public static class GFXPrimitives
     {
+        public static ParticleGeometry Particle;
         public static ScreenAlignedQuad Quad;
         public static RenderCube CubePT;
         public static LightCube Cube;
@@ -219,6 +261,7 @@ namespace Gaia.Rendering
             Quad = new ScreenAlignedQuad();
             Cube = new LightCube();
             CubePT = new RenderCube();
+            Particle = new ParticleGeometry();
         }
     }
 }

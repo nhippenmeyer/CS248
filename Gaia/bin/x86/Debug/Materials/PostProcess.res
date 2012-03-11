@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <Resources> 
+  <Shader name="Generic2D" psfilename="Shaders/PostProcess/GenericP.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="2" vstarget="2"/>
   <Shader name="GaussH" psfilename="Shaders/PostProcess/GaussH.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="3" vstarget="2"/>
   <Shader name="GaussV" psfilename="Shaders/PostProcess/GaussV.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="3" vstarget="2"/>
   <Shader name="BilateralH" psfilename="Shaders/PostProcess/BilateralH.hlsl" vsfilename="Shaders/PostProcess/GenericV.hlsl" pstarget="3" vstarget="2"/>

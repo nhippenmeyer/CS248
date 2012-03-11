@@ -19,6 +19,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         List<Material> materials = new List<Material>();
         SortedList<Material, List<Cluster>> clusters = new SortedList<Material,List<Cluster>>();
+        RenderElement[] renderElements;
         int minSides = 1;
         int maxSides = 5;
         int clusterSize;
@@ -35,12 +36,29 @@ namespace Gaia.SceneGraph.GameEntities
             
         }
 
+        void CreateRenderElements()
+        {
+            renderElements = new RenderElement[materials.Count];
+            for (int i = 0; i < renderElements.Length; i++)
+            {
+                renderElements[i] = new RenderElement();
+                renderElements[i].VertexCount = 4;
+                renderElements[i].PrimitiveCount = 4;
+                renderElements[i].StartVertex = 0;
+                renderElements[i].VertexStride = VertexPTI.SizeInBytes;
+                renderElements[i].VertexDec = GFXVertexDeclarations.PTIDec;
+                renderElements[i].VertexBuffer = GFXPrimitives.Quad.GetInstanceVertexBuffer();
+                renderElements[i].IndexBuffer = GFXPrimitives.Quad.GetInstanceIndexBufferDoubleSided();
+            }
+        }
+
         public override void OnAdd(Scene scene)
         {
             base.OnAdd(scene);
             materials.Add(ResourceManager.Inst.GetMaterial("GrassMat0"));
             materials.Add(ResourceManager.Inst.GetMaterial("GrassMat1"));
             materials.Add(ResourceManager.Inst.GetMaterial("GrassMat2"));
+            CreateRenderElements();
             InitializeClusters();
             
         }
@@ -52,16 +70,13 @@ namespace Gaia.SceneGraph.GameEntities
             cluster.Bounds.Max = Vector3.One * float.NegativeInfinity;
             for (int i = 0; i < cluster.Transform.Length; i++)
             {
-                Vector3 randScale;
-                randScale.X = MathHelper.Lerp(minScale.X, maxScale.X, (float)randomHelper.NextDouble());
-                randScale.Y = MathHelper.Lerp(minScale.Y, maxScale.Y, (float)randomHelper.NextDouble());
-                randScale.Z = MathHelper.Lerp(minScale.Z, maxScale.Z, (float)randomHelper.NextDouble());
+                Vector3 randScale = Vector3.Lerp(minScale, maxScale, (float)randomHelper.NextDouble());
 
                 float randAngle = MathHelper.TwoPi * (float)randomHelper.NextDouble();
                 cluster.Transform[i] = Matrix.CreateScale(randScale) * Matrix.CreateFromAxisAngle(surfaceNormal, randAngle);
-                cluster.Transform[i].Translation = position + surfaceNormal*0.35f;
-                Vector3 min = Vector3.Transform(Vector3.One * -1, cluster.Transform[i]);
-                Vector3 max = Vector3.Transform(Vector3.One, cluster.Transform[i]);
+                cluster.Transform[i].Translation = position + surfaceNormal*0.5f;
+                Vector3 min = Vector3.Transform(new Vector3(-1,-1,0), cluster.Transform[i]);
+                Vector3 max = Vector3.Transform(new Vector3(1, 1, 0), cluster.Transform[i]);
                 cluster.Bounds.Min = Vector3.Min(min, cluster.Bounds.Min);
                 cluster.Bounds.Max = Vector3.Max(max, cluster.Bounds.Max);
             }
@@ -102,28 +117,8 @@ namespace Gaia.SceneGraph.GameEntities
                     }
                 }
 
-                Matrix[] transforms = elemsMatrix.ToArray();
-                for (int j = 0; j < transforms.Length; j += GFXShaderConstants.NUM_INSTANCES)
-                {
-                    RenderElement renderElem = new RenderElement();
-                    int binLength = transforms.Length - j;
-
-                    if (binLength > GFXShaderConstants.NUM_INSTANCES)
-                        binLength = GFXShaderConstants.NUM_INSTANCES;
-
-                    renderElem.Transform = new Matrix[binLength];
-
-                    // Upload transform matrices as shader constants.
-                    Array.Copy(transforms, j, renderElem.Transform, 0, binLength);
-                    renderElem.StartVertex = 0;
-                    renderElem.VertexDec = GFXVertexDeclarations.PTIDec;
-                    renderElem.VertexStride = VertexPTI.SizeInBytes;
-                    renderElem.VertexCount = 4 * binLength;
-                    renderElem.VertexBuffer = GFXPrimitives.Quad.GetInstanceVertexBuffer();
-                    renderElem.IndexBuffer = GFXPrimitives.Quad.GetInstanceIndexBuffer();
-                    renderElem.PrimitiveCount = 2 * binLength;
-                    view.AddElement(key, renderElem);
-                }
+                renderElements[i].Transform = elemsMatrix.ToArray();
+                view.AddElement(key, renderElements[i]);
             }
             base.OnRender(view);
         }

@@ -11,6 +11,7 @@ namespace Gaia.Resources
         Shader = 0,
         Texture,
         Material,
+        Particle,
         Mesh,
         Count
     }
@@ -45,6 +46,9 @@ namespace Gaia.Resources
 
             ResourceTypeDefs[(int)ResourceTypes.Mesh] = typeof(Mesh);
             ResourceTypeTokens[(int)ResourceTypes.Mesh] = "Mesh";
+
+            ResourceTypeDefs[(int)ResourceTypes.Particle] = typeof(ParticleEffect);
+            ResourceTypeTokens[(int)ResourceTypes.Particle] = "ParticleEffect";
 
             ResourceTypeDefs[(int)ResourceTypes.Shader] = typeof(Shader);
             ResourceTypeTokens[(int)ResourceTypes.Shader] = "Shader";
@@ -110,6 +114,11 @@ namespace Gaia.Resources
         public Shader GetShader(string key)
         {
             return (Shader)GetResource(key, ResourceTypes.Shader);
+        }
+
+        public ParticleEffect GetParticleEffect(string key)
+        {
+            return (ParticleEffect)GetResource(key, ResourceTypes.Particle);
         }
 
         public Vector2 ParseVector2(string text)
