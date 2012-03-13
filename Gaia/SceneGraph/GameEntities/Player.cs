@@ -13,7 +13,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         Vector3 position = Vector3.Zero;
         Vector3 rotation = Vector3.Zero;
-        float speed = 2.5f;
+        float speed = 0.5f;
         MainRenderView renderView;
 
         float aspectRatio;

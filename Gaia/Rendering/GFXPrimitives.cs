@@ -5,6 +5,123 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Gaia.Rendering
 {
+    public class Cylinder
+    {
+        VertexBuffer vertexBuffer;
+        IndexBuffer indexBuffer;
+
+        VertexBuffer vertexBufferInstanced;
+        IndexBuffer indexBufferInstanced;
+
+        int vertexCount;
+        int primitiveCount;
+
+        public VertexBuffer GetVertexBuffer()
+        {
+            return vertexBuffer;
+        }
+
+        public IndexBuffer GetIndexBuffer()
+        {
+            return indexBuffer;
+        }
+
+        public VertexBuffer GetVertexBufferInstanced()
+        {
+            return vertexBufferInstanced;
+        }
+
+        public IndexBuffer GetIndexBufferInstanced()
+        {
+            return indexBufferInstanced;
+        }
+
+        public int GetVertexCount()
+        {
+            return vertexCount;
+        }
+
+        public int GetPrimitiveCount()
+        {
+            return primitiveCount;
+        }
+
+        public Cylinder(int numSides)
+        {
+            VertexPNTTI[] vertices = new VertexPNTTI[numSides * 2];
+            int deltaTheta = 360 / numSides;
+
+            for (int i = 0; i < numSides; i++)
+            {
+                float a = MathHelper.ToRadians(deltaTheta * i);
+                Vector3 pos = new Vector3((float)Math.Cos(a), 0, (float)Math.Sin(a));
+                int index = i * 2;
+                vertices[index].Position = new Vector4(pos, 1.0f);
+                //vertices[index].Normal +=
+                vertices[index + 1].Position = new Vector4(pos + Vector3.Up, 1.0f);
+            }
+            /*
+            vertices[numSides * 2].Position = new Vector4(Vector3.Up * -1, 1.0f);
+            vertices[numSides * 2 + 1].Position = new Vector4(Vector3.Up, 1.0f);
+            */
+            ushort[] indices = new ushort[6 * numSides];
+            for (int i = 0; i < numSides; i++)
+            {
+                int index = i*6;
+                int indexVert = i*2;
+                indices[index] = (ushort)(indexVert + 1);
+                indices[index + 1] = (ushort)indexVert;
+                indices[index + 2] = (ushort)(indexVert + 2);
+                indices[index + 3] = (ushort)(indexVert + 2);
+                indices[index + 4] = (ushort)(indexVert + 3);
+                indices[index + 5] = (ushort)(indexVert + 1);
+                if (i == numSides - 1)
+                {
+                    indices[index + 2] = (ushort)0;
+                    indices[index + 4] = (ushort)1;
+                    indices[index + 3] = (ushort)0;
+                }
+            }
+
+            vertexBuffer = new VertexBuffer(GFX.Device, vertices.Length * VertexPNTTI.SizeInBytes, BufferUsage.WriteOnly);
+            vertexBuffer.SetData<VertexPNTTI>(vertices);
+
+            vertexCount = vertices.Length;
+
+            indexBuffer = new IndexBuffer(GFX.Device, sizeof(ushort) * indices.Length, BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
+            indexBuffer.SetData<ushort>(indices);
+
+            primitiveCount = indices.Length / 3;
+
+        }
+
+        void CreateInstancedBuffers(VertexPNTTI[] verts, ushort[] ib)
+        {
+            VertexPNTTI[] instVerts = new VertexPNTTI[verts.Length * GFXShaderConstants.NUM_INSTANCES];
+            for (int i = 0; i < GFXShaderConstants.NUM_INSTANCES; i++)
+            {
+                for (int j = 0; j < verts.Length; j++)
+                {
+                    instVerts[i * verts.Length + j] = new VertexPNTTI(verts[j].Position, verts[j].Normal, verts[j].Texcoord, verts[j].Tangent, i);
+                }
+            }
+
+            ushort[] instIB = new ushort[ib.Length * GFXShaderConstants.NUM_INSTANCES];
+            for (int i = 0; i < GFXShaderConstants.NUM_INSTANCES; i++)
+            {
+                for (int j = 0; j < ib.Length; j++)
+                {
+                    instIB[i * ib.Length + j] = (ushort)(ib[j] + i * verts.Length);
+                }
+            }
+
+            vertexBufferInstanced = new VertexBuffer(GFX.Device, instVerts.Length * VertexPNTTI.SizeInBytes, BufferUsage.None);
+            vertexBufferInstanced.SetData<VertexPNTTI>(instVerts);
+
+            indexBufferInstanced = new IndexBuffer(GFX.Device, sizeof(ushort) * instIB.Length, BufferUsage.None, IndexElementSize.SixteenBits);
+            indexBufferInstanced.SetData<ushort>(instIB);
+        }
+    }
 
     public class ParticleGeometry
     {

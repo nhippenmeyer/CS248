@@ -15,7 +15,7 @@ namespace Gaia.SceneGraph.GameEntities
 {
     public class Tree : Entity
     {
-        List<VoxelGeometry> Voxels;
+        List<RenderElement> Voxels;
         Material terrainMaterial;  // in Gaia.Resources
 
         void generateTree()
@@ -37,17 +37,6 @@ namespace Gaia.SceneGraph.GameEntities
             lSys.addRule(r2);
 
             Voxels = lSys.generateGeometry();
-
-            int polyCount = 0;
-            int vertexCount = 0;
-            for (int i = 0; i < Voxels.Count; i++)
-            {
-                polyCount += Voxels[i].renderElement.PrimitiveCount;
-                vertexCount += Voxels[i].renderElement.VertexCount;
-            }
-
-            Console.WriteLine("Polygon count is {0} and vertex count is {1}", polyCount, vertexCount);
-
         }
 
         public override void OnAdd(Scene scene)
@@ -70,7 +59,7 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 //     if (frustm.Contains(VoxelBounds[i]) != ContainmentType.Disjoint && Voxels[i].CanRender)
                 //    {
-                view.AddElement(terrainMaterial, Voxels[i].renderElement);
+                view.AddElement(terrainMaterial, Voxels[i]);
                 //    }
             }
 

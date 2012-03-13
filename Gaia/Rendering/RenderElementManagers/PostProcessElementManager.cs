@@ -225,7 +225,7 @@ namespace Gaia.Rendering
             
             RenderComposite();
 
-            RenderOcean();
+            //RenderOcean();
 
             //RenderFog();
 

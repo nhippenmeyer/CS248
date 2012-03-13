@@ -63,6 +63,8 @@ namespace Gaia.SceneGraph.GameEntities
         float variation;
 
         List<VoxelGeometry> Voxels;
+        List<Matrix> cylinderTransforms = new List<Matrix>();
+        Cylinder cylinderGeometry;
 
         byte[] DensityField;
         int DensityFieldSize = 17;  // Keep in powers of 2 + 1
@@ -123,9 +125,19 @@ namespace Gaia.SceneGraph.GameEntities
             return result;
         }
 
-        public List<VoxelGeometry> generateGeometry()
+        public List<RenderElement> generateGeometry()
         {
-            Voxels = new List<VoxelGeometry>();
+            cylinderTransforms = new List<Matrix>();
+            cylinderGeometry = new Cylinder(20);
+
+            RenderElement cylinderMesh = new RenderElement();
+            cylinderMesh.VertexBuffer = cylinderGeometry.GetVertexBufferInstanced();
+            cylinderMesh.IndexBuffer = cylinderGeometry.GetIndexBufferInstanced();
+            cylinderMesh.StartVertex = 0;
+            cylinderMesh.VertexDec = GFXVertexDeclarations.PNTTIDec;
+            cylinderMesh.VertexStride = VertexPNTTI.SizeInBytes;
+            cylinderMesh.VertexCount = cylinderGeometry.GetVertexCount();
+            cylinderMesh.PrimitiveCount = cylinderGeometry.GetPrimitiveCount();
 
             if (dirty)
             {
@@ -135,7 +147,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
 
             // For testing:
-            //    result = "G[+&F][-%F[+&F]]GFF@";
+                result = "G[+&F][-%F[+&F]]GFF@";
 
             modelViewStack.Push(Transformation.GetTransform());
 
@@ -198,7 +210,11 @@ namespace Gaia.SceneGraph.GameEntities
 
             }
 
-            return Voxels;
+            cylinderMesh.Transform = cylinderTransforms.ToArray();
+            List<RenderElement> elements = new List<RenderElement>();
+            elements.Add(cylinderMesh);
+
+            return elements;
         }
 
         public void setAxiom(string axiom)
@@ -244,35 +260,16 @@ namespace Gaia.SceneGraph.GameEntities
 
         void drawLine(float length)
         {
-            float radius = (DensityFieldSize / 8);
-            Vector3 cylinderCenter = Vector3.One * DensityFieldSize * 0.5f;
-            DensityField = new byte[DensityFieldSize * DensityFieldSize * DensityFieldSize];
-
-            int initY = DensityFieldSize / 2;
-
-            for (int x = 0; x < DensityFieldSize; x++)
-            {
-                for (int y = initY; y < DensityFieldSize; y++)
-                {
-                    for (int z = 0; z < DensityFieldSize; z++)
-                    {
-                        Vector3 pos = new Vector3(x, y, z);
-                        cylinderCenter.Y = pos.Y;
-                        float density = Math.Max(1.0f - (pos - cylinderCenter).Length() / radius, 0.0f);
-                        DensityField[x + (y + z * DensityFieldSize) * DensityFieldSize] = (byte)(density * 255.0f);
-                    }
-                }
-            }
-            VoxelGeometry treeMesh = new VoxelGeometry();
-            treeMesh.renderElement.Transform = new Matrix[1] { Matrix.CreateScale(length) * rotationStack.Peek() * translationStack.Peek() };
-            treeMesh.GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, DensityFieldSize - 1, DensityFieldSize - 1, DensityFieldSize - 1, 0, 0, 0, 2.0f / (float)(DensityFieldSize - 1));
-            Voxels.Add(treeMesh);
-
-
+            Matrix preTransform = Matrix.CreateScale(new Vector3(1, 0.5f, 1.0f)) * Matrix.CreateTranslation(Vector3.Up * 0.5f);
+            Vector3 scale = new Vector3(1.0f / 8.0f, 1, 1.0f / 8.0f);
+            Matrix currTransform =  Matrix.CreateScale(length*scale) * rotationStack.Peek() * translationStack.Peek();
+            cylinderTransforms.Add(currTransform);
         }
 
         void drawSphere(float scaleSize)
         {
+            return;
+
             float radius = (DensityFieldSize / 4);
             Vector3 cylinderCenter = Vector3.One * DensityFieldSize * 0.5f;
             DensityField = new byte[DensityFieldSize * DensityFieldSize * DensityFieldSize];
