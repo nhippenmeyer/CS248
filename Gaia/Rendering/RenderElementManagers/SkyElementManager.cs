@@ -27,6 +27,8 @@ namespace Gaia.Rendering
         Shader skyShader;
         RenderTarget2D skyTexture;
 
+        RenderTarget2D targetToRenderTo = null;
+
         public SkyElementManager(RenderView renderView)
             : base(renderView)
         {
@@ -34,6 +36,12 @@ namespace Gaia.Rendering
             skyShader = ResourceManager.Inst.GetShader("SkyShader");
 
             skyTexture = new RenderTarget2D(GFX.Device, 64, 64, 1, SurfaceFormat.Color);
+        }
+
+        public void Render(RenderTarget2D activeRT)
+        {
+            targetToRenderTo = activeRT;
+            this.Render();
         }
 
         public override void Render()
@@ -58,7 +66,7 @@ namespace Gaia.Rendering
                 GFX.Device.SetPixelShaderConstant(2, new Vector2(Elements[i].rayleighHeight, Elements[i].mieHeight)); //Height Term
                 GFXPrimitives.Cube.Render();
             }
-            GFX.Device.SetRenderTarget(0, null);
+            GFX.Device.SetRenderTarget(0, targetToRenderTo);
 
             GFX.Device.Clear(Color.Black);
 

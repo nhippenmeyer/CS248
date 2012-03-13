@@ -7,48 +7,48 @@ using Gaia.SceneGraph;
 using Gaia.Resources;
 namespace Gaia.Rendering.RenderViews
 {
-    public class MainRenderView : RenderView
+    public class SceneRenderView : RenderView
     {
         public RenderTarget2D ColorMap;
         public RenderTarget2D DepthMap;
         public RenderTarget2D NormalMap;
         public RenderTarget2D DataMap;
         public RenderTarget2D LightMap;
-        public RenderTarget2D GlowBuffer;
 
         public RenderTarget2D ParticleBuffer;
 
-        public ResolveTexture2D BackBufferTexture;
+        public RenderTarget2D ReflectionMap;
 
-        public SceneRenderView planarReflection;
-
-        Matrix TexGen;
+        protected Matrix TexGen;
         public Scene scene;
 
-        public MainRenderView(Scene scene, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
-            : base(RenderViewType.MAIN, view, projection, position, nearPlane, farPlane)
+        protected int width;
+        protected int height;
+
+        public bool enableClipPlanes = false;
+
+        public Vector2 GetResolution()
         {
+            return new Vector2(width, height);
+        }
+        
+        public SceneRenderView(Scene scene, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane, int width, int height)
+            : base(RenderViewType.REFLECTIONS, view, projection, position, nearPlane, farPlane)
+        {
+            this.width = width;
+            this.height = height;
             this.scene = scene;
             this.ElementManagers.Add(RenderPass.Sky, new SkyElementManager(this));
             this.ElementManagers.Add(RenderPass.Scene, new SceneElementManager(this));
-            this.ElementManagers.Add(RenderPass.Emissive, new SceneElementManager(this));
-            this.ElementManagers.Add(RenderPass.PostProcess, new PostProcessElementManager(this));
             this.ElementManagers.Add(RenderPass.Light, new LightElementManager(this));
             this.ElementManagers.Add(RenderPass.Particles, new ParticleElementManager(this));
+            this.ElementManagers.Add(RenderPass.PostProcess, new PostProcessReflectionsElementManager(this));
 
             InitializeTextures();
-            InitializeRenderViews();
-        }
-        ~MainRenderView()
-        {
-            DestroyRenderViews();
         }
 
-        void InitializeTextures()
+        protected virtual void InitializeTextures()
         {
-            int width = GFX.Device.PresentationParameters.BackBufferWidth;
-            int height = GFX.Device.PresentationParameters.BackBufferHeight;
-
             TexGen = GFX.Inst.ComputeTextureMatrix(new Vector2(width, height));
 
             ColorMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
@@ -57,34 +57,9 @@ namespace Gaia.Rendering.RenderViews
             DataMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
             LightMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
 
-            GlowBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
-
             ParticleBuffer = new RenderTarget2D(GFX.Device, width / 8, height / 8, 1, SurfaceFormat.Color);
 
-            BackBufferTexture = new ResolveTexture2D(GFX.Device, width, height, 1, SurfaceFormat.Color);//GFX.Device.PresentationParameters.BackBufferFormat);
-        }
-
-        void InitializeRenderViews()
-        {
-            planarReflection = new SceneRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.1f, 1000.0f, 512, 512);
-            scene.AddRenderView(planarReflection);
-        }
-
-        void DestroyRenderViews()
-        {
-            scene.RemoveRenderView(planarReflection);
-        }
-
-        public void UpdateRenderViews()
-        {
-            Plane waterPlane = new Plane(Vector3.Up, 0);
-            Matrix reflectMat = Matrix.CreateReflection(waterPlane);
-            planarReflection.SetNearPlane(this.GetNearPlane());
-            planarReflection.SetFarPlane(this.GetFarPlane());
-            planarReflection.SetPosition(this.GetPosition());
-            planarReflection.SetView(reflectMat*this.GetView());
-            planarReflection.SetProjection(this.GetProjection());
-            planarReflection.enableClipPlanes = true;
+            ReflectionMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
         }
 
         public override void AddElement(Material material, RenderElement element)
@@ -96,13 +71,9 @@ namespace Gaia.Rendering.RenderViews
             }
             else
             {
-                if(material.IsEmissive)
+                if (material.IsEmissive)
                 {
-                    Material mat = ResourceManager.Inst.GetMaterial(material.EmissiveMaterial);
-                    if(mat == null)
-                        mat = material;
-                    SceneElementManager glowMgr = (SceneElementManager)ElementManagers[RenderPass.Emissive];
-                    glowMgr.AddElement(mat, element);
+                    //We don't render glowy materials in reflections...
                 }
                 else
                 {
@@ -112,8 +83,26 @@ namespace Gaia.Rendering.RenderViews
             }
         }
 
+        Plane CreatePlane(float height, Vector3 planeNormalDirection, bool clipSide)
+        {
+            planeNormalDirection.Normalize();
+            Vector4 planeCoeffs = new Vector4(planeNormalDirection, height);
+            if (clipSide)
+                planeCoeffs *= -1;
+            planeCoeffs = Vector4.Transform(planeCoeffs, Matrix.Transpose(this.GetInverseViewProjection()));
+            Plane finalPlane = new Plane(planeCoeffs);
+
+            return finalPlane;
+        }
+
         public override void Render()
         {
+            if (enableClipPlanes)
+            {
+                Plane reflectionPlane = CreatePlane(0, -1.0f*Vector3.Up, true);
+                GFX.Device.ClipPlanes[0].Plane = reflectionPlane;
+                GFX.Device.ClipPlanes[0].IsEnabled = true;
+            }
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, GetViewProjection());
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_EYEPOS, GetEyePosShader());
             GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_EYEPOS, GetEyePosShader());
@@ -151,11 +140,14 @@ namespace Gaia.Rendering.RenderViews
             ElementManagers[RenderPass.Particles].Render();
             GFX.Device.SetRenderTarget(0, null);
 
+            GFX.Device.ClipPlanes[0].IsEnabled = false;
+
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Device.SetPixelShaderConstant(3, scene.MainLight.Transformation.GetPosition()); //Light Direction for sky
-            ElementManagers[RenderPass.Sky].Render(); //This'll change the modelview
-
-            ElementManagers[RenderPass.PostProcess].Render();            
+            SkyElementManager skyMgr = (SkyElementManager)ElementManagers[RenderPass.Sky];
+            skyMgr.Render(ReflectionMap);//This'll change the modelview
+            ElementManagers[RenderPass.PostProcess].Render();
+            GFX.Device.SetRenderTarget(0, null);
         }
     }
 }

@@ -137,11 +137,18 @@ namespace Gaia.Rendering
             ByteSurfaceDataType = formatDataType[i];
         }
 
-        public void SetPointSampling(int index)
+        public void SetTextureFilter(int index, TextureFilter filter)
         {
-            GFX.Device.SamplerStates[index].MagFilter = TextureFilter.Point;
-            GFX.Device.SamplerStates[index].MinFilter = TextureFilter.Point;
-            GFX.Device.SamplerStates[index].MipFilter = TextureFilter.Point;
+            GFX.Device.SamplerStates[index].MagFilter = filter;
+            GFX.Device.SamplerStates[index].MinFilter = filter;
+            GFX.Device.SamplerStates[index].MipFilter = filter;
+        }
+
+        public void SetTextureAddressMode(int index, TextureAddressMode mode)
+        {
+            GFX.Device.SamplerStates[index].AddressU = mode;
+            GFX.Device.SamplerStates[index].AddressV = mode;
+            GFX.Device.SamplerStates[index].AddressW = mode;
         }
 
         public void InitializeSamplerStates()

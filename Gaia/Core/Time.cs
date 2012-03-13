@@ -25,5 +25,6 @@ namespace Gaia.Core
     public static class Time
     {
         public static TimeScale GameTime = new TimeScale(0);
+        public static TimeScale RenderTime = new TimeScale(0);
     }
 }

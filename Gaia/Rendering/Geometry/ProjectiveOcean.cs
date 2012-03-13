@@ -25,6 +25,7 @@ namespace Gaia.Rendering.Geometry
             Vector3 deltaCrd = Vector3.One * 2.0f / (float)subdivisions;
             Vector3 origin = Vector3.One * -1.0f;
             origin.Y = 0.0f;
+            Vector2 originTC = new Vector2(0, 1);
             Vector2 deltaTC = (new Vector2(1, 0) - new Vector2(0, 1)) / (float)subdivisions;
 
             for (int i = 0; i < subdivOne; i++)
@@ -32,28 +33,27 @@ namespace Gaia.Rendering.Geometry
                 for (int j = 0; j < subdivOne; j++)
                 {
                     int index = i + j * subdivOne;
-                    verts[i] = new VertexPositionTexture(
+                    verts[index] = new VertexPositionTexture(
                         origin + new Vector3(deltaCrd.X * i, 0, deltaCrd.Y * j),
-                        new Vector2(deltaTC.X * i, deltaTC.Y * j));
+                        originTC + new Vector2(deltaTC.X * i, deltaTC.Y * j));
                 }
             }
 
             primitiveCount = 2 * subdivisions * subdivisions;
 
             ushort[] ib = new ushort[3 * primitiveCount];
-
             for (int i = 0; i < subdivisions; i++)
             {
                 for (int j = 0; j < subdivisions; j++)
                 {
                     int vertIndex = i + j * subdivOne;
                     int index = (i + j * subdivisions) * 6;
-                    ib[index]     = (ushort)(vertIndex + 1 + subdivOne);//Lower right corner
-                    ib[index + 1] = (ushort)(vertIndex + subdivOne);    //Lower left corner
-                    ib[index + 2] = (ushort)(vertIndex);                //Upper left corner
-                    ib[index + 3] = (ushort)(vertIndex);                //Upper left corner
-                    ib[index + 4] = (ushort)(vertIndex+1);              //Upper right corner
-                    ib[index + 5] = (ushort)(vertIndex + 1 + subdivOne);//Lower right corenr
+                    ib[index] = (ushort)(vertIndex + subdivOne); 
+                    ib[index + 1] = (ushort)(vertIndex);
+                    ib[index + 2] = (ushort)(vertIndex + 1);
+                    ib[index + 3] = (ushort)(vertIndex + 1);
+                    ib[index + 4] = (ushort)(vertIndex + 1 + subdivOne);
+                    ib[index + 5] = (ushort)(vertIndex + subdivOne); 
                 }
             }
 

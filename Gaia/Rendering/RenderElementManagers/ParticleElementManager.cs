@@ -24,7 +24,7 @@ namespace Gaia.Rendering
         public override void Render()
         {
             GFX.Inst.ResetState();
-            GFX.Inst.SetPointSampling(0);
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
             GFX.Device.RenderState.CullMode = CullMode.None;
             GFX.Device.RenderState.DepthBufferEnable = false;
             GFX.Device.RenderState.DepthBufferWriteEnable = false;
@@ -58,9 +58,8 @@ namespace Gaia.Rendering
                     GFX.Device.SetVertexShaderConstant(5, new Vector4(effect.fadeInPercent, effect.fadeInCoeff, effect.fadeOutPercent, effect.fadeOutCoeff));
                     GFX.Device.SetVertexShaderConstant(6, new Vector4(effect.lifetime, effect.lifetimeVariance, 0, 0));
                     
-                    GFX.Device.SetPixelShaderConstant(1, new Vector4(effect.lifetime, effect.lifetimeVariance, 0, 0));
+                    GFX.Device.SetPixelShaderConstant(1, new Vector4(effect.lifetime, effect.lifetimeVariance, effect.densityRatio, 0));
                     GFX.Device.SetPixelShaderConstant(2, new Vector4(effect.fadeInPercent, effect.fadeInCoeff, effect.fadeOutPercent, effect.fadeOutCoeff));
-                    
                     GFX.Device.DrawUserPrimitives<VertexParticles>(PrimitiveType.PointList, GFXPrimitives.Particle.particles, 0, emitter.GetParticleCount());
                 }
             }

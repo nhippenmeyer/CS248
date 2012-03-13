@@ -102,8 +102,8 @@ namespace Gaia.Rendering.Simulators
 
             Vector3[] particleForces = new Vector3[GFXShaderConstants.MAX_PARTICLEFORCES];
             particleForces[0] = new Vector3(0,-1,0)*9.821765f;
-            GFX.Inst.SetPointSampling(0);
-            GFX.Inst.SetPointSampling(1);
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
+            GFX.Inst.SetTextureFilter(1, TextureFilter.Point);
 
             for (int i = 0; i < randomTextures.Length; i++)
             {
@@ -145,24 +145,8 @@ namespace Gaia.Rendering.Simulators
                 emitters[i].positionData = emitters[i].positionTarget.GetTexture();
                 emitters[i].velocityData = emitters[i].velocityTarget.GetTexture();
             }
-            /*
-            updateColorShader.SetupShader();
-            for (int i = 0; i < emitters.Count; i++)
-            {
-                ParticleEffect effect = emitters[i].GetParticleEffect();
-                GFX.Device.SetRenderTarget(0, emitters[i].colorData);
-                GFX.Device.Textures[0] = emitters[i].positionData;//.GetTexture();
-                GFX.Device.SetVertexShaderConstant(0, Vector2.One / new Vector2(emitters[i].positionData.Width, emitters[i].positionData.Height));
-                GFX.Device.SetPixelShaderConstant(0, Vector4.One * timeDT);
-                GFX.Device.SetPixelShaderConstant(1, new Vector2(effect.lifetime, effect.lifetimeVariance));
-                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_PARTICLECOLORS, effect.colorCycle);
-                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_PARTICLETIMES, effect.colorTimes);
-                //Currently there is no color variance
-                //GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_PARTICLEVARS, effect.colorVariance);
-                GFXPrimitives.Quad.Render();
-                GFX.Device.SetRenderTarget(0, null);
-            }
-            */
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Anisotropic);
+            GFX.Inst.SetTextureFilter(1, TextureFilter.Anisotropic);
         }
 
         public void ComputeParticleSizes(Matrix viewProjection, float screenSize)
@@ -170,7 +154,7 @@ namespace Gaia.Rendering.Simulators
             DepthStencilBuffer dsOld = GFX.Device.DepthStencilBuffer;
             GFX.Device.DepthStencilBuffer = GFX.Inst.dsBufferLarge;
 
-            GFX.Inst.SetPointSampling(0);
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
 
             updateSizeShader.SetupShader();
             GFX.Device.SetPixelShaderConstant(0, viewProjection);
@@ -185,7 +169,7 @@ namespace Gaia.Rendering.Simulators
                 GFXPrimitives.Quad.Render();
                 GFX.Device.SetRenderTarget(0, null);
             }
-
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Anisotropic);
             GFX.Device.DepthStencilBuffer = dsOld;
         }
     }

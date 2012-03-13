@@ -66,14 +66,15 @@ namespace Gaia.SceneGraph.GameEntities
             moveDir *= speed;
             position += moveDir;
 
-            float nearPlane = 0.1f;
-            float farPlane = 3000;
+            float nearPlane = 0.5f;
+            float farPlane = 2000;
 
             renderView.SetPosition(position);
             renderView.SetView(Matrix.CreateLookAt(position, position + transform.Forward, Vector3.Up));
             renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
             renderView.SetNearPlane(nearPlane);
             renderView.SetFarPlane(farPlane);
+            renderView.UpdateRenderViews(); //Update reflections
 
             base.OnUpdate();
         }

@@ -31,10 +31,13 @@ namespace Gaia.SceneGraph.GameEntities
         RenderTarget2D srcTarget;
         Texture3D[] noiseTextures;
 
+        Texture3D blendTexture;
+        Texture3D textureAtlas;
 
         public Terrain()
         {
             Transformation.SetScale(Vector3.One * TerrainSize);
+            Transformation.SetPosition(Vector3.Up * TerrainSize * 0.45f);
             GenerateFloatingIslands(256);
             terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
         }
@@ -96,7 +99,7 @@ namespace Gaia.SceneGraph.GameEntities
 
             //Here we generate our noise textures
             int nSize = 16;
-            noiseTextures = new Texture3D[3];
+            noiseTextures = new Texture3D[4];
             float[] noiseData = new float[nSize * nSize * nSize];
             Random rand = new Random();
             for (int i = 0; i < noiseTextures.Length; i++)

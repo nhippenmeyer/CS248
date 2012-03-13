@@ -29,18 +29,13 @@ namespace Gaia.SceneGraph
             MainTerrain = new Terrain();
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            
+            //Entities.Add(new Tree());
             /*
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Smoke0"), 1000));
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Smoke1"), 1000));
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Smoke2"), 1000));
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Smoke3"), 1000));
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Smoke4"), 1000));
-            */
-
+            Entities.Add(new Cloud());
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire0"), 100));
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire1"), 100));
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire2"), 100));
+            */
             //Entities.Add(new FoliageCluster(1000, 1, 5));
             Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
         }

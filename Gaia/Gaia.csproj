@@ -93,11 +93,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="GameCore.cs" />
+    <Compile Include="Rendering\Geometry\GrassGeometry.cs" />
     <Compile Include="Rendering\Geometry\ProjectiveOcean.cs" />
     <Compile Include="Rendering\GFX.cs" />
     <Compile Include="Rendering\GFXPrimitives.cs" />
     <Compile Include="Rendering\GFXShaderConstants.cs" />
     <Compile Include="Rendering\GFXVertexDeclarations.cs" />
+    <Compile Include="Rendering\RenderElementManagers\PostProcessReflectionsElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\ParticleElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\PostProcessElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\LightElementManager.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="Rendering\RenderElementManagers\SkyElementManager.cs" />
     <Compile Include="Rendering\RenderViews\MainRenderView.cs" />
     <Compile Include="Rendering\RenderViews\RenderView.cs" />
+    <Compile Include="Rendering\RenderViews\SceneRenderView.cs" />
     <Compile Include="Rendering\RenderViews\ShadowRenderView.cs" />
     <Compile Include="Rendering\RenderElementManagers\SceneElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\ShadowElementManager.cs" />
@@ -117,8 +120,10 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Resources\Shader.cs" />
     <Compile Include="Resources\TextureResource.cs" />
+    <Compile Include="SceneGraph\GameEntities\Cloud.cs" />
     <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
+    <Compile Include="SceneGraph\GameEntities\Lsystem.cs" />
     <Compile Include="SceneGraph\GameEntities\ParticleEmitter.cs" />
     <Compile Include="SceneGraph\GameEntities\Player.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
@@ -126,6 +131,7 @@
     <Compile Include="SceneGraph\GameEntities\Sunlight.cs" />
     <Compile Include="SceneGraph\GameEntities\Terrain.cs" />
     <Compile Include="SceneGraph\GameEntities\TerrainGenerator.cs" />
+    <Compile Include="SceneGraph\GameEntities\Tree.cs" />
     <Compile Include="SceneGraph\Scene.cs" />
     <Compile Include="Voxels\VoxelGeometry.cs" />
     <Compile Include="Voxels\VoxelHelper.cs" />

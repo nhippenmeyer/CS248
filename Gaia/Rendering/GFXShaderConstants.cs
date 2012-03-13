@@ -7,13 +7,14 @@ namespace Gaia.Rendering
     public static class GFXShaderConstants
     {
         public static int VC_MODELVIEW = 0;
-        public static int VC_WORLD = 14;
+        public static int VC_WORLD = 16;
         public static int VC_TEXGEN = 8;
         public static int VC_EYEPOS = 12;
         public static int VC_INVTEXRES = 13;
+        public static int VC_TIME = 14;
 
         public static int PC_EYEPOS = 8;
-        public static int PC_FARPLANE = 9;
+        public static int PC_TIME = 9;
         public static int PC_LIGHTPOS = 10;
         public static int PC_LIGHTCOLOR = 11;
         public static int PC_LIGHTPARAMS = 12;
@@ -34,7 +35,7 @@ namespace Gaia.Rendering
 
         public static int PC_PARTICLEVARS = PC_PARTICLETIMES + MAX_PARTICLECOLORS;
 
-        public static int PC_LIGHTMODELVIEW = 13;
+        public static int PC_LIGHTMODELVIEW = 14;
 
         public static int PC_LIGHTCLIPPLANE = PC_LIGHTMODELVIEW + 4 * NUM_SPLITS;
 
@@ -76,8 +77,9 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "VC_EYEPOS", VC_EYEPOS);
                     WriteCommand(wr, "VC_INVTEXRES", VC_INVTEXRES);
                     WriteCommand(wr, "VC_TEXGEN", VC_TEXGEN);
+                    WriteCommand(wr, "VC_TIME", VC_TIME);
                     WriteCommand(wr, "PC_EYEPOS", PC_EYEPOS);
-                    WriteCommand(wr, "PC_FARPLANE", PC_FARPLANE);
+                    WriteCommand(wr, "PC_TIME", PC_TIME);
                     WriteCommand(wr, "PC_LIGHTPOS", PC_LIGHTPOS);
                     WriteCommand(wr, "PC_LIGHTCOLOR", PC_LIGHTCOLOR);
                     WriteCommand(wr, "PC_LIGHTPARAMS", PC_LIGHTPARAMS);

@@ -35,8 +35,8 @@ float4 main(float2 TexCoord : TEXCOORD0, float2 IndexCoord : TEXCOORD1,
 	{
 		alpha = blendParams.w - blendParams.w*age;
 	}
-		
-	float blend = blendFunction(saturate(70*(z-depth)/EyePos.w));
+	float density = lifetimeParams.z;
+	float blend = lerp(blendFunction(saturate(70*(z-depth)/EyePos.w)), 1, density);
 		
 	return tex2D(BaseMap, TexCoord) * blend * alpha;
 }

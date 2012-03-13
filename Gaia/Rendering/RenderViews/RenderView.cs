@@ -8,7 +8,7 @@ namespace Gaia.Rendering.RenderViews
     public enum RenderViewType
     {
         SHADOWS=0,
-        REFLECTIONS,
+        REFLECTIONS=1,
         MAIN
     };
 
@@ -31,7 +31,7 @@ namespace Gaia.Rendering.RenderViews
         protected SortedList<RenderPass, RenderElementManager> ElementManagers;
 
         bool dirtyMatrix;
-
+        bool updateViewProjLocal = true;
         protected RenderViewType renderType;
 
         public RenderView(RenderViewType renderType, Matrix view, Matrix projection, Vector3 position, float nearPlane, float farPlane)
@@ -77,18 +77,28 @@ namespace Gaia.Rendering.RenderViews
 
             dirtyMatrix = false;
             viewProjection = view * projection;
-            viewLocal = view;
-            viewLocal.Translation = Vector3.Zero;
             viewProjectionLocal = viewLocal * projection;
             frustum = new BoundingFrustum(viewProjection);
             inverseViewProjection = Matrix.Invert(viewProjection);
-            inverseViewProjectionLocal = Matrix.Invert(viewProjectionLocal);
+            if (updateViewProjLocal)
+            {
+                viewLocal = view;
+                viewLocal.Translation = Vector3.Zero;
+                inverseViewProjectionLocal = Matrix.Invert(viewProjectionLocal);
+            }
             worldMatrix = Matrix.Invert(view);
         }
 
         public RenderViewType GetRenderType()
         {
             return renderType;
+        }
+
+        public void SetViewProjectionLocal(Matrix value)
+        {
+            viewProjectionLocal = value;
+            inverseViewProjectionLocal = Matrix.Invert(viewProjectionLocal);
+            updateViewProjLocal = false;
         }
 
         public void SetView(Matrix view)

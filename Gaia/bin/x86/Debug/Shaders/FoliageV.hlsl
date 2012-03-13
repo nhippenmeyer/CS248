@@ -20,7 +20,7 @@ PSIN main(float4 Position : POSITION0, float2 TexCoord : TEXCOORD0,
     OUT.Position = mul(worldPos, ModelView);
 	OUT.TexCoord = TexCoord;
 	OUT.WorldPos = worldPos.xyz;
-	OUT.Normal = float3(worldMat._m02, worldMat._m12, worldMat._m22);
-	OUT.Tangent = float3(worldMat._m00, worldMat._m10, worldMat._m20);
+	OUT.Normal = mul(float4(0,1,0,0), World[Index]).xyz;
+	OUT.Tangent = mul(float4(0,0,1,0), World[Index]).xyz;
 	return OUT;
 }

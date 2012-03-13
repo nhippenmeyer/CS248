@@ -17,27 +17,27 @@
             texture_1 = "Textures/Particles/SmokeWhite3.dds"/>
   <Material name="ParticleMaterial4" shader="ParticleShader"
             texture_1 = "Textures/Particles/SmokeWhite4.dds"/>
-  <ParticleEffect name="Smoke0" size="60" lifetime="11" lifetimeVariance="0.0"
+  <ParticleEffect name="Smoke0" size="60" lifetime="11" lifetimeVariance="0.0" density="0.8"
                   randomInitSpeed="0.9" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="1.6" initialDirection="0 1 0" randomoffset="1 1 1" offsetMagnitude="150.5"
                   fadeInPercent="0.2" fadeOutPercent="0.6" material="ParticleMaterial"
                   />
-  <ParticleEffect name="Smoke1" size="70" lifetime="11" lifetimeVariance="0.0"
+  <ParticleEffect name="Smoke1" size="70" lifetime="11" lifetimeVariance="0.0" density="0.8"
                   randomInitSpeed="0.9" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.6" initialDirection="0 1 0" randomoffset="0.25 0.25 0.25" offsetMagnitude="190.5"
                   fadeInPercent="0.25" fadeOutPercent="0.65" material="ParticleMaterial1"
                   />
-  <ParticleEffect name="Smoke2" size="80" lifetime="15" lifetimeVariance="0.0"
+  <ParticleEffect name="Smoke2" size="80" lifetime="15" lifetimeVariance="0.0" density="0.8"
                   randomInitSpeed="0.9" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.6" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="200.5"
                   fadeInPercent="0.25" fadeOutPercent="0.65" material="ParticleMaterial2"
                   />
-  <ParticleEffect name="Smoke3" size="55" lifetime="11" lifetimeVariance="0.0"
+  <ParticleEffect name="Smoke3" size="55" lifetime="11" lifetimeVariance="0.0" density="0.8"
                   randomInitSpeed="0.9" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="2.6" initialDirection="0 1 0" randomoffset="0.75 0.75 0.75" offsetMagnitude="170.5"
                   fadeInPercent="0.3" fadeOutPercent="0.6" material="ParticleMaterial3"
                   />
-  <ParticleEffect name="Smoke4" size="65" lifetime="11" lifetimeVariance="0.0"
+  <ParticleEffect name="Smoke4" size="65" lifetime="11" lifetimeVariance="0.0" density="0.8"
                   randomInitSpeed="0.9" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.6" initialDirection="0 1 0" randomoffset="0.5 0.5 0.5" offsetMagnitude="180.5"
                   fadeInPercent="0.3" fadeOutPercent="0.6" material="ParticleMaterial4"

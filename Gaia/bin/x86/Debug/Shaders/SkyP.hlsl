@@ -1,4 +1,4 @@
-#define g -0.993
+#define g -0.9998
 
 float getMiePhase(float fCos, float fCos2)
 {

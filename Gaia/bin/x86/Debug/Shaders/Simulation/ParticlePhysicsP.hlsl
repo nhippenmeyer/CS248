@@ -12,11 +12,28 @@ struct PHYSICS
 	float4 Velocity : COLOR1;
 };
 
-float RK4()
+struct State
 {
-	return 0;
-}
+	float3 position;
+	float3 velocity;
+};
 
+struct Derivative
+{
+	float3 dx;
+	float3 dv;
+};
+
+Derivative evaluate(State initial, float3 acceleration, float dt, Derivative d)
+{
+	State state;
+	state.position = initial.position + d.dx*dt;
+	state.velocity = initial.velocity + d.dv*dt;
+	Derivative output;
+	output.dx = state.velocity;
+	output.dv = acceleration;
+	return output;
+}
 
 /**
  * This uses the following data structure for particles:
@@ -40,17 +57,6 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 	PHYSICS OUT;
 	float4 position = tex2D(PositionMap, IN.TexCoord);
 	float4 velocity = tex2D(VelocityMap, IN.TexCoord); //w contains mass
-	float3 netForce = 0;
-	for(int i = 0; i < MAX_PARTICLEFORCES; i++)
-	{
-		netForce += forces[i];
-	}
-	float3 accel = netForce / velocity.w; //A = F/M
-	
-	float3 Ia = accel*timeDT; //integral of acceleration
-	position.xyz += velocity.xyz*timeDT + 0.5*Ia*timeDT;
-	velocity.xyz += Ia; //update velocity term
-	position.w -= timeDT;
 	
 	if(position.w <= 0.0) //Uh oh! Gotta reset the particle!
 	{
@@ -68,6 +74,32 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 		velocity.xyz += randDir*dataParams0.w;
 		velocity.w = lifetimeParams.z + lifetimeParams.w*tex2D(RandomMap[2], IN.RandCoord).r;
 	}
+	
+	float3 netForce = 0;
+	for(int i = 0; i < MAX_PARTICLEFORCES; i++)
+	{
+		netForce += forces[i];
+	}
+	float3 accel = netForce / velocity.w; //A = F/M
+	
+	State state;
+	state.position = position.xyz;
+	state.velocity = velocity.xyz;
+	Derivative orig;
+	orig.dx = 0;
+	orig.dv = 0;
+	Derivative a = evaluate(state, accel, 0, orig);
+	Derivative b = evaluate(state, accel, timeDT*0.5f, a);
+	Derivative c = evaluate(state, accel, timeDT*0.5f, b);
+	Derivative d = evaluate(state, accel, timeDT, c);
+
+	float dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
+	float dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
+		
+	//float3 Ia = accel*timeDT;	 //integral of acceleration
+	position.xyz += dxdt*timeDT; //velocity.xyz*timeDT + 0.5*Ia*timeDT;
+	velocity.xyz += dvdt*timeDT; //Ia; //update velocity term
+	position.w -= timeDT;
 	
 	OUT.Position = position;
 	OUT.Velocity = velocity;

@@ -96,8 +96,11 @@ namespace Gaia
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            Time.RenderTime.Elapse(gameTime.ElapsedGameTime.Milliseconds);
+            Time.RenderTime.DT = (float)gameTime.ElapsedGameTime.Ticks / (float)TimeSpan.TicksPerSecond;
             GFX.Inst.AdvanceSimulations((float)gameTime.ElapsedGameTime.Milliseconds / 1000.0f);
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_TIME, Vector4.One*Time.RenderTime.TotalTime);
+            GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_TIME, Vector4.One * Time.RenderTime.TotalTime);
             mainScene.Render();
 
             base.Draw(gameTime);

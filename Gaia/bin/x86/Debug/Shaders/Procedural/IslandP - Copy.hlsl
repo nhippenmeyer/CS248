@@ -5,12 +5,12 @@ uniform sampler NoiseMaps[NOISETEXCOUNT] : register(S0);
 
 float DensityFunction(float3 wp)
 {
-	float atten = saturate(1.0-pow(length(dot(wp.xz,wp.xz))/0.95, 0.9));
+	float atten = saturate(1.0-pow(length(dot(wp.xz,wp.xz))/0.95, 1.67428));
 	float yOrig = wp.y;
 	float3 warp = float3(tex3D(NoiseMaps[0], wp * 0.125).r,tex3D(NoiseMaps[1], wp * 0.0725).r,tex3D(NoiseMaps[2], wp * 0.09725).r);
-	wp.xyz += warp*0.15;
+	wp.xyz += warp*0.75;
 	
-	float yInc = tex3D(NoiseMaps[0], wp*0.0467).r*0.805 + tex3D(NoiseMaps[1], wp*0.097).r*0.36 + tex3D(NoiseMaps[2], wp*0.8).r*0.0715;
+	float yInc = tex3D(NoiseMaps[0], wp*0.0467).r*0.705 + tex3D(NoiseMaps[1], wp*0.097).r*0.26 + tex3D(NoiseMaps[2], wp*0.8).r*0.0715;
 	
 	wp.y += yInc;
 	

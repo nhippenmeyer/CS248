@@ -32,6 +32,8 @@ namespace Gaia.Resources
         public float sizeVariance;
 
         public Vector4 offsetParameters;
+
+        public float densityRatio;
         
         string name;
 
@@ -54,6 +56,10 @@ namespace Gaia.Resources
 
                     case "sizevariance":
                         sizeVariance = float.Parse(attrib.Value);
+                        break;
+                    
+                    case "density":
+                        densityRatio = float.Parse(attrib.Value);
                         break;
 
                     case "initialdirection":
