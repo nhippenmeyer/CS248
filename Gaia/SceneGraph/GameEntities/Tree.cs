@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -16,14 +16,15 @@ namespace Gaia.SceneGraph.GameEntities
     public class Tree : Entity
     {
         List<RenderElement> Voxels;
-        Material terrainMaterial;  // in Gaia.Resources
+        Material treeMaterial;  // in Gaia.Resources
+        Material leafMaterial;
 
         void generateTree()
         {
             // TODO: make a new Lsystem and generateGeometry for it
             Lsystem lSys = new Lsystem();
             lSys.setAxiom("F");
-            lSys.setIterations(5);
+            lSys.setIterations(3);
             lSys.setSphereRadius(0.0025f);
 
             Lsystem.ReproductionRule r1;
@@ -42,7 +43,8 @@ namespace Gaia.SceneGraph.GameEntities
         public override void OnAdd(Scene scene)
         {
             generateTree();
-            terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
+            treeMaterial = ResourceManager.Inst.GetMaterial("TreeMat");
+            leafMaterial = ResourceManager.Inst.GetMaterial("GrassMat1");
             base.OnAdd(scene);
         }
 
@@ -54,15 +56,9 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnRender(RenderView view)
         {
-            //   BoundingFrustum frustm = view.GetFrustum();
-            for (int i = 0; i < Voxels.Count; i++)
-            {
-                //     if (frustm.Contains(VoxelBounds[i]) != ContainmentType.Disjoint && Voxels[i].CanRender)
-                //    {
-                view.AddElement(terrainMaterial, Voxels[i]);
-                //    }
-            }
 
+            view.AddElement(treeMaterial, Voxels[0]);
+            view.AddElement(leafMaterial, Voxels[1]);
             base.OnRender(view);
         }
 

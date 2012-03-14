@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿﻿﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -64,11 +64,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         List<VoxelGeometry> Voxels;
         List<Matrix> cylinderTransforms = new List<Matrix>();
+        List<Matrix> leafTransforms = new List<Matrix>();
         Cylinder cylinderGeometry;
 
         byte[] DensityField;
         int DensityFieldSize = 17;  // Keep in powers of 2 + 1
         byte IsoValue = 127;
+
+        // Debugging variables:
+        int lineCount = 0;
 
         public Lsystem()
         {
@@ -128,6 +132,7 @@ namespace Gaia.SceneGraph.GameEntities
         public List<RenderElement> generateGeometry()
         {
             cylinderTransforms = new List<Matrix>();
+            leafTransforms = new List<Matrix>();
             cylinderGeometry = new Cylinder(20);
 
             RenderElement cylinderMesh = new RenderElement();
@@ -147,7 +152,11 @@ namespace Gaia.SceneGraph.GameEntities
             }
 
             // For testing:
+<<<<<<< HEAD
             //    result = "G[+&F][-%F[+&F]]GFF@";
+=======
+            //result = "G[+&F][-%F[+&F]]GFF@";
+>>>>>>> ed668ea3b152e86e9b98d3f6f0290bc59fc0ace4
 
             modelViewStack.Push(Transformation.GetTransform());
 
@@ -216,8 +225,20 @@ namespace Gaia.SceneGraph.GameEntities
                 cylinderTransforms.Add(Matrix.CreateTranslation(Vector3.Up*i*2));
             }
             cylinderMesh.Transform = cylinderTransforms.ToArray();
+            RenderElement leaves = new RenderElement();
+            leaves.StartVertex = 0;
+            leaves.VertexCount = 4;
+            leaves.PrimitiveCount = 4;
+            leaves.VertexDec = GFXVertexDeclarations.PTIDec;
+            leaves.VertexStride = VertexPTI.SizeInBytes;
+            leaves.VertexBuffer = GFXPrimitives.Quad.GetInstanceVertexBuffer();
+            leaves.IndexBuffer = GFXPrimitives.Quad.GetInstanceIndexBufferDoubleSided();
+            leaves.Transform = leafTransforms.ToArray();
             List<RenderElement> elements = new List<RenderElement>();
             elements.Add(cylinderMesh);
+            elements.Add(leaves);
+
+            Console.Write(lineCount);
 
             return elements;
         }
@@ -265,37 +286,17 @@ namespace Gaia.SceneGraph.GameEntities
 
         void drawLine(float length)
         {
+            lineCount++;
             Matrix preTransform = Matrix.CreateScale(new Vector3(1, 0.5f, 1.0f)) * Matrix.CreateTranslation(Vector3.Up * 0.5f);
             Vector3 scale = new Vector3(1.0f / 8.0f, 1, 1.0f / 8.0f);
-            Matrix currTransform =  Matrix.CreateScale(length*scale) * rotationStack.Peek() * translationStack.Peek();
+            Matrix currTransform = Matrix.CreateScale(length * scale) * rotationStack.Peek() * translationStack.Peek();
             cylinderTransforms.Add(currTransform);
         }
 
         void drawSphere(float scaleSize)
         {
-            return;
-
-            float radius = (DensityFieldSize / 4);
-            Vector3 cylinderCenter = Vector3.One * DensityFieldSize * 0.5f;
-            DensityField = new byte[DensityFieldSize * DensityFieldSize * DensityFieldSize];
-
-            for (int x = 0; x < DensityFieldSize; x++)
-            {
-                for (int y = 0; y < DensityFieldSize; y++)
-                {
-                    for (int z = 0; z < DensityFieldSize; z++)
-                    {
-                        Vector3 pos = new Vector3(x, y, z);
-                        float density = Math.Max(1.0f - (pos - cylinderCenter).Length() / radius, 0.0f);
-                        DensityField[x + (y + z * DensityFieldSize) * DensityFieldSize] = (byte)(density * 255.0f);
-                    }
-                }
-            }
-            VoxelGeometry treeMesh = new VoxelGeometry();
-            treeMesh.renderElement.Transform = new Matrix[1] { rotationStack.Peek() * translationStack.Peek() };
-            treeMesh.GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, DensityFieldSize - 1, DensityFieldSize - 1, DensityFieldSize - 1, 0, 0, 0, 2.0f / (float)(DensityFieldSize - 1));
-            Voxels.Add(treeMesh);
-
+            Matrix transform = rotationStack.Peek() * translationStack.Peek();
+            leafTransforms.Add(transform);
         }
 
         /****************************

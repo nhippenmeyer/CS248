@@ -50,6 +50,7 @@ namespace Gaia.Rendering
         {
             VertexPNTTI[] vertices = new VertexPNTTI[numSides * 2];
             int deltaTheta = 360 / numSides;
+            float deltaTCX = 1.0f / (float)(numSides-1);
 
             for (int i = 0; i < numSides; i++)
             {
@@ -57,8 +58,10 @@ namespace Gaia.Rendering
                 Vector3 pos = new Vector3((float)Math.Cos(a), 0, (float)Math.Sin(a));
                 int index = i * 2;
                 vertices[index].Position = new Vector4(pos, 1.0f);
+                vertices[index].Texcoord = new Vector2(i * deltaTCX, 0);
                 //vertices[index].Normal +=
                 vertices[index + 1].Position = new Vector4(pos + Vector3.Up, 1.0f);
+                vertices[index + 1].Texcoord = new Vector2(i * deltaTCX, 1);
             }
             /*
             vertices[numSides * 2].Position = new Vector4(Vector3.Up * -1, 1.0f);
@@ -94,7 +97,10 @@ namespace Gaia.Rendering
             primitiveCount = indices.Length / 3;
 
             CreateInstancedBuffers(vertices, indices);
+<<<<<<< HEAD
 
+=======
+>>>>>>> ed668ea3b152e86e9b98d3f6f0290bc59fc0ace4
         }
 
         void CreateInstancedBuffers(VertexPNTTI[] verts, ushort[] ib)
