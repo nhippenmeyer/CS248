@@ -26,8 +26,8 @@ namespace Gaia.SceneGraph
             Entities.Add(new Player());
             Entities.Add(new Sky());
             MainLight = new Sunlight();
-      //      MainTerrain = new Terrain();
-      //      Entities.Add(MainTerrain);
+            MainTerrain = new Terrain();
+            Entities.Add(MainTerrain);
             Entities.Add(MainLight);
             Entities.Add(new Tree());
             /*

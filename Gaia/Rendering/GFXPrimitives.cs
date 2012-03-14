@@ -93,6 +93,8 @@ namespace Gaia.Rendering
 
             primitiveCount = indices.Length / 3;
 
+            CreateInstancedBuffers(vertices, indices);
+
         }
 
         void CreateInstancedBuffers(VertexPNTTI[] verts, ushort[] ib)

@@ -32,7 +32,7 @@ float4 ComputeWater(float3 N, float3 V, float3 L, float2 TC, float density, floa
     float spec = pow(max(dot(normalize(L+V), N),0.0), SpecPower);
    
     float4 finalColor = 1;
-    finalColor.rgb = lerp(DiffTerm, ReflTerm, fTerm)+spec;
+    finalColor.rgb = lerp(DiffTerm, ReflTerm, fTerm);//+spec;
     
 	return finalColor;
 }
