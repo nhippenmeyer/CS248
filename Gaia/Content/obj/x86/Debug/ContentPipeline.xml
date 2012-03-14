@@ -6,15 +6,15 @@
       <TargetPlatform>Windows</TargetPlatform>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\Matt\CS248\Gaia\Content\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\Matt\CS248\Gaia\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\Matt\CS248\Gaia\Content\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\Matt\CS248\Gaia\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\Tatiana\Desktop\CS248\Gaia\Content\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\Tatiana\Desktop\CS248\Gaia\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\Tatiana\Desktop\CS248\Gaia\Content\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\Tatiana\Desktop\CS248\Gaia\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
         <Key>C:\Windows\assembly\GAC_32\Microsoft.Xna.Framework.Content.Pipeline\3.1.0.0__6d5c3888ef60e27d\Microsoft.Xna.Framework.Content.Pipeline.dll</Key>
-        <Value>2011-12-22T19:24:56.2729707-08:00</Value>
+        <Value>2012-03-07T20:21:57.2404616-08:00</Value>
       </Assembly>
     </Assemblies>
   </Asset>
