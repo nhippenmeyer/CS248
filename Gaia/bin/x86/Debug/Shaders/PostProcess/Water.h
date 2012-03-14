@@ -17,6 +17,7 @@ float4 ComputeWater(float3 N, float3 V, float3 L, float2 TC, float density, floa
 	const float3 NPlane = float3(0,1,0);
     float3 R = normalize(2*dot(N,-V)*N-V);
     float2 distCrd = N.xz*refractCoeff;
+    
     TC += distCrd;
     
     float3 ReflMap = tex2D(ReflectMap, TC);

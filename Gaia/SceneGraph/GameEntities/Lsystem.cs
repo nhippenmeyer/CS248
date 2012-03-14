@@ -152,11 +152,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
 
             // For testing:
-<<<<<<< HEAD
-            //    result = "G[+&F][-%F[+&F]]GFF@";
-=======
             //result = "G[+&F][-%F[+&F]]GFF@";
->>>>>>> ed668ea3b152e86e9b98d3f6f0290bc59fc0ace4
 
             modelViewStack.Push(Transformation.GetTransform());
 
