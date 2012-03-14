@@ -1,0 +1,5 @@
+*.exe
+*.pdb
+*.txt
+*.xml
+Gaia/bin/x86/Debug/Shaders/ShaderConst.h

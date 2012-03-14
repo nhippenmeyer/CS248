@@ -1,3 +1,0 @@
-C:\Users\Matt\Desktop\C#Projects\Gaia\Gaia\Content\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Matt\CS248\Gaia\Content\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Tatiana\Desktop\CS248\Gaia\Content\obj\x86\Debug\ResolveAssemblyReference.cache
