@@ -10,7 +10,7 @@
 
   <Texture filename="Textures/Foliage/glow3_diffus.tga"/>
   <Texture filename="Textures/Foliage/glow3_normal.tga"/>
-  
+
   <Material name="GrassMat0" shader="FoliageShader"
             texture_0 = "Textures/Foliage/bush5_diffus.tga"
             texture_1 = "Textures/Foliage/bush5_normal.tga"/>

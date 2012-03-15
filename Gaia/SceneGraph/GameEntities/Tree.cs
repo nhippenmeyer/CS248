@@ -21,22 +21,28 @@ namespace Gaia.SceneGraph.GameEntities
 
         void generateTree()
         {
-            // TODO: make a new Lsystem and generateGeometry for it
             Lsystem lSys = new Lsystem();
             lSys.setAxiom("F");
-            lSys.setIterations(3);
-            lSys.setSphereRadius(0.0025f);
+            lSys.setIterations(4);
+            lSys.setSphereRadius(1.0f);
+            lSys.setTurnValue(45);
 
             Lsystem.ReproductionRule r1;
             r1.from = 'F';
-            r1.to = "G[+&F][-%F]GFF@";
+            //r1.to = "FF-[-F+F+F]+[+F-F-F]";
+            r1.to = "GF[-F@]%G[+F@][\\F@]&&G[/F@]F@";
+
+            //  r1.to = "G[/GF][+F][-GF][\\F]G@";
+           //  r1.to = "G-%[[F]+&F]+&G[+&GF]-%F";
+            //r1.to = "G[+%F][-&F]GFF@";
             lSys.addRule(r1);
 
             Lsystem.ReproductionRule r2;
             r2.from = 'G';
-            r2.to = "GG";
+            r2.to = "G";
+            //r2.to = "G[+<TTTT]G";
             lSys.addRule(r2);
-
+            
             Voxels = lSys.generateGeometry();
         }
 
@@ -44,7 +50,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             generateTree();
             treeMaterial = ResourceManager.Inst.GetMaterial("TreeMat");
-            leafMaterial = ResourceManager.Inst.GetMaterial("GrassMat1");
+            leafMaterial = ResourceManager.Inst.GetMaterial("LeafMat");
             base.OnAdd(scene);
         }
 
