@@ -86,6 +86,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\MathUtils.cs" />
     <Compile Include="Core\PriorityQueue.cs" />
     <Compile Include="Core\Time.cs" />
     <Compile Include="Core\Transform.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="SceneGraph\GameEntities\Cloud.cs" />
     <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
+    <Compile Include="SceneGraph\GameEntities\GrassPlacement.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
     <Compile Include="SceneGraph\GameEntities\Lsystem.cs" />
     <Compile Include="SceneGraph\GameEntities\ParticleEmitter.cs" />

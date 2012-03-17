@@ -13,7 +13,6 @@ struct VS_COMMON
     float2 TexCoord : TEXCOORD0;
 };
 
-
 struct PSIN
 {
     float4 Position : POSITION0;

@@ -29,7 +29,8 @@ namespace Gaia.SceneGraph
             MainTerrain = new Terrain();
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            Entities.Add(new Tree());
+            //Entities.Add(new Tree());
+            Entities.Add(new GrassPlacement());
             /*
             Entities.Add(new Cloud());
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire0"), 100));

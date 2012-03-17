@@ -121,6 +121,11 @@ namespace Gaia.Resources
             return (ParticleEffect)GetResource(key, ResourceTypes.Particle);
         }
 
+        public Mesh GetMesh(string key)
+        {
+            return (Mesh)GetResource(key, ResourceTypes.Mesh);
+        }
+
         public Vector2 ParseVector2(string text)
         {
             string[] splits = text.Split(' ');

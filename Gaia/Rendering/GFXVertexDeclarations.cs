@@ -220,11 +220,12 @@ namespace Gaia.Rendering
         public Vector4 Position;
         public Vector3 Normal;
         public Vector2 Texcoord;
-        public float Bone;
+        public Vector4 Bone;
+        public Vector4 BoneWeights;
         public Vector3 Tangent;
 
 
-        public static int SizeInBytes = (13) * sizeof(float);
+        public static int SizeInBytes = (20) * sizeof(float);
 
         public static VertexElement[] VertexElements = new VertexElement[]
          {
@@ -237,19 +238,23 @@ namespace Gaia.Rendering
              new VertexElement( 0, sizeof(float)*7, VertexElementFormat.Vector2, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.TextureCoordinate, 0),
-             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Single, 
+             new VertexElement( 0, sizeof(float)*9, VertexElementFormat.Vector4, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.TextureCoordinate, 1),
-             new VertexElement( 0, sizeof(float)*10, VertexElementFormat.Vector3, 
+             new VertexElement( 0, sizeof(float)*13, VertexElementFormat.Vector4, 
+                                      VertexElementMethod.Default, 
+                                      VertexElementUsage.TextureCoordinate, 2),
+             new VertexElement( 0, sizeof(float)*17, VertexElementFormat.Vector3, 
                                       VertexElementMethod.Default, 
                                       VertexElementUsage.Tangent, 0),
          };
-        public VertexPNTTB(Vector3 position, Vector3 normal, Vector2 texCoord, float bone, Vector3 tangent)
+        public VertexPNTTB(Vector3 position, Vector3 normal, Vector2 texCoord, Vector4 bones, Vector4 boneWeights, Vector3 tangent)
         {
             Position = new Vector4(position, 1.0f);
             Normal = normal;
             Texcoord = texCoord;
-            Bone = bone;
+            Bone = bones;
+            BoneWeights = boneWeights;
             Tangent = tangent;
 
         }

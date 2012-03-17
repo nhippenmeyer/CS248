@@ -26,7 +26,7 @@ uniform float4 EyePos : register(PC_EYEPOS)
 	blend_weights = max(blend_weights, 0);      
 	// Force weights to sum to 1.0 (very important!)  
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
-	float3 TC = input.WorldPos*0.0125;
+	float3 TC = input.WorldPos*0.125;
 	
 	float4 col1 = (N.x < 0.0f)? tex2D(ColorSAMP3, TC.zy) : tex2D(ColorSAMP4, TC.zy);
 	float4 col2 = (N.y < 0.0f)? tex2D(ColorSAMP1, TC.xz) : tex2D(ColorSAMP0, TC.xz);

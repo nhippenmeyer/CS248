@@ -42,6 +42,50 @@ namespace Gaia.SceneGraph.GameEntities
             terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
         }
 
+
+        public bool GetYPos(ref Vector3 pos, out Vector3 normal, float minY, float maxY)
+        {
+
+            Vector3 minPos = new Vector3(pos.X, minY, pos.Z);
+            Vector3 maxPos = new Vector3(pos.X, maxY, pos.Z);
+            minPos = Vector3.Transform(minPos, Transformation.GetObjectSpace());
+            maxPos = Vector3.Transform(maxPos, Transformation.GetObjectSpace());
+            minPos = minPos * 0.5f + Vector3.One * 0.5f;
+            maxPos = maxPos * 0.5f + Vector3.One * 0.5f;
+
+            int yBegin = (int)MathHelper.Clamp(minPos.Y * DensityFieldSize, 0, DensityFieldSize - 1);
+            int yEnd = (int)MathHelper.Clamp(maxPos.Y * DensityFieldSize, 0, DensityFieldSize - 1);
+            int xCrd = (int)MathHelper.Clamp(DensityFieldSize * minPos.X, 0, DensityFieldSize - 1);
+            int zCrd = (int)MathHelper.Clamp(DensityFieldSize * minPos.Z, 0, DensityFieldSize - 1);
+            int baseIndex = xCrd + zCrd * DensityFieldSize * DensityFieldSize;
+
+            int yIndex = yBegin;
+            bool freeSpaceFound = false;
+            bool solidSpaceFound = false;
+            for (int i = yBegin; i < yEnd; i++)
+            {
+                if (DensityField[baseIndex + i * DensityFieldSize] <= IsoValue)
+                {
+                    if (!freeSpaceFound)
+                    {
+                        yIndex = i;
+                        freeSpaceFound = true;
+                    }
+                    if(freeSpaceFound && solidSpaceFound)
+                        break;
+                }
+                else
+                {
+                    solidSpaceFound = true;
+                }
+            }
+            minPos.Y = ((float)yIndex / (float)DensityFieldSize);
+            minPos = minPos * 2.0f - Vector3.One;
+            pos = Vector3.Transform(minPos, Transformation.GetTransform());
+            normal = ComputeNormal(xCrd, yIndex, zCrd);
+            return (freeSpaceFound && solidSpaceFound);
+        }
+
         public void GenerateRandomTransform(Random rand, out Vector3 position, out Vector3 normal)
         {
             int bestY = -1;
