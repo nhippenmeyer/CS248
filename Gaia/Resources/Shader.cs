@@ -81,6 +81,8 @@ namespace Gaia.Resources
                     vsProf = ShaderProfile.VS_3_0;
                     break;
             }
+            psProf = GFX.Device.GraphicsDeviceCapabilities.MaxPixelShaderProfile;
+            vsProf = GFX.Device.GraphicsDeviceCapabilities.MaxVertexShaderProfile;
             CompiledShader psShader = ShaderCompiler.CompileFromFile(psFileName, null, null, CompilerOptions.PackMatrixRowMajor, "main", psProf, TargetPlatform.Windows);
             Console.WriteLine(psShader.ErrorsAndWarnings);
             CompiledShader vsShader = ShaderCompiler.CompileFromFile(vsFileName, null, null, CompilerOptions.PackMatrixRowMajor, "main", vsProf, TargetPlatform.Windows);
