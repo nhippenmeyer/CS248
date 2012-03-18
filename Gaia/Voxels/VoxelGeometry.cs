@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using JigLibX.Collision;
+using JigLibX.Geometry;
+using JigLibX.Physics;
 
 using Gaia.Rendering;
 
@@ -9,9 +12,12 @@ namespace Gaia.Voxels
 {
     public class VoxelGeometry
     {
-        VertexPN[] verts = null;
-        short[] ib = null;
+        public VertexPN[] verts = null;
+        public ushort[] ib = null;
         int PrimitiveCount = 0;
+
+        TriangleMesh CollisionMesh;
+        CollisionSkin Collision;
 
         public RenderElement renderElement;
 
@@ -52,8 +58,8 @@ namespace Gaia.Voxels
             DestroyBuffers();
             
             List<VertexPN> _vertices = new List<VertexPN>();
-            List<short> _indices = new List<short>();
-            SortedList<int, short> _edgeToIndices = new SortedList<int, short>();
+            List<ushort> _indices = new List<ushort>();
+            SortedList<int, ushort> _edgeToIndices = new SortedList<int, ushort>();
 
             int width = DensityFieldWidth;
             int sliceArea = width * DensityFieldHeight; 
@@ -132,7 +138,7 @@ namespace Gaia.Voxels
                                     
                                     if (!_edgeToIndices.ContainsKey(idx))
                                     {
-                                        _edgeToIndices.Add(idx, (short)_vertices.Count);
+                                        _edgeToIndices.Add(idx, (ushort)_vertices.Count);
                                         _vertices.Add(GenerateVertex(VoxelHelper.NewTriangleTable2[cubeindex, i + j], VectorCache, NormalCache, DensityCache, IsoValue));
                                     }
                                     _indices.Add(_edgeToIndices[idx]);
@@ -163,8 +169,8 @@ namespace Gaia.Voxels
             }
             if (ib.Length > 0)
             {
-                renderElement.IndexBuffer = new IndexBuffer(GFX.Device, ib.Length * sizeof(short), BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
-                renderElement.IndexBuffer.SetData<short>(ib);
+                renderElement.IndexBuffer = new IndexBuffer(GFX.Device, ib.Length * sizeof(ushort), BufferUsage.WriteOnly, IndexElementSize.SixteenBits);
+                renderElement.IndexBuffer.SetData<ushort>(ib);
                 renderElement.PrimitiveCount = PrimitiveCount;
             }
 

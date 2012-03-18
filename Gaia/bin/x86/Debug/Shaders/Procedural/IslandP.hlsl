@@ -62,11 +62,11 @@ float4 main(PSIN_Procedural IN,
 	float density = 0;
 	float sum = 0;
 		
-	for(float i = -1.5; i <= 1.5; i++)
+	for(float i = -2.5; i <= 2.5; i++)
 	{
-		for(float j = -1.5; j <= 1.5; j++)
+		for(float j = -2.5; j <= 2.5; j++)
 		{
-			for(float k = -1.5; k <= 1.5; k++)
+			for(float k = -2.5; k <= 2.5; k++)
 			{
 				float3 wp = IN.TexCoord + (float3(i,j,k)*InvRes);
 				wp = wp * 2-1;

@@ -34,7 +34,7 @@ namespace Gaia.Rendering.Geometry
                 VertexPN[] vertices = new VertexPN[numSides * (numSubdivisions + 1)];
                 float deltaTheta = 360.0f / (float)numSides;
 
-                Vector3 randomPos = new Vector3((float)(randomGen.NextDouble() * 2.0 - 1.0), 0, (float)(randomGen.NextDouble() * 2.0 - 1.0));
+                Vector3 randomPos = new Vector3((float)(randomGen.NextDouble()), 0, (float)(randomGen.NextDouble()));
                 float randomRadius = MathHelper.Lerp(grassRadiusMin, grassRadiusMax, (float)randomGen.NextDouble());
 
                 for (int i = 0; i < numSides; i++)

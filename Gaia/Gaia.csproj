@@ -91,6 +91,8 @@
     <Compile Include="Core\Time.cs" />
     <Compile Include="Core\Transform.cs" />
     <Compile Include="Input\InputManager.cs" />
+    <Compile Include="Physics\CharacterBody.cs" />
+    <Compile Include="Physics\PhysicsHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="GameCore.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="SceneGraph\GameEntities\TerrainGenerator.cs" />
     <Compile Include="SceneGraph\GameEntities\Tree.cs" />
     <Compile Include="SceneGraph\Scene.cs" />
+    <Compile Include="Voxels\VoxelCollision.cs" />
     <Compile Include="Voxels\VoxelGeometry.cs" />
     <Compile Include="Voxels\VoxelHelper.cs" />
   </ItemGroup>
@@ -184,6 +187,12 @@
       <ProductName>Microsoft XNA Framework Redistributable 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\JigLibX2\JigLibX.csproj">
+      <Project>{8A7CEF45-3501-491D-AEDA-0164060F5348}</Project>
+      <Name>JigLibX</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\Microsoft.Xna.GameStudio.targets" />

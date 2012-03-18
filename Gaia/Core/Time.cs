@@ -17,6 +17,7 @@ namespace Gaia.Core
 
         public void Elapse(int msDelta) //Advances the timestep. msDelta is in milliseconds
         {
+
             ElapsedTime = (float)msDelta / 1000.0f;
             TotalTime += ElapsedTime;
         }
