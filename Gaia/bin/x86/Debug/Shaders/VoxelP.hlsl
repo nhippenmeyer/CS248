@@ -12,6 +12,7 @@ struct PSIN_Voxel
 GBUFFER main(PSIN_Voxel input, uniform sampler ColorSAMP0 : register(S0), uniform sampler NormalSAMP0 : register(S1), uniform sampler ColorSAMP1 : register(S2),
 uniform sampler NormalSAMP1 : register(S3), uniform sampler ColorSAMP2 : register(S4), uniform sampler NormalSAMP2 : register(S5), uniform sampler ColorSAMP3 : register(S6),
 uniform sampler NormalSAMP3 : register(S7), uniform sampler ColorSAMP4 : register(S8), uniform sampler NormalSAMP4 : register(S9), uniform sampler ClimateSAMP : register(S10),
+uniform sampler SandCSAMP : register(S11), uniform sampler SandNSAMP : register(S12),
 uniform float4 EyePos : register(PC_EYEPOS)
 ) : COLOR
 {
@@ -26,11 +27,17 @@ uniform float4 EyePos : register(PC_EYEPOS)
 	blend_weights = max(blend_weights, 0);      
 	// Force weights to sum to 1.0 (very important!)  
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
-	float3 TC = input.WorldPos*0.0125;
+	float3 TC = input.WorldPos*0.125;
 	
-	float4 col1 = (N.x < 0.0f)? tex2D(ColorSAMP3, TC.zy) : tex2D(ColorSAMP4, TC.zy);
-	float4 col2 = (N.y < 0.0f)? tex2D(ColorSAMP1, TC.xz) : tex2D(ColorSAMP0, TC.xz);
-	float4 col3 = tex2D(ColorSAMP2, TC.xy);
+	float altitude = input.LocalPos.y * 0.5 + 0.5;
+	float minSandAlt = 0.26;
+	float maxSandAlt = 0.32;
+	float sandWeight = pow(saturate((altitude - minSandAlt) / (maxSandAlt - minSandAlt)), 3.0);
+	
+	// Compute sand contribution
+	float4 col1 = lerp(tex2D(SandCSAMP, TC.zy), (N.x < 0.0f)? tex2D(ColorSAMP3, TC.zy) : tex2D(ColorSAMP4, TC.zy), sandWeight);
+	float4 col2 = lerp(tex2D(SandCSAMP, TC.xz), (N.y < 0.0f)? tex2D(ColorSAMP1, TC.xz) : tex2D(ColorSAMP0, TC.xz), sandWeight);
+	float4 col3 = lerp(tex2D(SandCSAMP, TC.xy), tex2D(ColorSAMP2, TC.xy), sandWeight);
 	
 	float2 b1 = -0.5+(N.x < 0.0f)?tex2D(NormalSAMP3, TC.zy).xy:tex2D(NormalSAMP4, TC.zy).xy;
 	float2 b2 = -0.5+(N.y < 0.0f)?tex2D(NormalSAMP1, TC.xz).xy:tex2D(NormalSAMP0, TC.xz).xy;

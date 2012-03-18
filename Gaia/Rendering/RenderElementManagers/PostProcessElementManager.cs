@@ -33,6 +33,7 @@ namespace Gaia.Rendering
 
         float waterScale = 120;
         float waveScale = 10;
+        BoundingBox waveMeshBounds;
 
         public PostProcessElementManager(MainRenderView renderView)
             : base(renderView)
@@ -61,7 +62,7 @@ namespace Gaia.Rendering
             {
                 new Vector4(-0.66f, -0.208f, 0.2f, MathHelper.TwoPi/0.4f),
                 new Vector4(-1.62f, 0.1708f, 0.38f, MathHelper.TwoPi/2.2f),
-                new Vector4(-2.16f, 1.338f, 0.48f, MathHelper.TwoPi/1.0f),
+                new Vector4(-2.16f, 1.338f, 0.28f, MathHelper.TwoPi/1.0f),
                 new Vector4(-2.72f, 8.6108f, 0.15f, MathHelper.TwoPi/4.8f),
             };
             float ratio = waveScale / waterScale;
@@ -72,6 +73,7 @@ namespace Gaia.Rendering
                 ratio*Vector4.One*0.4f,
                 ratio*Vector4.One*0.8f,
             };
+            
         }
 
         void RenderComposite()
@@ -176,6 +178,7 @@ namespace Gaia.Rendering
 
             basicImageShader.SetupShader();
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / GFX.Inst.DisplayRes);
+            GFX.Device.SetPixelShaderConstant(4, Vector4.One * waterScale);
             GFXPrimitives.Quad.Render();
 
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
@@ -190,12 +193,20 @@ namespace Gaia.Rendering
             GFX.Device.SetVertexShaderConstant(34, waveAmplitudes);
             Matrix worldMatrix = Matrix.CreateScale(waterScale);
             worldMatrix.Translation = new Vector3(1, 0, 1) * mainRenderView.GetPosition();
+
+            waveMeshBounds.Min = Vector3.Transform(new Vector3(-1, 0, -1), worldMatrix);
+            waveMeshBounds.Max = Vector3.Transform(new Vector3(1, 0, 1), worldMatrix);
+            
+
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, worldMatrix);
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, mainRenderView.GetViewProjection());
             GFX.Device.RenderState.DepthBufferEnable = true;
             GFX.Device.RenderState.DepthBufferWriteEnable = false;
             GFX.Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
-            oceanGeometry.Render();
+            if (mainRenderView.GetFrustum().Contains(waveMeshBounds) != ContainmentType.Disjoint)
+            {
+                oceanGeometry.Render();
+            }
             GFX.Device.RenderState.DepthBufferEnable = false;
             GFX.Device.RenderState.CullMode = CullMode.None;
 
@@ -225,7 +236,7 @@ namespace Gaia.Rendering
             
             RenderComposite();
 
-            //RenderOcean();
+            RenderOcean();
 
             //RenderFog();
 

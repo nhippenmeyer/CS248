@@ -16,11 +16,13 @@ namespace Gaia.SceneGraph.GameEntities
         public byte IsoValue = 127; //Defines density field isosurface cutoff value (ie the transition between solid and empty space)
                                     //so if a voxel had an element of 127 or lower, that would be empty space. A value higher than 127
                                     //Would be solid space.
-        public int VoxelGridSize = 16; //Defines how many voxel geometries we have (used to balance performance)
+        public int VoxelGridSize = 8; //Defines how many voxel geometries we have (used to balance performance)
         public int DensityFieldSize = 129; //Density field is (2^n)+1 in size. (e.g. 65, 129, 257, 513) 
 
         VoxelGeometry[] Voxels;
         BoundingBox[] VoxelBounds;
+        VoxelCollision[] VoxelCollisions;
+
         public byte[] DensityField;
 
         Material terrainMaterial;
@@ -40,6 +42,47 @@ namespace Gaia.SceneGraph.GameEntities
             Transformation.SetPosition(Vector3.Up * TerrainSize * 0.45f);
             GenerateFloatingIslands(256);
             terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
+        }
+
+
+        public bool GetYPos(ref Vector3 pos, out Vector3 normal, float minY, float maxY)
+        {
+
+            Vector3 minPos = new Vector3(pos.X, minY, pos.Z);
+            Vector3 maxPos = new Vector3(pos.X, maxY, pos.Z);
+            minPos = Vector3.Transform(minPos, Transformation.GetObjectSpace());
+            maxPos = Vector3.Transform(maxPos, Transformation.GetObjectSpace());
+            minPos = minPos * 0.5f + Vector3.One * 0.5f;
+            maxPos = maxPos * 0.5f + Vector3.One * 0.5f;
+
+            int yBegin = (int)MathHelper.Clamp(minPos.Y * DensityFieldSize, 0, DensityFieldSize - 1);
+            int yEnd = (int)MathHelper.Clamp(maxPos.Y * DensityFieldSize, 0, DensityFieldSize - 1);
+            int xCrd = (int)MathHelper.Clamp(DensityFieldSize * minPos.X, 0, DensityFieldSize - 1);
+            int zCrd = (int)MathHelper.Clamp(DensityFieldSize * minPos.Z, 0, DensityFieldSize - 1);
+            int baseIndex = xCrd + zCrd * DensityFieldSize * DensityFieldSize;
+
+            int yIndex = yBegin;
+            bool freeSpaceFound = false;
+            bool solidSpaceFound = false;
+            for (int i = yBegin; i < yEnd; i++)
+            {
+                if (DensityField[baseIndex + i * DensityFieldSize] <= IsoValue)
+                {
+                    yIndex = i;
+                    freeSpaceFound = true;
+                }
+                else
+                {
+                    solidSpaceFound = true;
+                }
+                if (freeSpaceFound && solidSpaceFound)
+                    break;
+            }
+            minPos.Y = ((float)yIndex / (float)DensityFieldSize);
+            minPos = minPos * 2.0f - Vector3.One;
+            pos = Vector3.Transform(minPos, Transformation.GetTransform());
+            normal = ComputeNormal(xCrd, yIndex, zCrd);
+            return (freeSpaceFound && solidSpaceFound);
         }
 
         public void GenerateRandomTransform(Random rand, out Vector3 position, out Vector3 normal)
@@ -279,6 +322,7 @@ namespace Gaia.SceneGraph.GameEntities
             int voxelCount = (DensityFieldSize - 1) / VoxelGridSize;
             Voxels = new VoxelGeometry[voxelCount * voxelCount * voxelCount];
             VoxelBounds = new BoundingBox[Voxels.Length];
+            VoxelCollisions = new VoxelCollision[Voxels.Length];
             float ratio = 2.0f * (float)VoxelGridSize / (float)(DensityFieldSize - 1);
 
             for (int z = 0; z < voxelCount; z++)
@@ -299,6 +343,8 @@ namespace Gaia.SceneGraph.GameEntities
                         Voxels[idx] = new VoxelGeometry();
                         Voxels[idx].renderElement.Transform = new Matrix[1] { Transformation.GetTransform() };
                         Voxels[idx].GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, VoxelGridSize, VoxelGridSize, VoxelGridSize, x * VoxelGridSize, y * VoxelGridSize, z * VoxelGridSize, 2.0f / (float)(DensityFieldSize - 1));
+
+                        VoxelCollisions[idx] = new VoxelCollision(Voxels[idx], this.Transformation, VoxelBounds[idx]);
                     }
                 }
             }
@@ -407,6 +453,12 @@ namespace Gaia.SceneGraph.GameEntities
         public override void OnUpdate()
         {
             //HandleCameraMotion();
+
+            for (int i = 0; i < VoxelCollisions.Length; i++)
+            {
+                VoxelCollisions[i].UpdateCollision();
+            }
+
             base.OnUpdate();
         }
 

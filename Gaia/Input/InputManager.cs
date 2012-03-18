@@ -24,6 +24,8 @@ namespace Gaia.Input
         Fire,
         AltFire,
         Interact,
+        ToggleCamera,
+        DropPlayerAtCamera
     }
 
     public enum ExtendedKeys
@@ -138,11 +140,17 @@ namespace Gaia.Input
             keyList.Add(GameKey.MoveBackward, new KeyStroke(Keys.S));
             keyList.Add(GameKey.MoveLeft, new KeyStroke(Keys.A));
             keyList.Add(GameKey.MoveRight, new KeyStroke(Keys.D));
+            keyList.Add(GameKey.TurnDown, new KeyStroke(Keys.Down));
+            keyList.Add(GameKey.TurnUp, new KeyStroke(Keys.Up));
+            keyList.Add(GameKey.TurnLeft, new KeyStroke(Keys.Left));
+            keyList.Add(GameKey.TurnRight, new KeyStroke(Keys.Right));
             keyList.Add(GameKey.Sprint, new KeyStroke(Keys.LeftShift));
             keyList.Add(GameKey.Pause, new KeyStroke(Keys.Escape));
             keyList.Add(GameKey.Fire, new KeyStroke(ExtendedKeys.MouseLeft));
             keyList.Add(GameKey.AltFire, new KeyStroke(ExtendedKeys.MouseRight));
             keyList.Add(GameKey.Interact, new KeyStroke(Keys.E));
+            keyList.Add(GameKey.ToggleCamera, new KeyStroke(Keys.C));
+            keyList.Add(GameKey.DropPlayerAtCamera, new KeyStroke(Keys.Z));
         }
 
         public void Update()

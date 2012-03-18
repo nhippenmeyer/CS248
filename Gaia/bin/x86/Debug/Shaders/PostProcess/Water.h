@@ -1,6 +1,6 @@
 #define FBias 0.11
 #define FPower 6
-#define SpecPower 28.72000
+#define SpecPower 68.72000
 uniform sampler RefractMap : register(S0);
 uniform sampler ReflectMap : register(S3);
 
@@ -17,6 +17,7 @@ float4 ComputeWater(float3 N, float3 V, float3 L, float2 TC, float density, floa
 	const float3 NPlane = float3(0,1,0);
     float3 R = normalize(2*dot(N,-V)*N-V);
     float2 distCrd = N.xz*refractCoeff;
+    
     TC += distCrd;
     
     float3 ReflMap = tex2D(ReflectMap, TC);
@@ -25,7 +26,7 @@ float4 ComputeWater(float3 N, float3 V, float3 L, float2 TC, float density, floa
     
     float3 coeff = -log(2)/waterColor; 
  
-    float3 DiffTerm = RefrCol*exp(coeff*min(density,100)*0.01);//lerp(waterColor, RefrCol, density);
+    float3 DiffTerm = RefrCol*exp(coeff*min(density,100)*0.008);//lerp(waterColor, RefrCol, density);
    
     float fTerm = fresnel(dot(V,NPlane), FBias, FPower);
     

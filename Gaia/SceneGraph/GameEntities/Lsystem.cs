@@ -256,6 +256,11 @@ namespace Gaia.SceneGraph.GameEntities
 
             }
 
+            cylinderTransforms.Clear();
+            for(int i = 0; i < 3; i++)
+            {
+                cylinderTransforms.Add(Matrix.CreateTranslation(Vector3.Up*i*2));
+            }
             cylinderMesh.Transform = cylinderTransforms.ToArray();
             RenderElement leaves = new RenderElement();
             leaves.StartVertex = 0;
