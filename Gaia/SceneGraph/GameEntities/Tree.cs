@@ -16,9 +16,14 @@ namespace Gaia.SceneGraph.GameEntities
     public class Tree : Entity
     {
         List<RenderElement> Voxels;
-        Material treeMaterial;  // in Gaia.Resources
-        List<Material> leafMaterials;
+        List<Material> treeMaterials;
         BoundingBox boundingBox;
+        int varyTreeNum;
+
+        public void setNum(int treeNum)
+        {
+            varyTreeNum = treeNum;
+        }
 
         void generateTree(Vector3 position)
         {
@@ -47,28 +52,38 @@ namespace Gaia.SceneGraph.GameEntities
             r2.to = "G";
             //r2.to = "G[+<TTTT]G";
             lSys.addRule(r2);
-            
-            Voxels = lSys.generateGeometry(position);
+
+            if (varyTreeNum == 2)
+            {
+                lSys.setSphereRadius(2.0f);
+                lSys.setWidth(2.0f);
+            }
+
+            Voxels = lSys.generateGeometry(position, varyTreeNum);
             boundingBox = lSys.getBoundingBox();
         }
 
         public override void OnAdd(Scene scene)
         {
-            
-            treeMaterial = ResourceManager.Inst.GetMaterial("TreeMat");
-            leafMaterials = new List<Material>();
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat0"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat1"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat2"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat3"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat4"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat5"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat6"));
-            leafMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat7"));
+
+            treeMaterials = new List<Material>();
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat0"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat8"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat2"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat3"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat4"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat5"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat6"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat7"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat0")); // Tree trunk
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat1"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat2"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat3"));
 
             Random randomHelper = new Random();
             Vector3 randPosition = Vector3.Zero;
             Vector3 randNormal = Vector3.Zero;
+            randomHelper.NextDouble();
             scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
             generateTree(randPosition);
             base.OnAdd(scene);
@@ -85,8 +100,10 @@ namespace Gaia.SceneGraph.GameEntities
             BoundingFrustum frustum = view.GetFrustum();
             if (frustum.Contains(boundingBox) != ContainmentType.Disjoint)
             {
-                view.AddElement(leafMaterials[1], Voxels[0]);
-                view.AddElement(leafMaterials[0], Voxels[1]);
+                int barkNum = varyTreeNum / 2;
+
+                view.AddElement(treeMaterials[8 + barkNum], Voxels[0]);
+                view.AddElement(treeMaterials[varyTreeNum], Voxels[1]);
             }
             base.OnRender(view);
         }

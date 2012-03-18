@@ -103,7 +103,9 @@ namespace Gaia.SceneGraph
             Entities.Add(MainLight);
             for (int i = 0; i < 50; i++)
             {
-                Entities.Add(new Tree());
+                Tree tree = new Tree();
+                tree.setNum(i % 8);
+                Entities.Add(tree);
             }
             //Entities.Add(new GrassPlacement());
             /*

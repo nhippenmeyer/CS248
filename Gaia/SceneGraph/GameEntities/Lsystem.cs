@@ -155,7 +155,7 @@ namespace Gaia.SceneGraph.GameEntities
             return result;
         }
 
-        public List<RenderElement> generateGeometry(Vector3 position)
+        public List<RenderElement> generateGeometry(Vector3 position, int varyTreeNum)
         {
             cylinderTransforms = new List<Matrix>();
             leafTransforms = new List<Matrix>();
