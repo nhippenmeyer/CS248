@@ -56,6 +56,7 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.DepthBufferEnable = true;
             GFX.Device.RenderState.DepthBufferWriteEnable = true;
             GFX.Device.RenderState.DepthBufferFunction = CompareFunction.Less;
+
             for (int i = 0; i < Elements.Keys.Count; i++)
             {
                 Material key = Elements.Keys[i];

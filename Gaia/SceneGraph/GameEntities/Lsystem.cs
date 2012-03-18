@@ -18,6 +18,7 @@ namespace Gaia.SceneGraph.GameEntities
          *************/
         const int DEFAULT_ITERATIONS = 3;
         const float DEFAULT_FORWARD_LENGTH = 5.0f;
+        const float DEFAULT_INIT_WIDTH = 1.0f;
         const float DEFAULT_SPHERE_RADIUS = 0.25f;
         const float DEFAULT_TURN_VALUE = 35.0f;
         const float DEFAULT_VARIATION = 35.0f;
@@ -55,6 +56,7 @@ namespace Gaia.SceneGraph.GameEntities
         bool dirty;
         int iterations;
         float forwardLength;
+        float initWidth;
         Stack<Matrix> modelViewStack;
         Stack<Matrix> rotationStack, translationStack;
         static Vector3 yDirection = new Vector3(0.0f, 1.0f, 0.0f);
@@ -69,6 +71,8 @@ namespace Gaia.SceneGraph.GameEntities
         Stack<float> widths;
         Stack<float> lengths;
         Random rand = new Random();
+        Vector3 initPosition;
+        Vector3 maxPos;
 
         List<Matrix> cylinderTransforms = new List<Matrix>();
         List<Matrix> leafTransforms = new List<Matrix>();
@@ -82,6 +86,7 @@ namespace Gaia.SceneGraph.GameEntities
             this.axiom = "";
             this.iterations = DEFAULT_ITERATIONS;
             this.forwardLength = DEFAULT_FORWARD_LENGTH;
+            this.initWidth = DEFAULT_INIT_WIDTH;
             this.turnValue = DEFAULT_TURN_VALUE;
             this.sphereRadius = DEFAULT_SPHERE_RADIUS;
             this.variation = DEFAULT_VARIATION;
@@ -94,7 +99,7 @@ namespace Gaia.SceneGraph.GameEntities
 
             wRate = 0.8f;
             widths = new Stack<float>();
-            widths.Push(1.0f);  // Add initial width
+            widths.Push(initWidth);  // Add initial width
 
             lRate = 0.9f;
             lengths = new Stack<float>();
@@ -105,6 +110,7 @@ namespace Gaia.SceneGraph.GameEntities
                         List<ReproductionRule> rules,
                         int iterations,
                         float forwardLength,
+                        float initWidth,
                         float turnValue,
                         float sphereRadius,
                         float variation)
@@ -112,6 +118,7 @@ namespace Gaia.SceneGraph.GameEntities
             this.axiom = axiom;
             this.iterations = iterations;
             this.forwardLength = forwardLength;
+            this.initWidth = initWidth;
             this.turnValue = turnValue;
             this.sphereRadius = sphereRadius;
             this.variation = variation;
@@ -124,7 +131,7 @@ namespace Gaia.SceneGraph.GameEntities
 
             wRate = 0.8f;
             widths = new Stack<float>();
-            widths.Push(1.0f);
+            widths.Push(initWidth);
 
             lRate = 0.9f;
             lengths = new Stack<float>();
@@ -148,11 +155,15 @@ namespace Gaia.SceneGraph.GameEntities
             return result;
         }
 
-        public List<RenderElement> generateGeometry()
+        public List<RenderElement> generateGeometry(Vector3 position)
         {
             cylinderTransforms = new List<Matrix>();
             leafTransforms = new List<Matrix>();
             cylinderGeometry = new Cylinder(20);
+            Vector3 offset = Vector3.Zero;
+            offset.Y = -1.6f * forwardLength;
+            initPosition = position + offset;
+            maxPos = initPosition;
 
             RenderElement cylinderMesh = new RenderElement();
             cylinderMesh.VertexBuffer = cylinderGeometry.GetVertexBufferInstanced();
@@ -172,8 +183,6 @@ namespace Gaia.SceneGraph.GameEntities
 
             // For testing:
             //result = "G[+&F][-%F[+&F]]GFF@";
-
-            modelViewStack.Push(Transformation.GetTransform());
 
             initRotationStack();
             initTranslationStack();
@@ -264,6 +273,15 @@ namespace Gaia.SceneGraph.GameEntities
             Console.Write(lineCount);
 
             return elements;
+        }
+
+        // Must be called after generate geometry to get an accurate bounding box
+        public BoundingBox getBoundingBox()
+        {
+            BoundingBox bounds = new BoundingBox();
+            bounds.Max = maxPos;
+            bounds.Min = initPosition;
+            return bounds;
         }
 
         public void setAxiom(string axiom)
@@ -399,7 +417,9 @@ namespace Gaia.SceneGraph.GameEntities
         void initTranslationStack()
         {
             translationStack.Clear();
-            translationStack.Push(Matrix.Identity);
+            Matrix initPositionMatrix = Matrix.Identity;
+            Matrix.CreateTranslation(ref initPosition, out initPositionMatrix);
+            translationStack.Push(initPositionMatrix);
         }
 
         void popMatrix()
@@ -468,6 +488,13 @@ namespace Gaia.SceneGraph.GameEntities
             axis.Z = transDirection.Z * distance;
             Matrix translatedTop = translationStack.Pop() * Matrix.CreateTranslation(axis);
             translationStack.Push(translatedTop);
+
+            Vector3 newPosition = Vector3.Transform(Vector3.Zero, translatedTop);
+            if (newPosition.Y > maxPos.Y)
+            {
+                maxPos = newPosition;
+            }
+
         }
 
         float vary(float v)

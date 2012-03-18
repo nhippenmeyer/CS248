@@ -26,10 +26,14 @@ namespace Gaia.SceneGraph
             Entities.Add(new Player());
             Entities.Add(new Sky());
             MainLight = new Sunlight();
-      //      MainTerrain = new Terrain();
-      //      Entities.Add(MainTerrain);
+            MainTerrain = new Terrain();
+            Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            Entities.Add(new Tree());
+            for (int i = 0; i < 50; i++)
+            {
+                Entities.Add(new Tree());
+            }
+            
             /*
             Entities.Add(new Cloud());
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire0"), 100));

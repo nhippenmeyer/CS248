@@ -23,7 +23,7 @@ GBUFFER main(PSIN IN, uniform sampler BaseMap : register(S0),
 	
 	//N = normalize(mul(tex2D(NormalMap, IN.TexCoord).rgb*2-1, TBN));
 	
-    OUT.Color = baseColor * 0.3f;
+    OUT.Color = baseColor;
     OUT.Normal = float4(CompressNormal(N),0,0);
     OUT.Depth = length(IN.WorldPos-EyePos.xyz)/EyePos.w;
     OUT.Data = 0;
