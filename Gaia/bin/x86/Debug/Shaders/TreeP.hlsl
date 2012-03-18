@@ -17,7 +17,7 @@ GBUFFER main(PSIN IN, uniform sampler BaseMap : register(S0),
 {
 	GBUFFER OUT;
 	float4 baseColor = tex2D(BaseMap, IN.TexCoord);
-    float3 N = float3(0,1,0);
+    float3 N = normalize(IN.Normal);
 	float3 T = normalize(IN.Tangent);
 	float3x3 TBN = float3x3(T,cross(N,T), N);
 	

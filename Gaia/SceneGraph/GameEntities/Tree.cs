@@ -85,8 +85,8 @@ namespace Gaia.SceneGraph.GameEntities
             BoundingFrustum frustum = view.GetFrustum();
             if (frustum.Contains(boundingBox) != ContainmentType.Disjoint)
             {
-                view.AddElement(treeMaterial, Voxels[0]);
-                view.AddElement(leafMaterial, Voxels[1]);
+                view.AddElement(leafMaterials[1], Voxels[0]);
+                view.AddElement(leafMaterials[0], Voxels[1]);
             }
             base.OnRender(view);
         }
