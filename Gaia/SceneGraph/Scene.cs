@@ -74,7 +74,7 @@ namespace Gaia.SceneGraph
             Vector3[] directions = new Vector3[] { Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward, Vector3.Up };
             foreach (Vector3 dir in directions)
             {
-                //       Entities.Add(new Opponent(dir * 0.5f));
+                Entities.Add(new Opponent(dir * 0.5f));
             }
             Entities.Add(new Sky());
             MainLight = new Sunlight();

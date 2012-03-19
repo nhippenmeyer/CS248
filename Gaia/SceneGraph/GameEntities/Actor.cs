@@ -70,6 +70,7 @@ namespace Gaia.SceneGraph.GameEntities
             emitterLight.Parameters = new Vector4(55, 50, 0, 0);
             scene.Entities.Add(emitter);
             scene.Entities.Add(emitterLight);
+
             physicsState.position = position;
             physicsState.velocity = Vector3.Zero;
 
