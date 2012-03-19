@@ -59,7 +59,7 @@ namespace Gaia.SceneGraph.GameEntities
                 if(!exploded)
                 {
                     exploded = true;
-                    scene.MainTerrain.CarveTerrainAtPoint(newState.position, 8, -45);
+                    scene.MainTerrain.CarveTerrainAtPoint(newState.position, 3, -45);
                     tracerEmitter.EmitOnce = true;
                     this.scene.Entities.Remove(this);
                     this.OnDestroy();
