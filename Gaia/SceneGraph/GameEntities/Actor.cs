@@ -15,7 +15,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         protected State physicsState;
 
-        protected float speed = 16f;
+        protected float speed = 160f;
         protected float forwardAcceleration = 20; //15 units/second^2
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
@@ -38,11 +38,20 @@ namespace Gaia.SceneGraph.GameEntities
         {
             base.OnUpdate();
         }
+
+        public void FireGun(Vector3 forwardVector)
+        {
+            Projectile proj = new Projectile("TracerParticle", "ExplosionParticle");
+            proj.Transformation.SetPosition(physicsState.position);
+            proj.Transformation.SetRotation(rotation);
+            proj.SetVelocity(forwardVector);
+            this.scene.Entities.Add(proj);
+            proj.OnAdd(this.scene);
+        }
     }
 
     public class Player : Actor
     {
-
         float hoverMagnitude = 2.5f;
         float hoverAngle = 0;
 
@@ -50,9 +59,6 @@ namespace Gaia.SceneGraph.GameEntities
 
         float aspectRatio;
         float fieldOfView;
-
-        ParticleEmitter emitter;
-        Light emitterLight;
 
         public override void OnAdd(Scene scene)
         {
@@ -65,12 +71,6 @@ namespace Gaia.SceneGraph.GameEntities
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
-            emitter = new ParticleEmitter(Resources.ResourceManager.Inst.GetParticleEffect("PlayerParticles"), 60);
-            emitterLight = new Light(LightType.Point, new Vector3(0.13f, 0.86f, 1.26f), position, false);
-            emitterLight.Parameters = new Vector4(55, 50, 0, 0);
-            scene.Entities.Add(emitter);
-            scene.Entities.Add(emitterLight);
-
             physicsState.position = position;
             physicsState.velocity = Vector3.Zero;
 
@@ -81,17 +81,6 @@ namespace Gaia.SceneGraph.GameEntities
         {
             scene.RemoveRenderView(renderView);
             base.OnDestroy();
-        }
-
-        void FireGun(Vector3 forwardVector)
-        {
-            
-            Projectile proj = new Projectile("TracerParticle", "ExplosionParticle");
-            proj.Transformation.SetPosition(physicsState.position);
-            proj.Transformation.SetRotation(rotation);
-            proj.SetVelocity(forwardVector);
-            this.scene.Entities.Add(proj);
-            proj.OnAdd(this.scene);
         }
 
         public override void OnUpdate()
@@ -160,14 +149,8 @@ namespace Gaia.SceneGraph.GameEntities
             position = physicsState.position + transform.Up * 5f - transform.Forward * 0.25f;
             //position = physicsState.position -transform.Forward * 30;
 
-            emitter.Transformation.SetPosition(physicsState.position);
-            emitter.Transformation.SetRotation(rotation);
-
-            emitterLight.Transformation.SetPosition(physicsState.position);
-
             float nearPlane = 0.15f;
             float farPlane = 2000;
-
 
             renderView.SetPosition(position);
 
@@ -181,7 +164,6 @@ namespace Gaia.SceneGraph.GameEntities
 
             base.OnUpdate();
         }
-
     }
 
     public class Opponent : Actor
@@ -190,6 +172,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected ParticleEmitter emitter;
         protected Light emitterLight;
+
+        private bool hasFired = false;
 
         public Opponent(Vector3 pos)
         {
@@ -236,12 +220,17 @@ namespace Gaia.SceneGraph.GameEntities
 
             Vector3 dir = scene.MainCamera.GetPosition() - position;
             Vector3 vel = dir;
-            if (dir.Length() < 1000)
+            Random rand = new Random();
+            if (dir.Length() < 100)
             {
-                Random rand = new Random();
                 vel.X = (float)rand.NextDouble();
                 vel.Y = (float)rand.NextDouble();
                 vel.Z = (float)rand.NextDouble();
+                if (!hasFired)
+                {
+                    FireGun(dir);
+                    hasFired = true;
+                }
             }
             vel.Normalize();
             vel *= speed * 2.0f;

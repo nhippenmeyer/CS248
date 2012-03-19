@@ -71,6 +71,20 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState = newState;
                 tracerEmitter.Transformation.SetPosition(physicsState.position);
                 tracerEmitter.Transformation.SetRotation(this.Transformation.GetRotation());
+                foreach (Entity e in scene.Entities)
+                {
+                    if (e.GetType().FullName == "Actor")
+                    {
+                        if ((e.Transformation.GetPosition() - this.Transformation.GetPosition()).Length() < 10)
+                        {
+                            this.scene.Entities.Remove(e);
+                            this.scene.Entities.Remove(this);
+                            e.OnDestroy();
+                            this.OnDestroy();
+                            Console.WriteLine("Destroyed an actor");
+                        }
+                    }
+                }
             }
 
             base.OnUpdate();

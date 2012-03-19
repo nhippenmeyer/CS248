@@ -83,11 +83,11 @@ namespace Gaia.SceneGraph
             Entities.Add(MainLight);
             for (int i = 0; i < 50; i++)
             {
-                Tree tree = new Tree();
-                tree.setNum(i % 8);
-                Entities.Add(tree);
+                //Tree tree = new Tree();
+                //tree.setNum(i % 8);
+                //Entities.Add(tree);
 
-                Entities.Add(new Health());
+                //Entities.Add(new Health());
             }
            // Entities.Add(new Gem());
             //Entities.Add(new GrassPlacement());
