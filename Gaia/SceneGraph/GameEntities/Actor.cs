@@ -1,0 +1,256 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+
+using Gaia.Input;
+using Gaia.Rendering;
+using Gaia.Rendering.RenderViews;
+using Gaia.Physics;
+using Gaia.Core;
+
+namespace Gaia.SceneGraph.GameEntities
+{
+    public class Actor : Entity
+    {
+        protected State physicsState;
+
+        protected float speed = 16f;
+        protected float forwardAcceleration = 5; //15 units/second^2
+        protected float backwardAcceleration = 8;
+        protected float strafeAcceleration = 12;
+
+        protected Vector3 position = Vector3.Zero;
+        protected Vector3 rotation = Vector3.Zero;
+        protected Vector3 prevForward = Vector3.Forward;
+
+        public override void OnAdd(Scene scene)
+        {
+            base.OnAdd(scene);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+        }
+
+        public override void OnUpdate()
+        {
+            base.OnUpdate();
+        }
+    }
+
+    public class Player : Actor
+    {
+        MainRenderView renderView;
+
+        float aspectRatio;
+        float fieldOfView;
+
+        float hoverMagnitude = 2.5f;
+        float hoverAngle = 0;
+
+        public override void OnAdd(Scene scene)
+        {
+            renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
+            fieldOfView = MathHelper.ToRadians(70);
+            aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
+
+            scene.MainCamera = renderView;
+            scene.AddRenderView(renderView);
+            
+            position = Vector3.Transform(Vector3.Up*0.25f, scene.MainTerrain.Transformation.GetTransform());
+            physicsState.position = position;
+            physicsState.velocity = Vector3.Zero;
+
+            base.OnAdd(scene);
+        }
+
+        public override void OnDestroy()
+        {
+            scene.RemoveRenderView(renderView);
+            base.OnDestroy();
+        }
+
+        void FireGun(Vector3 forwardVector)
+        {
+            Projectile proj = new Projectile("TracerParticle", "ExplosionParticle");
+            proj.Transformation.SetPosition(physicsState.position);
+            proj.Transformation.SetRotation(rotation);
+            proj.SetVelocity(forwardVector);
+            this.scene.Entities.Add(proj);
+            proj.OnAdd(this.scene);
+        }
+
+        public override void OnUpdate()
+        {
+            Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
+            Vector2 delta = InputManager.Inst.GetMouseDisplacement();
+            //delta.Y *= -1;
+            rotation.Y += delta.X;
+            rotation.X = MathHelper.Clamp(rotation.X + delta.Y, -1.4f, 1.4f);
+            if (rotation.Y > MathHelper.TwoPi)
+                rotation.Y -= MathHelper.TwoPi;
+            if (rotation.Y < 0)
+                rotation.Y += MathHelper.TwoPi;
+            Mouse.SetPosition((int)(centerCrd.X + GFX.Inst.Origin.X), (int)(centerCrd.Y + GFX.Inst.Origin.Y));
+            
+            Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
+
+            Vector3 acceleration = Vector3.Zero;
+
+            hoverAngle += Time.GameTime.ElapsedTime;
+            if (hoverAngle >= MathHelper.TwoPi)
+                hoverAngle -= MathHelper.TwoPi;
+
+            //physicsState.velocity += transform.Forward * speed;// *Math.Max(1.0f - Vector3.Dot(transform.Forward, prevForward) * 0.75f, 0.0f);
+            prevForward = transform.Forward;
+
+            Vector3 vel = transform.Forward * speed;
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
+                vel += transform.Forward * forwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
+                vel -= transform.Forward * backwardAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
+                vel += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
+                vel -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
+
+            //vel -= Vector3.Normalize(physicsState.velocity) * physicsState.velocity.LengthSquared() * 1.1455f * 0.2f;
+
+            physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.45f) + (float)Math.Sin(hoverAngle) * hoverMagnitude * transform.Up;
+            /*
+            if(InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
+                acceleration += transform.Forward * forwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
+                acceleration -= transform.Forward * backwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f));
+            
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
+                acceleration += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
+                acceleration -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
+            */
+
+            if (InputManager.Inst.IsKeyDownOnce(GameKey.Fire))
+            {
+                FireGun(transform.Forward);
+            }
+
+            State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
+
+            Vector3 collNormal = Vector3.Zero;
+            if (!scene.MainTerrain.IsCollision(newState.position, out collNormal))
+            {
+                physicsState = newState;
+            }
+            else
+            {
+                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal)*3.5f;
+                physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
+            }
+            position = physicsState.position-transform.Forward*30;
+
+           // emitterLight.Transformation.SetPosition(physicsState.position);
+
+            float nearPlane = 0.15f;
+            float farPlane = 2000;
+
+            renderView.SetPosition(position);
+            renderView.SetView(Matrix.CreateLookAt(position, physicsState.position, Vector3.Up));
+            renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
+            renderView.SetNearPlane(nearPlane);
+            renderView.SetFarPlane(farPlane);
+            renderView.UpdateRenderViews(); //Update reflections
+
+            base.OnUpdate();
+        }
+    }
+
+    public class Opponent : Actor
+    {
+        private Vector3 initialPos;
+
+        protected ParticleEmitter emitter;
+        protected Light emitterLight;
+
+        public Opponent(Vector3 pos)
+        {
+            initialPos = pos;
+        }
+
+        public override void OnAdd(Scene scene)
+        {
+            emitter = new ParticleEmitter(Resources.ResourceManager.Inst.GetParticleEffect("PlayerParticles"), 60);
+            emitterLight = new Light(LightType.Point, new Vector3(1.26f, 0.06f, 0.06f), position, false);
+            emitterLight.Parameters = new Vector4(55, 50, 0, 0);
+
+            position = Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform());
+            physicsState.position = position;
+            physicsState.velocity = Vector3.Down * speed;
+
+            scene.Entities.Add(emitter);
+            scene.Entities.Add(emitterLight);
+
+            base.OnAdd(scene);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+        }
+
+        public override void OnUpdate()
+        {
+            Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
+            Vector2 delta = InputManager.Inst.GetMouseDisplacement();
+
+            rotation.Y += delta.X;
+            rotation.X = MathHelper.Clamp(rotation.X + delta.Y, -1.4f, 1.4f);
+            if (rotation.Y > MathHelper.TwoPi)
+                rotation.Y -= MathHelper.TwoPi;
+            if (rotation.Y < 0)
+                rotation.Y += MathHelper.TwoPi;
+
+            Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
+
+            Vector3 acceleration = Vector3.Zero;
+            prevForward = transform.Forward;
+
+            Vector3 dir = scene.MainCamera.GetPosition() - position;
+            Vector3 vel = dir;
+            if (dir.Length() < 1000)
+            {
+                Random rand = new Random();
+                vel.X = (float)rand.NextDouble();
+                vel.Y = (float)rand.NextDouble();
+                vel.Z = (float)rand.NextDouble();
+            }
+            vel.Normalize();
+            vel *= speed * 2.0f;
+
+            physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.2f);
+            State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
+
+            Vector3 collNormal = Vector3.Zero;
+            if (!scene.MainTerrain.IsCollision(newState.position, out collNormal))
+            {
+                physicsState = newState;
+            }
+            else
+            {
+                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 3.5f;
+                physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
+            }
+            position = physicsState.position;
+
+            emitter.Transformation.SetPosition(physicsState.position);
+            emitter.Transformation.SetRotation(rotation);
+
+            emitterLight.Transformation.SetPosition(physicsState.position);
+
+            base.OnUpdate();
+        }
+    }
+
+
+}

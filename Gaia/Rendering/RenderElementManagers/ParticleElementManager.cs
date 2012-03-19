@@ -33,13 +33,14 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.DepthBufferWriteEnable = false;
             GFX.Device.RenderState.AlphaBlendEnable = true;
 
+            
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
             GFX.Device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
-            //GFX.Device.RenderState.SourceBlend = Blend.One;
-            //GFX.Device.RenderState.DestinationBlend = Blend.InverseDestinationAlpha;
+            
             GFX.Device.RenderState.SeparateAlphaBlendEnabled = true;
             GFX.Device.RenderState.AlphaSourceBlend = Blend.Zero;
-            GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+            GFX.Device.RenderState.AlphaDestinationBlend = Blend.InverseSourceAlpha;
+            
             //GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
             //GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
 
@@ -56,7 +57,6 @@ namespace Gaia.Rendering
                     key.SetupMaterial();
                 while(Elements[key].Count > 0)
                 {
-                    
                     ParticleEmitter emitter = Elements[key].Dequeue();
                     ParticleEffect effect = emitter.GetParticleEffect();
                     GFXPrimitives.Particle.UpdateParticles(emitter.GetTextureSize());

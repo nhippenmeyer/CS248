@@ -54,6 +54,12 @@
   <Material name="FlameMaterial2" shader="ParticleShader"
             texture_1 = "Textures/Particles/FireRed.dds"/>
 
+  <ParticleEffect name="TracerParticle" size="15" lifetime="10" lifetimeVariance="0.0" density="0.9"
+                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
+                  initialspeed="100" initialDirection="0 0 1" randomoffset="1 0 1" offsetMagnitude="12"
+                  fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial0"
+                  />
+
   <ParticleEffect name="Fire0" size="55" lifetime="1.5" lifetimeVariance="0.0"
                   randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="12"
