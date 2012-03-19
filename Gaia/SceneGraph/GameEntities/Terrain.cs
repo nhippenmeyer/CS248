@@ -460,6 +460,71 @@ namespace Gaia.SceneGraph.GameEntities
             }
         }
 
+        public void CarveTerrainAtPoint(Vector3 point, int size, int isoBrush)
+        {
+            List<VoxelGeometry> UpdateVoxels = new List<VoxelGeometry>();
+            int DensityFieldSqr = DensityFieldSize * DensityFieldSize;
+
+            Vector3 pointObjSpace = Vector3.Transform(point, Transformation.GetObjectSpace()) * 0.5f + Vector3.One * 0.5f;
+            pointObjSpace *= DensityFieldSize;
+
+            int xW = (int)MathHelper.Clamp(pointObjSpace.X, 0, DensityFieldSize - 1);
+            int yW = (int)MathHelper.Clamp(pointObjSpace.Y, 0, DensityFieldSize - 1);
+            int zW = (int)MathHelper.Clamp(pointObjSpace.Z, 0, DensityFieldSize - 1);
+
+            List<int[]> UpdateShifts = new List<int[]>();
+            int xStart = (int)MathHelper.Clamp(xW - size, 0, DensityFieldSize - 1);
+            int xEnd = (int)MathHelper.Clamp(xW + size, 0, DensityFieldSize - 1);
+            int yStart = (int)MathHelper.Clamp(yW - size, 0, DensityFieldSize - 1);
+            int yEnd = (int)MathHelper.Clamp(yW + size, 0, DensityFieldSize - 1);
+            int zStart = (int)MathHelper.Clamp(zW - size, 0, DensityFieldSize - 1);
+            int zEnd = (int)MathHelper.Clamp(zW + size, 0, DensityFieldSize - 1);
+            for (int x = xStart; x < xEnd; x++)
+            {
+                for (int y = yStart; y < yEnd; y++)
+                {
+                    int yStride = y * DensityFieldSize;
+                    for (int z = zStart; z < zEnd; z++)
+                    {
+                        int idx = x + yStride + z * DensityFieldSqr;
+                        
+                        int density = (int)(isoBrush * MathHelper.Clamp(1 - Vector3.Distance(new Vector3(x, y, z), new Vector3(xW, yW, zW)) / (float)size, 0.0f, 1.0f)) + (int)DensityField[idx];
+                        DensityField[idx] = (byte)MathHelper.Clamp(density, 0, 255);
+                    }
+                }
+            }
+
+            int voxelCount = (DensityFieldSize - 1) / VoxelGridSize;
+            int voxelCountSqr = voxelCount * voxelCount;
+
+            int bSizeP1 = (int)(size * 1.5f);
+            int bSizeN1 = bSizeP1;// brushSize * 2;
+            for (int x = xW - bSizeN1; x < xW + bSizeP1; x++)
+            {
+                for (int y = yW - bSizeN1; y < yW + bSizeP1; y++)
+                {
+                    for (int z = zW - bSizeN1; z < zW + bSizeP1; z++)
+                    {
+                        int xV = (int)MathHelper.Clamp((float)voxelCount * ((float)x / (float)DensityFieldSize), 0, voxelCount - 1);
+                        int yV = (int)MathHelper.Clamp((float)voxelCount * ((float)y / (float)DensityFieldSize), 0, voxelCount - 1);
+                        int zV = (int)MathHelper.Clamp((float)voxelCount * ((float)z / (float)DensityFieldSize), 0, voxelCount - 1);
+                        int voxelIndex = xV + yV * voxelCount + zV * voxelCountSqr;
+                        if (!UpdateVoxels.Contains(Voxels[voxelIndex]))
+                        {
+                            UpdateVoxels.Add(Voxels[voxelIndex]);
+                            UpdateShifts.Add(new int[] { xV, yV, zV });
+                        }
+                    }
+                }
+            }
+
+            float ratio = 2.0f * (float)VoxelGridSize / (float)(DensityFieldSize - 1);
+            for (int i = 0; i < UpdateVoxels.Count; i++)
+            {
+                UpdateVoxels[i].GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, VoxelGridSize, VoxelGridSize, VoxelGridSize, UpdateShifts[i][0] * VoxelGridSize, UpdateShifts[i][1] * VoxelGridSize, UpdateShifts[i][2] * VoxelGridSize, 2.0f / (float)(DensityFieldSize - 1));
+            }
+        }
+
         public override void OnUpdate()
         {
             //HandleCameraMotion();

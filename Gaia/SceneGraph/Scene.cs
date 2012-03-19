@@ -90,7 +90,7 @@ namespace Gaia.SceneGraph
             Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire2"), 100));
             */
             //Entities.Add(new FoliageCluster(1000, 1, 5));
-            //Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
+            Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
         }
 
         public void Update()
@@ -106,8 +106,6 @@ namespace Gaia.SceneGraph
         public void Render()
         {
             
-
-
             int renderViewCount = RenderViews.Count;
             RenderView[] views = new RenderView[renderViewCount];
             
