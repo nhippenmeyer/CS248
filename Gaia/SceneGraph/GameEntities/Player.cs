@@ -21,7 +21,7 @@ namespace Gaia.SceneGraph.GameEntities
         float hoverMagnitude = 2.5f;
         float hoverAngle = 0;
 
-        float speed = 16f;
+        float speed = 30f;
         float forwardAcceleration = 20; //15 units/second^2
         float backwardAcceleration = 8;
         float strafeAcceleration = 12;
@@ -37,7 +37,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
-            position = Vector3.Transform(Vector3.Up*0.25f, scene.MainTerrain.Transformation.GetTransform());
+            position = Vector3.Transform(Vector3.Up*0.15f, scene.MainTerrain.Transformation.GetTransform());
             scene.MainCamera = renderView;
             scene.AddRenderView(renderView);
 
