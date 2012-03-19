@@ -71,6 +71,7 @@ namespace Gaia.SceneGraph
         void InitializeScene()
         {
             Entities.Add(new Player());
+            Entities.Add(new Opponent());
             Entities.Add(new Sky());
             MainLight = new Sunlight();
             MainTerrain = new Terrain();
