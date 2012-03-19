@@ -119,7 +119,7 @@ namespace Gaia.Rendering.Simulators
 
                 Vector4 emitOrigin = new Vector4(emitters[i].Transformation.GetPosition(), 0.0f);
                 Vector4 dataParams0 = new Vector4(effect.initialDirection, effect.randomInitSpeed);
-                Vector4 dataParams1 = new Vector4(effect.initialSpeed, effect.initialSpeedVariance, 0, 0);
+                Vector4 dataParams1 = new Vector4(effect.initialSpeed, effect.initialSpeedVariance, (emitters[i].EmitOnce)?1:0, 0);
                 Vector4 lifeTimeParams = new Vector4(effect.lifetime, effect.lifetimeVariance, effect.mass, effect.massVariance);
                 Vector2 randVector = (new Vector2((float)rand.NextDouble(),(float)rand.NextDouble())*2.0f-Vector2.One)*0.5f;
 
@@ -132,7 +132,8 @@ namespace Gaia.Rendering.Simulators
                 GFX.Device.SetPixelShaderConstant(3, dataParams1);
                 GFX.Device.SetPixelShaderConstant(4, Vector4.One * timeDT);
                 GFX.Device.SetPixelShaderConstant(5, effect.offsetParameters);
-                GFX.Device.SetPixelShaderConstant(6, particleForces);
+                GFX.Device.SetPixelShaderConstant(6, emitters[i].Transformation.GetTransform());
+                GFX.Device.SetPixelShaderConstant(9, particleForces);
 
                 GFX.Device.SetRenderTarget(0, emitters[i].positionTarget);
                 GFX.Device.SetRenderTarget(1, emitters[i].velocityTarget);

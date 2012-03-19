@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C# Express 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gaia", "Gaia\Gaia.csproj", "{DA80085C-06B4-4BBC-87A4-BD915C66D167}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JigLibX", "JigLibX2\JigLibX.csproj", "{8A7CEF45-3501-491D-AEDA-0164060F5348}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -23,16 +21,6 @@ Global
 		{1CB9FDE9-C5A8-4850-BC77-8F52EC52F925}.Debug|Xbox 360.ActiveCfg = Debug|x86
 		{1CB9FDE9-C5A8-4850-BC77-8F52EC52F925}.Release|x86.ActiveCfg = Release|x86
 		{1CB9FDE9-C5A8-4850-BC77-8F52EC52F925}.Release|Xbox 360.ActiveCfg = Release|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Debug|x86.ActiveCfg = Debug|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Debug|x86.Build.0 = Debug|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Debug|Xbox 360.ActiveCfg = Debug|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Release|x86.ActiveCfg = Release|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Release|x86.Build.0 = Release|x86
-		{8A7CEF45-3501-491D-AEDA-0164060F5348}.Release|Xbox 360.ActiveCfg = Release|x86
-		{916ACCF4-F6BE-4DC8-A182-40E6FA419015}.Debug|x86.ActiveCfg = Debug|x86
-		{916ACCF4-F6BE-4DC8-A182-40E6FA419015}.Debug|Xbox 360.ActiveCfg = Debug|Xbox 360
-		{916ACCF4-F6BE-4DC8-A182-40E6FA419015}.Release|x86.ActiveCfg = Release|x86
-		{916ACCF4-F6BE-4DC8-A182-40E6FA419015}.Release|Xbox 360.ActiveCfg = Release|Xbox 360
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

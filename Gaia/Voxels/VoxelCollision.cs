@@ -28,6 +28,7 @@ namespace Gaia.Voxels
         {
             geometry = voxel;
             transformation = transform;
+
             boundsWorldSpaceCollision = bounds;
             boundsWorldSpaceCollision.Min = bounds.Min * 1.5f;
             boundsWorldSpaceCollision.Max = bounds.Max * 1.5f;
@@ -66,17 +67,21 @@ namespace Gaia.Voxels
         void GenerateCollisionMesh()
         {
             List<Vector3> vertColl = new List<Vector3>();
+            
             for (int i = 0; i < geometry.verts.Length; i++)
             {
                 vertColl.Add(Vector3.Transform(new Vector3(geometry.verts[i].Position.X, geometry.verts[i].Position.Y, geometry.verts[i].Position.Z), transformation.GetTransform()));
                 //vertColl[i] = Vector3.Transform(new Vector3(geometry.verts[i].Position.X, geometry.verts[i].Position.Y, geometry.verts[i].Position.Z), transformation.GetTransform());
             }
+            
             int triCount = 0;
             TriangleVertexIndices triIdx = new TriangleVertexIndices(0, 0, 0);
             List<TriangleVertexIndices> triColl = new List<TriangleVertexIndices>();
             for (int i = 0; i < geometry.ib.Length; i++)
             {
-
+                //int index = geometry.ib[i];
+                
+                //vertColl.Add(Vector3.Transform(new Vector3(geometry.verts[index].Position.X, geometry.verts[index].Position.Y, geometry.verts[index].Position.Z), transformation.GetTransform()));
                 switch (triCount)
                 {
                     case 0:
@@ -96,7 +101,7 @@ namespace Gaia.Voxels
             }
 
             CollisionMesh = new TriangleMesh();
-            CollisionMesh.CreateMesh(vertColl.ToArray(), triColl.ToArray(), 4, 1.0f);
+            CollisionMesh.CreateMesh(vertColl.ToArray(), triColl.ToArray(), 1500, 0.01f);
             Collision = new CollisionSkin(null);
             Collision.AddPrimitive(CollisionMesh, (int)MaterialTable.MaterialID.NotBouncyRough);
             PhysicsSystem.CurrentPhysicsSystem.CollisionSystem.AddCollisionSkin(Collision);

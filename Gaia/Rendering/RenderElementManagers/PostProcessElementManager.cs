@@ -88,7 +88,10 @@ namespace Gaia.Rendering
             GFX.Device.Textures[2] = mainRenderView.DepthMap.GetTexture();
 
             GFXPrimitives.Quad.Render();
+        }
 
+        void RenderCompositeParticles()
+        {
             GFX.Device.RenderState.SourceBlend = Blend.One;
             GFX.Device.RenderState.DestinationBlend = Blend.One;
             basicImageShader.SetupShader();
@@ -237,6 +240,8 @@ namespace Gaia.Rendering
             RenderComposite();
 
             RenderOcean();
+
+            RenderCompositeParticles();
 
             //RenderFog();
 

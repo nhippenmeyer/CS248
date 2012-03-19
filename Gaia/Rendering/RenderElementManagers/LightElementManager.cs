@@ -56,6 +56,7 @@ namespace Gaia.Rendering
             directionalLightShader.SetupShader();
 
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjectionLocal());
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, Matrix.Identity);
 
             while (DirectionalLights.Count > 0)
             {
@@ -91,6 +92,7 @@ namespace Gaia.Rendering
             while (PointLights.Count > 0)
             {
                 Light currLight = PointLights.Dequeue();
+                GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, currLight.Transformation.GetTransform());
                 SetupLightParameters(currLight);
                 GFXPrimitives.Cube.Render();
             }
@@ -99,6 +101,7 @@ namespace Gaia.Rendering
             while (SpotLights.Count > 0)
             {
                 Light currLight = SpotLights.Dequeue();
+                GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, currLight.Transformation.GetTransform());
                 SetupLightParameters(currLight);
                 GFXPrimitives.Cube.Render();
             }

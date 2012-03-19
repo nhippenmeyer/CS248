@@ -51,14 +51,15 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 			uniform float4 dataParams1 : register(C3),
 			uniform float timeDT : register(C4),
 			uniform float4 randOffsetParams : register(C5),
-			uniform float3 forces[MAX_PARTICLEFORCES] : register(C6)
+			uniform float3x3 rotationMatrix : register(C6),
+			uniform float3 forces[MAX_PARTICLEFORCES] : register(C9)
 ) : COLOR
 {
 	PHYSICS OUT;
 	float4 position = tex2D(PositionMap, IN.TexCoord);
 	float4 velocity = tex2D(VelocityMap, IN.TexCoord); //w contains mass
 	
-	if(position.w <= 0.0) //Uh oh! Gotta reset the particle!
+	if(position.w >= lifetimeParams.x && dataParams1.z < 0.5f) //Uh oh! Gotta reset the particle!
 	{
 		float3 randOffset;
 		randOffset.x = tex2D(RandomMap[2], IN.RandCoord*2.6).r;
@@ -69,8 +70,8 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 		randDir.x = tex2D(RandomMap[0], IN.RandCoord*2.6).r;
 		randDir.y = tex2D(RandomMap[1], IN.RandCoord*1.25).r;
 		randDir.z = tex2D(RandomMap[2], IN.RandCoord*1.89).r;
-		position.w = lifetimeParams.x + lifetimeParams.y * tex2D(RandomMap[0], IN.RandCoord).r;
-		velocity.xyz = dataParams0.xyz * dataParams1.x + dataParams1.y * tex2D(RandomMap[1], IN.RandCoord).r;
+		position.w = 0;// + lifetimeParams.y * tex2D(RandomMap[0], IN.RandCoord).r;
+		velocity.xyz = mul(dataParams0.xyz, rotationMatrix) * dataParams1.x + dataParams1.y * tex2D(RandomMap[1], IN.RandCoord).r;
 		velocity.xyz += randDir*dataParams0.w;
 		velocity.w = lifetimeParams.z + lifetimeParams.w*tex2D(RandomMap[2], IN.RandCoord).r;
 	}
@@ -93,13 +94,13 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 	Derivative c = evaluate(state, accel, timeDT*0.5f, b);
 	Derivative d = evaluate(state, accel, timeDT, c);
 
-	float dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
-	float dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
+	float3 dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
+	float3 dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
 		
 	//float3 Ia = accel*timeDT;	 //integral of acceleration
 	position.xyz += dxdt*timeDT; //velocity.xyz*timeDT + 0.5*Ia*timeDT;
 	velocity.xyz += dvdt*timeDT; //Ia; //update velocity term
-	position.w -= timeDT;
+	position.w += timeDT;
 	
 	OUT.Position = position;
 	OUT.Velocity = velocity;
