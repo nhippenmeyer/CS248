@@ -21,6 +21,8 @@ namespace Gaia.SceneGraph.GameEntities
         public RenderTarget2D positionTarget;
         public RenderTarget2D velocityTarget;
 
+        public bool EmitOnce = false;
+
         ParticleEffect particleEffect;
 
         public ParticleEffect GetParticleEffect()

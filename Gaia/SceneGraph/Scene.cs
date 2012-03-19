@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using JigLibX.Physics;
-using JigLibX.Collision;
-using JigLibX.Geometry;
-
 using Gaia.Core;
 using Gaia.Rendering.RenderViews;
 using Gaia.SceneGraph.GameEntities;
@@ -23,14 +19,9 @@ namespace Gaia.SceneGraph
         public Terrain MainTerrain;
 
         BoundingBox sceneDimensions;
-
-        PhysicsSystem physicSystem;
        
         public Scene()
         {
-
-            InitializePhysics();
-
             InitializeScene();
         }
 
@@ -77,22 +68,6 @@ namespace Gaia.SceneGraph
             }
         }
 
-        void InitializePhysics()
-        {
-            physicSystem = new PhysicsSystem();
-            physicSystem.CollisionSystem = new CollisionSystemGrid(32, 32, 32, 30, 30, 30);
-            //physicSystem.CollisionSystem = new CollisionSystemBrute();
-            //physicSystem.CollisionSystem = new CollisionSystemSAP();
-
-            physicSystem.EnableFreezing = true;
-            physicSystem.SolverType = PhysicsSystem.Solver.Combined;
-            physicSystem.CollisionSystem.UseSweepTests = true;
-            physicSystem.Gravity = new Vector3(0, -10, 0);//PhysicsHelper.GravityEarth, 0);
-            physicSystem.NumCollisionIterations = 32;
-            physicSystem.NumContactIterations = 32;
-            physicSystem.NumPenetrationRelaxtionTimesteps = 30;// 15;
-        }
-
         void InitializeScene()
         {
             Entities.Add(new Player());
@@ -115,22 +90,12 @@ namespace Gaia.SceneGraph
            // Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire2"), 100));
             
             //Entities.Add(new FoliageCluster(1000, 1, 5));
-            Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
+            //Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
         }
 
         public void Update()
         {
             DetermineSceneDimensions();
-
-            float timeStep = Time.GameTime.DT;
-            if (timeStep < 1.0f / 60.0f)
-            {
-                physicSystem.Integrate(timeStep);
-            }
-            else
-            {
-                physicSystem.Integrate(1.0f / 60.0f);
-            }
 
             for (int i = 0; i < Entities.Count; i++)
             {

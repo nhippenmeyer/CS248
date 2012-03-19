@@ -16,19 +16,18 @@ namespace Gaia.SceneGraph.GameEntities
         public byte IsoValue = 127; //Defines density field isosurface cutoff value (ie the transition between solid and empty space)
                                     //so if a voxel had an element of 127 or lower, that would be empty space. A value higher than 127
                                     //Would be solid space.
-        public int VoxelGridSize = 8; //Defines how many voxel geometries we have (used to balance performance)
+        public int VoxelGridSize = 16; //Defines how many voxel geometries we have (used to balance performance)
         public int DensityFieldSize = 129; //Density field is (2^n)+1 in size. (e.g. 65, 129, 257, 513) 
 
         VoxelGeometry[] Voxels;
         BoundingBox[] VoxelBounds;
-        VoxelCollision[] VoxelCollisions;
 
         public byte[] DensityField;
 
         Material terrainMaterial;
 
         Matrix textureMatrix = Matrix.Identity;
-        float TerrainSize = 1024.0f;
+        float TerrainSize = 1024;
 
         RenderTarget2D srcTarget;
         Texture3D[] noiseTextures;
@@ -43,7 +42,6 @@ namespace Gaia.SceneGraph.GameEntities
             GenerateFloatingIslands(256);
             terrainMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
         }
-
 
         public bool GetYPos(ref Vector3 pos, out Vector3 normal, float minY, float maxY)
         {
@@ -134,12 +132,26 @@ namespace Gaia.SceneGraph.GameEntities
             return nrm;
         }
 
+        public bool IsCollision(Vector3 pos, out Vector3 normal)
+        {
+            Vector3 posObjSpace = Vector3.Transform(pos, Transformation.GetObjectSpace());
+ 
+            posObjSpace = posObjSpace * 0.5f + Vector3.One * 0.5f;
+            posObjSpace *= DensityFieldSize;
+
+            int xP = (int)MathHelper.Clamp(posObjSpace.X, 0, DensityFieldSize - 1);
+            int yP = (int)MathHelper.Clamp(posObjSpace.Y, 0, DensityFieldSize - 1);
+            int zP = (int)MathHelper.Clamp(posObjSpace.Z, 0, DensityFieldSize - 1);
+            bool isCollision = (DensityField[xP + (yP + zP * DensityFieldSize) * DensityFieldSize] > IsoValue);
+            normal = (isCollision)?ComputeNormal(xP, yP, zP):Vector3.Zero;
+            return isCollision;
+        }
+
         void GenerateFloatingIslands(int size)
         {
             DensityFieldSize = size + 1;
             InitializeFieldData();
-
-
+            
             //Here we generate our noise textures
             int nSize = 16;
             noiseTextures = new Texture3D[4];
@@ -317,12 +329,12 @@ namespace Gaia.SceneGraph.GameEntities
             DensityField = new byte[fieldSize];
         }
 
+
         void InitializeVoxels()
         {
             int voxelCount = (DensityFieldSize - 1) / VoxelGridSize;
             Voxels = new VoxelGeometry[voxelCount * voxelCount * voxelCount];
             VoxelBounds = new BoundingBox[Voxels.Length];
-            VoxelCollisions = new VoxelCollision[Voxels.Length];
             float ratio = 2.0f * (float)VoxelGridSize / (float)(DensityFieldSize - 1);
 
             for (int z = 0; z < voxelCount; z++)
@@ -343,8 +355,6 @@ namespace Gaia.SceneGraph.GameEntities
                         Voxels[idx] = new VoxelGeometry();
                         Voxels[idx].renderElement.Transform = new Matrix[1] { Transformation.GetTransform() };
                         Voxels[idx].GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, VoxelGridSize, VoxelGridSize, VoxelGridSize, x * VoxelGridSize, y * VoxelGridSize, z * VoxelGridSize, 2.0f / (float)(DensityFieldSize - 1));
-
-                        VoxelCollisions[idx] = new VoxelCollision(Voxels[idx], this.Transformation, VoxelBounds[idx]);
                     }
                 }
             }
@@ -453,12 +463,7 @@ namespace Gaia.SceneGraph.GameEntities
         public override void OnUpdate()
         {
             //HandleCameraMotion();
-
-            for (int i = 0; i < VoxelCollisions.Length; i++)
-            {
-                VoxelCollisions[i].UpdateCollision();
-            }
-
+           
             base.OnUpdate();
         }
 

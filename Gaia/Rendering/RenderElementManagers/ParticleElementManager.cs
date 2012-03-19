@@ -24,6 +24,9 @@ namespace Gaia.Rendering
         public override void Render()
         {
             GFX.Inst.ResetState();
+            DepthStencilBuffer dsOld = GFX.Device.DepthStencilBuffer;
+            GFX.Device.DepthStencilBuffer = GFX.Inst.dsBufferLarge;
+            GFX.Device.Clear(Color.TransparentBlack);
             GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
             GFX.Device.RenderState.CullMode = CullMode.None;
             GFX.Device.RenderState.DepthBufferEnable = false;
@@ -32,10 +35,15 @@ namespace Gaia.Rendering
 
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
             GFX.Device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+            //GFX.Device.RenderState.SourceBlend = Blend.One;
+            //GFX.Device.RenderState.DestinationBlend = Blend.InverseDestinationAlpha;
             GFX.Device.RenderState.SeparateAlphaBlendEnabled = true;
             GFX.Device.RenderState.AlphaSourceBlend = Blend.Zero;
-            GFX.Device.RenderState.AlphaDestinationBlend = Blend.InverseSourceAlpha;
-            
+            GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+            //GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
+            //GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+
+
             GFX.Device.VertexDeclaration = GFXVertexDeclarations.ParticlesDec;
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjection());
             GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_EYEPOS, renderView.GetEyePosShader());
@@ -53,7 +61,7 @@ namespace Gaia.Rendering
                     ParticleEffect effect = emitter.GetParticleEffect();
                     GFXPrimitives.Particle.UpdateParticles(emitter.GetTextureSize());
                     GFX.Device.VertexTextures[0] = emitter.positionData;
-                    //GFX.Device.Textures[0] = emitter.colorData.GetTexture();
+                    GFX.Device.Textures[0] = emitter.positionData;
                     GFX.Device.SetVertexShaderConstant(4, Vector4.One*effect.size*GFX.Inst.DisplayRes.X);
                     GFX.Device.SetVertexShaderConstant(5, new Vector4(effect.fadeInPercent, effect.fadeInCoeff, effect.fadeOutPercent, effect.fadeOutCoeff));
                     GFX.Device.SetVertexShaderConstant(6, new Vector4(effect.lifetime, effect.lifetimeVariance, 0, 0));
@@ -69,6 +77,7 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.SeparateAlphaBlendEnabled = false;
             GFX.Device.RenderState.AlphaBlendEnable = false;
             GFX.Device.RenderState.PointSpriteEnable = false;
+            GFX.Device.DepthStencilBuffer = dsOld;
             GFX.Inst.ResetState();
         }
         

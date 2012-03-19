@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using JigLibX.Collision;
-using JigLibX.Geometry;
-using JigLibX.Physics;
 
 using Gaia.Rendering;
 
@@ -15,9 +12,6 @@ namespace Gaia.Voxels
         public VertexPN[] verts = null;
         public ushort[] ib = null;
         int PrimitiveCount = 0;
-
-        TriangleMesh CollisionMesh;
-        CollisionSkin Collision;
 
         public RenderElement renderElement;
 

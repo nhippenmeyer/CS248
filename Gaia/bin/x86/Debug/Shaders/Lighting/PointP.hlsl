@@ -11,7 +11,7 @@ float4 main(float4 TexCoord : TEXCOORD0, float3 ObjPosition : TEXCOORD1, uniform
 	float z = tex2D(DepthMap, TC).r*EyePos.w;
 	clip(z-EPS);
 	
-	float3 V = normalize(EyePos.xyz-ObjPosition);
+	float3 V = normalize(ObjPosition-EyePos.xyz);
 	float3 WorldPos = V*z+EyePos;
 	float3 N = DecompressNormal(tex2D(GBuffer, TC).xy);
 	float3 LightDir = LightPos-WorldPos;

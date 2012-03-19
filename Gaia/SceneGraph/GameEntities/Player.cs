@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using JigLibX.Physics;
-using JigLibX.Collision;
-using JigLibX.Geometry;
-
 
 using Gaia.Input;
-using Gaia.Physics;
 using Gaia.Rendering;
 using Gaia.Rendering.RenderViews;
+using Gaia.Physics;
+using Gaia.Core;
 
 namespace Gaia.SceneGraph.GameEntities
 {
@@ -18,49 +15,40 @@ namespace Gaia.SceneGraph.GameEntities
     {
         Vector3 position = Vector3.Zero;
         Vector3 rotation = Vector3.Zero;
-        float speed = 2.5f;
+        Vector3 prevForward = Vector3.Forward;
+
+        State physicsState;
+
+        float speed = 16f;
+        float forwardAcceleration = 5; //15 units/second^2
+        float backwardAcceleration = 8;
+        float strafeAcceleration = 12;
         MainRenderView renderView;
 
         float aspectRatio;
         float fieldOfView;
 
-        CharacterBody CharacterBody { get; set; }
-        public Body body;
-        public CollisionSkin collision;
-        float playerSpeed = 4.5f;
-        Vector3 com;
-
-        bool attachCameraToPlayer = false;
+        ParticleEmitter emitter;
+        Light emitterLight;
 
         public override void OnAdd(Scene scene)
         {
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
+            position = Vector3.Transform(Vector3.Up*0.25f, scene.MainTerrain.Transformation.GetTransform());
             scene.MainCamera = renderView;
             scene.AddRenderView(renderView);
 
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
-            Vector3 pos = Vector3.Up * 512;
-            body = new CharacterBody();
-            collision = new CollisionSkin(body);
-
-            Capsule capsule = new Capsule(Vector3.Zero, Matrix.CreateRotationX(MathHelper.PiOver2), 1.5f, 1.6f);
-            collision.AddPrimitive(capsule, (int)MaterialTable.MaterialID.NormalRough);//.Player);
-            //collision.AddPrimitive(new Box(Vector3.Zero, Matrix.Identity, Vector3.One), (int)MaterialTable.MaterialID.NotBouncyNormal);
-            body.CollisionSkin = this.collision;
-            com = PhysicsHelper.SetMass(75.0f, body, collision);
-
-            body.MoveTo(pos + com, Matrix.Identity);
-            collision.ApplyLocalTransform(new JigLibX.Math.Transform(-com, Matrix.Identity));
-
-            body.SetBodyInvInertia(0.0f, 0.0f, 0.0f);
-
-            body.AllowFreezing = false;
-            body.EnableBody();
-            CharacterBody = body as CharacterBody;
-
+            emitter = new ParticleEmitter(Resources.ResourceManager.Inst.GetParticleEffect("PlayerParticles"), 60);
+            emitterLight = new Light(LightType.Point, new Vector3(0.13f, 0.86f, 1.26f), position, false);
+            emitterLight.Parameters = new Vector4(55, 50, 0, 0);
+            scene.Entities.Add(emitter);
+            scene.Entities.Add(emitterLight);
+            physicsState.position = position;
+            physicsState.velocity = Vector3.Zero;
 
             base.OnAdd(scene);
         }
@@ -83,62 +71,64 @@ namespace Gaia.SceneGraph.GameEntities
             if (rotation.Y < 0)
                 rotation.Y += MathHelper.TwoPi;
             Mouse.SetPosition((int)(centerCrd.X + GFX.Inst.Origin.X), (int)(centerCrd.Y + GFX.Inst.Origin.Y));
-
+            
             Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
-            
-            Vector3 moveDir = Vector3.Zero;
+
+            Vector3 acceleration = Vector3.Zero;
+
+            //physicsState.velocity += transform.Forward * speed;// *Math.Max(1.0f - Vector3.Dot(transform.Forward, prevForward) * 0.75f, 0.0f);
+            prevForward = transform.Forward;
+
+            Vector3 vel = transform.Forward * speed;
             if (InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
-                moveDir += transform.Forward;
+                vel += transform.Forward * forwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
             if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
-                moveDir -= transform.Forward;
+                vel -= transform.Forward * backwardAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
+
             if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
-                moveDir += transform.Right;
+                vel += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
             if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
-                moveDir -= transform.Right;
+                vel -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
 
-            moveDir *= speed;
-            position += moveDir;
+            //vel -= Vector3.Normalize(physicsState.velocity) * physicsState.velocity.LengthSquared() * 1.1455f * 0.2f;
 
-            Matrix temp = Matrix.CreateRotationY(rotation.Y);
+            physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.75f);
+            /*
+            if(InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
+                acceleration += transform.Forward * forwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
+                acceleration -= transform.Forward * backwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f));
             
-            if (InputManager.Inst.IsKeyDown(GameKey.Jump))
-                CharacterBody.Jump(15);
-
-            Vector3 vel = JigLibX.Math.JiggleMath.NormalizeSafe(Vector3.Zero);
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
-                vel += temp.Forward * playerSpeed;
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
-                vel -= temp.Forward * playerSpeed;
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
-                vel -= temp.Right * playerSpeed;
             if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
-                vel += temp.Right * playerSpeed;
+                acceleration += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
+            if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
+                acceleration -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
+            */
+            State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
-            //vel);
-            CharacterBody.DesiredVelocity = vel;
-
-            if (attachCameraToPlayer)
+            Vector3 collNormal = Vector3.Zero;
+            if (!scene.MainTerrain.IsCollision(newState.position, out collNormal))
             {
-                position = CharacterBody.Position;
+                physicsState = newState;
             }
-
-            if (InputManager.Inst.IsKeyDownOnce(GameKey.ToggleCamera))
+            else
             {
-                attachCameraToPlayer = !attachCameraToPlayer;
+
+                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal)*3.5f;
+                physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
+            position = physicsState.position-transform.Forward*30;
 
-            if (InputManager.Inst.IsKeyDownOnce(GameKey.DropPlayerAtCamera))
-            {
-                CharacterBody.MoveTo(position, Matrix.Identity);
-                attachCameraToPlayer = true;
-            }
+            emitter.Transformation.SetPosition(physicsState.position);
+            emitter.Transformation.SetRotation(rotation);
 
+            emitterLight.Transformation.SetPosition(physicsState.position);
 
-            float nearPlane = 0.5f;
+            float nearPlane = 0.15f;
             float farPlane = 2000;
 
             renderView.SetPosition(position);
-            renderView.SetView(Matrix.CreateLookAt(position, position + transform.Forward, Vector3.Up));
+            renderView.SetView(Matrix.CreateLookAt(position, physicsState.position, Vector3.Up));
             renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
             renderView.SetNearPlane(nearPlane);
             renderView.SetFarPlane(farPlane);
