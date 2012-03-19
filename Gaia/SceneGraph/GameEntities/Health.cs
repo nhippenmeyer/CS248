@@ -23,7 +23,6 @@ namespace Gaia.SceneGraph.GameEntities
         Random randomHelper;
         
         BoundingBox boundingBox;
-        Vector3 minPos, maxPos;
         bool collected;
 
         public Health(Random random)

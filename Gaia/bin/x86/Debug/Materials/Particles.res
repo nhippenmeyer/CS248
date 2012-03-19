@@ -59,16 +59,16 @@
   <Material name="TracerMaterial" shader="ParticleShader"
             texture_1 = "Textures/Particles/Tracer.dds"/>
 
-  <ParticleEffect name="TracerParticle" size="7" lifetime="1.2" lifetimeVariance="0.0" density="0.9"
-                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="100" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="7"
-                  fadeInPercent="0.05" fadeOutPercent="0.7" material="TracerMaterial"
+  <ParticleEffect name="TracerParticle" size="30" lifetime="10" lifetimeVariance="5" density="0.9"
+                  randomInitSpeed="0.19" initialSpeedVariance="0.5" mass="40" massVariance="5"
+                  initialspeed="100" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="20"
+                  fadeInPercent="0.001" fadeOutPercent="0.7" material="FlameMaterial0"
                   />
 
-  <ParticleEffect name="HealthParticle" size="10" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
-                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="0.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="7"
-                  fadeInPercent="0.05" fadeOutPercent="0.5" material="TracerMaterial"
+  <ParticleEffect name="HealthParticle" size="5" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
+                  randomInitSpeed="0.09" initialSpeedVariance="0.4" mass="20" massVariance="5"
+                  initialspeed="0.26" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="7"
+                  fadeInPercent="0.05" fadeOutPercent="0.5" material="PlayerMaterial"
                   />
 
   <ParticleEffect name="Fire0" size="55" lifetime="1.5" lifetimeVariance="0.0"
