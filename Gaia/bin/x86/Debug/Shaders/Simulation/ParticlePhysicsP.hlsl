@@ -65,7 +65,7 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 		randOffset.x = tex2D(RandomMap[2], IN.RandCoord*2.6).r;
 		randOffset.y = tex2D(RandomMap[0], IN.RandCoord*1.25).r;
 		randOffset.z = tex2D(RandomMap[1], IN.RandCoord*1.89).r;
-		position.xyz = emitOrigin.xyz + randOffset*randOffsetParams.xyz*randOffsetParams.w;
+		position.xyz = emitOrigin.xyz + randOffset*mul(randOffsetParams.xyz, rotationMatrix)*randOffsetParams.w;
 		float3 randDir;
 		randDir.x = tex2D(RandomMap[0], IN.RandCoord*2.6).r;
 		randDir.y = tex2D(RandomMap[1], IN.RandCoord*1.25).r;
