@@ -65,7 +65,7 @@
                   fadeInPercent="0.05" fadeOutPercent="0.7" material="TracerMaterial"
                   />
 
-  <ParticleEffect name="HealthParticle" size="20" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
+  <ParticleEffect name="HealthParticle" size="10" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
                   randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="7"
                   fadeInPercent="0.05" fadeOutPercent="0.5" material="TracerMaterial"

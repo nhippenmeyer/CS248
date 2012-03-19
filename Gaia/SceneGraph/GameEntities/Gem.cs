@@ -22,10 +22,17 @@ namespace Gaia.SceneGraph.GameEntities
         byte IsoValue = 127;
 
         Light emitterLight;
+
+        Random randomHelper;
         
         BoundingBox boundingBox;
         Vector3 minPos, maxPos;
         bool collected;
+
+        public Gem(Random random)
+        {
+            randomHelper = random;
+        }
 
         void generateGem(Vector3 position)
         {
@@ -79,7 +86,6 @@ namespace Gaia.SceneGraph.GameEntities
         {
             gemMaterial = ResourceManager.Inst.GetMaterial("GemMaterial");
 
-            Random randomHelper = new Random();
             Vector3 randPosition = Vector3.Zero;
             Vector3 randNormal = Vector3.Zero;
             randomHelper.NextDouble();

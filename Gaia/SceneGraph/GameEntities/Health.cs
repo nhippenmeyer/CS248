@@ -19,23 +19,23 @@ namespace Gaia.SceneGraph.GameEntities
 
         State physicsState;
         ParticleEmitter tracerEmitter;
+
+        Random randomHelper;
         
         BoundingBox boundingBox;
         Vector3 minPos, maxPos;
         bool collected;
 
-        public Health()
+        public Health(Random random)
         {
+            randomHelper = random;
             tracerEffect = ResourceManager.Inst.GetParticleEffect("HealthParticle");
         }
 
         public override void OnAdd(Scene scene)
         {
-           
-            Random randomHelper = new Random();
             Vector3 randPosition = Vector3.Zero;
             Vector3 randNormal = Vector3.Zero;
-            randomHelper.NextDouble();
             randomHelper.NextDouble();
             scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
 
@@ -47,12 +47,13 @@ namespace Gaia.SceneGraph.GameEntities
             Console.WriteLine("Added particle at position: \n {0}", physicsState.position);
 
             boundingBox = new BoundingBox();
-            boundingBox.Min = randPosition - Vector3.One * Vector3.Up * 15.0f;
-            boundingBox.Min.X -= 7.5f;
-            boundingBox.Min.Z -= 7.5f;
-            boundingBox.Max = randPosition + Vector3.One * Vector3.Up * 15.0f;
-            boundingBox.Max.X += 7.5f;
-            boundingBox.Max.Z += 7.5f;
+            float size = tracerEmitter.GetTextureSize();
+            boundingBox.Min = randPosition - Vector3.One * Vector3.Up * size;
+            boundingBox.Min.X -= (size / 2.0f);
+            boundingBox.Min.Z -= (size / 2.0f);
+            boundingBox.Max = randPosition + Vector3.One * Vector3.Up * size;
+            boundingBox.Max.X += (size / 2.0f);
+            boundingBox.Max.Z += (size / 2.0f);
 
             base.OnAdd(scene);
         }
@@ -69,7 +70,6 @@ namespace Gaia.SceneGraph.GameEntities
             BoundingFrustum frustum = view.GetFrustum();
             if (frustum.Contains(boundingBox) != ContainmentType.Disjoint && !collected)
             {
-                //   view.AddElement(gemMaterial, gemGeometry.renderElement);
 
             }
             base.OnRender(view);
