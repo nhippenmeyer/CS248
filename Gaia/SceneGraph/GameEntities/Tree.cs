@@ -33,6 +33,7 @@ namespace Gaia.SceneGraph.GameEntities
             lSys.setSphereRadius(1.0f);
             lSys.setTurnValue(45);
             lSys.setForwardLength(5.0f);
+            lSys.setWidth(2.0f);
 
             Lsystem.ReproductionRule r1;
             r1.from = 'F';
@@ -40,7 +41,7 @@ namespace Gaia.SceneGraph.GameEntities
 
             // Regular tree:
             r1.to = "GF[%-F@]%G[&+F@][&\\F@]&&G[%/F@]F@";  // With randomization
-            r1.to = "GF[-F@]%G[+F@][\\F@]&&G[/F@]F@";  // With some randomization 
+            r1.to = "GGGF[-F@]%G[+F@][\\F@]&&G[/F@]F@";  // With some randomization 
 
           //    r1.to = "G[/GF][+F][-GF][\\F]G@";
            //  r1.to = "G-%[[F]+&F]+&G[+&GF]-%F";
@@ -56,7 +57,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (varyTreeNum == 2)
             {
                 lSys.setSphereRadius(2.0f);
-                lSys.setWidth(2.0f);
+                lSys.setWidth(3.0f);
             }
 
             Voxels = lSys.generateGeometry(position, varyTreeNum);

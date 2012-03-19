@@ -81,11 +81,13 @@ namespace Gaia.SceneGraph
                 Tree tree = new Tree();
                 tree.setNum(i % 8);
                 Entities.Add(tree);
+                Entities.Add(new Gem());
             }
+           // Entities.Add(new Gem());
             //Entities.Add(new GrassPlacement());
             /*
             Entities.Add(new Cloud()); */
-            Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Spark0"), 100));
+      //      Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Spark0"), 100));
            // Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire1"), 100));
            // Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire2"), 100));
             

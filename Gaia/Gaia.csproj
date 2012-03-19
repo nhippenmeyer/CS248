@@ -126,6 +126,7 @@
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="SceneGraph\GameEntities\Cloud.cs" />
     <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
+    <Compile Include="SceneGraph\GameEntities\Gem.cs" />
     <Compile Include="SceneGraph\GameEntities\GrassPlacement.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
     <Compile Include="SceneGraph\GameEntities\Lsystem.cs" />

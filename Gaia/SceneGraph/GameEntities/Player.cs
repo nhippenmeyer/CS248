@@ -19,7 +19,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         State physicsState;
 
-        float speed = 16f;
+        float speed = 30.0f;
         float forwardAcceleration = 5; //15 units/second^2
         float backwardAcceleration = 8;
         float strafeAcceleration = 12;

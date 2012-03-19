@@ -72,7 +72,7 @@ namespace Gaia.SceneGraph.GameEntities
         Stack<float> lengths;
         Random rand = new Random();
         Vector3 initPosition;
-        Vector3 maxPos;
+        Vector3 maxPos, minPos;
 
         List<Matrix> cylinderTransforms = new List<Matrix>();
         List<Matrix> leafTransforms = new List<Matrix>();
@@ -161,9 +161,10 @@ namespace Gaia.SceneGraph.GameEntities
             leafTransforms = new List<Matrix>();
             cylinderGeometry = new Cylinder(20);
             Vector3 offset = Vector3.Zero;
-            offset.Y = -1.6f * forwardLength;
+            offset.Y = -4.0f * forwardLength;
             initPosition = position + offset;
             maxPos = initPosition;
+            minPos = initPosition;
 
             RenderElement cylinderMesh = new RenderElement();
             cylinderMesh.VertexBuffer = cylinderGeometry.GetVertexBufferInstanced();
@@ -280,7 +281,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             BoundingBox bounds = new BoundingBox();
             bounds.Max = maxPos;
-            bounds.Min = initPosition;
+            bounds.Min = minPos;
             return bounds;
         }
 
@@ -490,10 +491,8 @@ namespace Gaia.SceneGraph.GameEntities
             translationStack.Push(translatedTop);
 
             Vector3 newPosition = Vector3.Transform(Vector3.Zero, translatedTop);
-            if (newPosition.Y > maxPos.Y)
-            {
-                maxPos = newPosition;
-            }
+            minPos = Vector3.Min(newPosition, minPos);
+            maxPos = Vector3.Max(newPosition, maxPos);
 
         }
 
