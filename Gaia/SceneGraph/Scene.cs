@@ -71,6 +71,11 @@ namespace Gaia.SceneGraph
         void InitializeScene()
         {
             Entities.Add(new Player());
+            Vector3[] directions = new Vector3[] { Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward, Vector3.Up };
+            foreach (Vector3 dir in directions)
+            {
+                //       Entities.Add(new Opponent(dir * 0.5f));
+            }
             Entities.Add(new Sky());
             MainLight = new Sunlight();
             MainTerrain = new Terrain();
@@ -94,6 +99,8 @@ namespace Gaia.SceneGraph
             
             //Entities.Add(new FoliageCluster(1000, 1, 5));
             Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
+
+
         }
 
         public void Update()

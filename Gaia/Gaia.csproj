@@ -132,7 +132,7 @@
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
     <Compile Include="SceneGraph\GameEntities\Lsystem.cs" />
     <Compile Include="SceneGraph\GameEntities\ParticleEmitter.cs" />
-    <Compile Include="SceneGraph\GameEntities\Player.cs" />
+    <Compile Include="SceneGraph\GameEntities\Actor.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
     <Compile Include="SceneGraph\GameEntities\Projectile.cs" />
     <Compile Include="SceneGraph\GameEntities\Sky.cs" />
