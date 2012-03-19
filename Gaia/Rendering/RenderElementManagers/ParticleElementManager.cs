@@ -29,21 +29,27 @@ namespace Gaia.Rendering
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
             GFX.Device.RenderState.CullMode = CullMode.None;
-            GFX.Device.RenderState.DepthBufferEnable = false;
-            GFX.Device.RenderState.DepthBufferWriteEnable = false;
+
+            GFX.Device.RenderState.DepthBufferEnable = false; 
+            GFX.Device.RenderState.DepthBufferWriteEnable = false; 
             GFX.Device.RenderState.AlphaBlendEnable = true;
+
+            GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
+            GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
 
             /*
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
             GFX.Device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
             
             GFX.Device.RenderState.SeparateAlphaBlendEnabled = true;
-            GFX.Device.RenderState.AlphaSourceBlend = Blend.Zero;
-            GFX.Device.RenderState.AlphaDestinationBlend = Blend.InverseSourceAlpha;
+            GFX.Device.RenderState.AlphaBlendOperation = BlendFunction.Add;
+            GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
+            GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+
+            GFX.Device.RenderState.DepthBufferEnable = false;
             */
-            
-            GFX.Device.RenderState.SourceBlend = Blend.One;
-            GFX.Device.RenderState.DestinationBlend = Blend.One;
+            GFX.Device.RenderState.SourceBlend = Blend.SourceColor;
+            GFX.Device.RenderState.DestinationBlend = Blend.DestinationColor;
 
 
             GFX.Device.VertexDeclaration = GFXVertexDeclarations.ParticlesDec;

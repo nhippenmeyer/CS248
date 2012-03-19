@@ -146,6 +146,7 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 1.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
+           // position = physicsState.position - transform.Forward * 30;
             position = physicsState.position + transform.Up * 5f - transform.Forward * 0.25f;
             //position = physicsState.position -transform.Forward * 30;
 
