@@ -32,15 +32,15 @@ namespace Gaia.SceneGraph.GameEntities
             lSys.setIterations(3);
             lSys.setSphereRadius(1.0f);
             lSys.setTurnValue(45);
-            lSys.setForwardLength(5.0f);
-            lSys.setWidth(2.0f);
+            lSys.setForwardLength(7.0f);
+            lSys.setWidth(2.5f);
 
             Lsystem.ReproductionRule r1;
             r1.from = 'F';
          //   r1.to = "FF-[\\F+F&F@]+[/F-F%F@]";
 
             // Regular tree:
-            r1.to = "GF[%-F@]%G[&+F@][&\\F@]&&G[%/F@]F@";  // With randomization
+       //     r1.to = "GF[%-F@]%G[&+F@][&\\F@]&&G[%/F@]F@";  // With randomization
             r1.to = "GGGF[-F@]%G[+F@][\\F@]&&G[/F@]F@";  // With some randomization 
 
           //    r1.to = "G[/GF][+F][-GF][\\F]G@";
@@ -57,7 +57,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (varyTreeNum == 2)
             {
                 lSys.setSphereRadius(2.0f);
-                lSys.setWidth(3.0f);
+                lSys.setWidth(3.5f);
             }
 
             Voxels = lSys.generateGeometry(position, varyTreeNum);
@@ -86,6 +86,10 @@ namespace Gaia.SceneGraph.GameEntities
             Vector3 randNormal = Vector3.Zero;
             randomHelper.NextDouble();
             scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            while (randPosition.Y < 5.0f || Vector3.Dot(randNormal, Vector3.Up) < 0.5f)
+            {
+                scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            }
             generateTree(randPosition);
             base.OnAdd(scene);
             

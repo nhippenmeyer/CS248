@@ -161,7 +161,7 @@ namespace Gaia.SceneGraph.GameEntities
             leafTransforms = new List<Matrix>();
             cylinderGeometry = new Cylinder(20);
             Vector3 offset = Vector3.Zero;
-            offset.Y = -4.0f * forwardLength;
+            offset.Y = -2.0f * forwardLength;
             initPosition = position + offset;
             maxPos = initPosition;
             minPos = initPosition;

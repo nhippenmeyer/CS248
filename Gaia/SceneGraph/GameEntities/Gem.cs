@@ -25,7 +25,7 @@ namespace Gaia.SceneGraph.GameEntities
         
         BoundingBox boundingBox;
         Vector3 minPos, maxPos;
-        bool collected = false;
+        bool collected;
 
         void generateGem(Vector3 position)
         {
@@ -44,13 +44,16 @@ namespace Gaia.SceneGraph.GameEntities
                     {
                         Vector3 pos = new Vector3(x, y, z);
 
-                        minPos = Vector3.Min(pos, minPos);
-                        maxPos = Vector3.Max(pos, maxPos);
-
                         float offset = Math.Abs(pos.Y - cylinderCenter.Y);
                         pos.Y = cylinderCenter.Y;
                         float radius = MathHelper.Lerp(radiusMax, radiusMin, offset/cylinderCenter.Y);
                         float density = Math.Max(1.0f - (pos - cylinderCenter).Length() / (radius), 0.0f);
+                        if (density > 0.0f)
+                        {
+                            pos = (pos / DensityFieldSize) * 2.0f - Vector3.One;
+                            minPos = Vector3.Min(pos, minPos);
+                            maxPos = Vector3.Max(pos, maxPos);
+                        }
                         DensityField[x + (y + z * DensityFieldSize) * DensityFieldSize] = (byte)(density * 255.0f);
                     }
                 }
@@ -63,6 +66,8 @@ namespace Gaia.SceneGraph.GameEntities
             boundingBox = new BoundingBox();
             boundingBox.Max = Vector3.Transform(maxPos, gemGeometry.renderElement.Transform[0]);
             boundingBox.Min = Vector3.Transform(minPos, gemGeometry.renderElement.Transform[0]);
+
+            collected = false;
 
             Vector3 lightPosition = position;
             lightPosition.X = position.X + 12.0f;
@@ -104,10 +109,11 @@ namespace Gaia.SceneGraph.GameEntities
         public override void OnUpdate()
         {
 
-            if (boundingBox.Contains(scene.MainCamera.GetPosition()) != ContainmentType.Disjoint)
+            if (boundingBox.Contains(scene.MainCamera.GetPosition()) != ContainmentType.Disjoint && !collected)
             {
                 collected = true;
                 scene.Entities.Remove(emitterLight);
+                // increase player's speed
             }
             base.OnUpdate();
         }
