@@ -85,6 +85,10 @@ namespace Gaia.SceneGraph.GameEntities
             randomHelper.NextDouble();
             randomHelper.NextDouble();
             scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            while (randPosition.Y < 2.0f || Vector3.Dot(randNormal, Vector3.Up) < 0.3f)
+            {
+                scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            }
             base.OnAdd(scene);
             generateGem(randPosition);
             scene.Entities.Add(emitterLight);

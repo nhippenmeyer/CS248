@@ -13,9 +13,9 @@ namespace Gaia.SceneGraph.GameEntities
 {
     public class Lsystem : Entity
     {
-        /*************
-         * CONSTANTS *
-         *************/
+        /*
+         * CONSTANTS 
+         **/
         const int DEFAULT_ITERATIONS = 3;
         const float DEFAULT_FORWARD_LENGTH = 5.0f;
         const float DEFAULT_INIT_WIDTH = 1.0f;
@@ -142,9 +142,9 @@ namespace Gaia.SceneGraph.GameEntities
         {
         }
 
-        /***************************
-         * PUBLIC MEMBER FUNCTIONS *
-         ***************************/
+        /*
+         * PUBLIC MEMBER FUNCTIONS 
+         **/
         public void addRule(ReproductionRule r)
         {
             rules.Add(r);
@@ -257,7 +257,6 @@ namespace Gaia.SceneGraph.GameEntities
 
             }
 
-            cylinderMesh.Transform = cylinderTransforms.ToArray();
             RenderElement leaves = new RenderElement();
             leaves.StartVertex = 0;
             leaves.VertexCount = 4;
@@ -267,6 +266,8 @@ namespace Gaia.SceneGraph.GameEntities
             leaves.VertexBuffer = GFXPrimitives.Quad.GetInstanceVertexBuffer();
             leaves.IndexBuffer = GFXPrimitives.Quad.GetInstanceIndexBufferDoubleSided();
             leaves.Transform = leafTransforms.ToArray();
+
+            cylinderMesh.Transform = cylinderTransforms.ToArray();
             List<RenderElement> elements = new List<RenderElement>();
             elements.Add(cylinderMesh);
             elements.Add(leaves);

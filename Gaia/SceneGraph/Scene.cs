@@ -81,6 +81,7 @@ namespace Gaia.SceneGraph
                 Tree tree = new Tree();
                 tree.setNum(i % 8);
                 Entities.Add(tree);
+
                 Entities.Add(new Gem());
             }
            // Entities.Add(new Gem());
