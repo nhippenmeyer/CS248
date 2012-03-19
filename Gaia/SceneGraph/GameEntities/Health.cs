@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 using Gaia.Resources;
 using Gaia.Physics;
 using Gaia.Core;
+using Gaia.Rendering;
+using Gaia.Rendering.RenderViews;
 
 
 namespace Gaia.SceneGraph.GameEntities
@@ -15,7 +18,6 @@ namespace Gaia.SceneGraph.GameEntities
         public ParticleEffect explosionEffect;
 
         State physicsState;
-        bool exploded = false;
         ParticleEmitter tracerEmitter;
         
         BoundingBox boundingBox;
@@ -43,6 +45,15 @@ namespace Gaia.SceneGraph.GameEntities
             scene.Entities.Add(tracerEmitter);
             tracerEmitter.OnAdd(scene);
             Console.WriteLine("Added particle at position: \n {0}", physicsState.position);
+
+            boundingBox = new BoundingBox();
+            boundingBox.Min = randPosition - Vector3.One * Vector3.Up * 15.0f;
+            boundingBox.Min.X -= 7.5f;
+            boundingBox.Min.Z -= 7.5f;
+            boundingBox.Max = randPosition + Vector3.One * Vector3.Up * 15.0f;
+            boundingBox.Max.X += 7.5f;
+            boundingBox.Max.Z += 7.5f;
+
             base.OnAdd(scene);
         }
 
@@ -52,17 +63,17 @@ namespace Gaia.SceneGraph.GameEntities
             tracerEmitter.OnDestroy();
             base.OnDestroy();
         }
-        /*
+        
         public override void OnRender(RenderView view)
         {
             BoundingFrustum frustum = view.GetFrustum();
             if (frustum.Contains(boundingBox) != ContainmentType.Disjoint && !collected)
             {
-             //   view.AddElement(gemMaterial, gemGeometry.renderElement);
-                
+                //   view.AddElement(gemMaterial, gemGeometry.renderElement);
+
             }
             base.OnRender(view);
-        }*/
+        }
 
         public void SetVelocity(Vector3 velocity)
         {
@@ -82,7 +93,8 @@ namespace Gaia.SceneGraph.GameEntities
             if (boundingBox.Contains(scene.MainCamera.GetPosition()) != ContainmentType.Disjoint && !collected)
             {
                 collected = true;
-            //    scene.Entities.Remove(emitterLight);
+                scene.Entities.Remove(tracerEmitter);
+                Console.WriteLine("Heath absorbed");
                 // increase player's health
             }
             base.OnUpdate();
