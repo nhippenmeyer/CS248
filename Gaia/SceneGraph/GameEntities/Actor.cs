@@ -16,7 +16,7 @@ namespace Gaia.SceneGraph.GameEntities
         protected State physicsState;
 
         protected float speed = 16f;
-        protected float forwardAcceleration = 5; //15 units/second^2
+        protected float forwardAcceleration = 20; //15 units/second^2
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
@@ -53,6 +53,11 @@ namespace Gaia.SceneGraph.GameEntities
         public override void OnAdd(Scene scene)
         {
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
+
+            position = Vector3.Transform(Vector3.Up*0.15f, scene.MainTerrain.Transformation.GetTransform());
+            scene.MainCamera = renderView;
+            scene.AddRenderView(renderView);
+
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
@@ -148,7 +153,9 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal)*3.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
-            position = physicsState.position-transform.Forward*30;
+
+            position = physicsState.position + transform.Up*5f - transform.Forward*0.25f;
+            //position = physicsState.position -transform.Forward * 30;
 
            // emitterLight.Transformation.SetPosition(physicsState.position);
 
@@ -251,6 +258,4 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
     }
-
-
 }
