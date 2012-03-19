@@ -77,6 +77,8 @@ namespace Gaia.Rendering
                 SetupLightParameters(currLight);
                 Texture2D shadowMap = currLight.GetShadowMap();
                 GFX.Device.Textures[3] = shadowMap;
+
+                Console.WriteLine("Executing shader...");
                 
                 GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTMODELVIEW, currLight.GetModelViews());
                 GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_LIGHTCLIPPLANE, currLight.GetClipPlanes());

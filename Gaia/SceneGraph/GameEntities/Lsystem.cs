@@ -17,13 +17,15 @@ namespace Gaia.SceneGraph.GameEntities
          * CONSTANTS *
          *************/
         const int DEFAULT_ITERATIONS = 3;
-        const float DEFAULT_FORWARD_LENGTH = 0.6f;
-        const float DEFAULT_SPHERE_RADIUS = 0.15f;
+        const float DEFAULT_FORWARD_LENGTH = 5.0f;
+        const float DEFAULT_INIT_WIDTH = 1.0f;
+        const float DEFAULT_SPHERE_RADIUS = 0.25f;
         const float DEFAULT_TURN_VALUE = 35.0f;
-        const float DEFAULT_VARIATION = 5.0f;
+        const float DEFAULT_VARIATION = 35.0f;
 
         const char SYMBOL_FORWARD_F = 'F';
         const char SYMBOL_FORWARD_G = 'G';
+        const char SYMBOL_FORWARD_T = 'T';
         const char SYMBOL_FORWARD_NO_DRAW_F = 'f';
         const char SYMBOL_FORWARD_NO_DRAW_G = 'g';
         const char SYMBOL_PITCH_DOWN = '&';
@@ -32,10 +34,12 @@ namespace Gaia.SceneGraph.GameEntities
         const char SYMBOL_PUSH_MATRIX = '[';
         const char SYMBOL_ROLL_LEFT = '/';
         const char SYMBOL_ROLL_RIGHT = '\\';
-        const char SYMBOL_SPHERE = '@';
+        const char SYMBOL_CLUSTER = '@';
         const char SYMBOL_TURN_AROUND = '|';
         const char SYMBOL_TURN_LEFT = '+';
         const char SYMBOL_TURN_RIGHT = '-';
+        const char SYMBOL_TURN_RAND_LEFT = '<';
+        const char SYMBOL_TURN_RAND_RIGHT = '>';
 
         public struct Point3f
         {
@@ -52,6 +56,7 @@ namespace Gaia.SceneGraph.GameEntities
         bool dirty;
         int iterations;
         float forwardLength;
+        float initWidth;
         Stack<Matrix> modelViewStack;
         Stack<Matrix> rotationStack, translationStack;
         static Vector3 yDirection = new Vector3(0.0f, 1.0f, 0.0f);
@@ -61,24 +66,27 @@ namespace Gaia.SceneGraph.GameEntities
         float sphereRadius;
         float turnValue;
         float variation;
+        float wRate;
+        float lRate;
+        Stack<float> widths;
+        Stack<float> lengths;
+        Random rand = new Random();
+        Vector3 initPosition;
+        Vector3 maxPos;
 
-        List<VoxelGeometry> Voxels;
         List<Matrix> cylinderTransforms = new List<Matrix>();
         List<Matrix> leafTransforms = new List<Matrix>();
         Cylinder cylinderGeometry;
 
-        byte[] DensityField;
-        int DensityFieldSize = 17;  // Keep in powers of 2 + 1
-        byte IsoValue = 127;
-
         // Debugging variables:
-        int lineCount = 0;
+        int lineCount = 1;
 
         public Lsystem()
         {
             this.axiom = "";
             this.iterations = DEFAULT_ITERATIONS;
             this.forwardLength = DEFAULT_FORWARD_LENGTH;
+            this.initWidth = DEFAULT_INIT_WIDTH;
             this.turnValue = DEFAULT_TURN_VALUE;
             this.sphereRadius = DEFAULT_SPHERE_RADIUS;
             this.variation = DEFAULT_VARIATION;
@@ -88,12 +96,21 @@ namespace Gaia.SceneGraph.GameEntities
             rotationStack = new Stack<Matrix>();
             translationStack = new Stack<Matrix>();
             rules = new List<ReproductionRule>();
+
+            wRate = 0.8f;
+            widths = new Stack<float>();
+            widths.Push(initWidth);  // Add initial width
+
+            lRate = 0.9f;
+            lengths = new Stack<float>();
+            lengths.Push(forwardLength);  // Add initial width
         }
 
         public Lsystem(string axiom,
                         List<ReproductionRule> rules,
                         int iterations,
                         float forwardLength,
+                        float initWidth,
                         float turnValue,
                         float sphereRadius,
                         float variation)
@@ -101,6 +118,7 @@ namespace Gaia.SceneGraph.GameEntities
             this.axiom = axiom;
             this.iterations = iterations;
             this.forwardLength = forwardLength;
+            this.initWidth = initWidth;
             this.turnValue = turnValue;
             this.sphereRadius = sphereRadius;
             this.variation = variation;
@@ -110,6 +128,14 @@ namespace Gaia.SceneGraph.GameEntities
             rotationStack = new Stack<Matrix>();
             translationStack = new Stack<Matrix>();
             rules = new List<ReproductionRule>();
+
+            wRate = 0.8f;
+            widths = new Stack<float>();
+            widths.Push(initWidth);
+
+            lRate = 0.9f;
+            lengths = new Stack<float>();
+            lengths.Push(forwardLength);  // Add initial width
         }
 
         public void Destroy()
@@ -129,11 +155,15 @@ namespace Gaia.SceneGraph.GameEntities
             return result;
         }
 
-        public List<RenderElement> generateGeometry()
+        public List<RenderElement> generateGeometry(Vector3 position, int varyTreeNum)
         {
             cylinderTransforms = new List<Matrix>();
             leafTransforms = new List<Matrix>();
             cylinderGeometry = new Cylinder(20);
+            Vector3 offset = Vector3.Zero;
+            offset.Y = -1.6f * forwardLength;
+            initPosition = position + offset;
+            maxPos = initPosition;
 
             RenderElement cylinderMesh = new RenderElement();
             cylinderMesh.VertexBuffer = cylinderGeometry.GetVertexBufferInstanced();
@@ -154,8 +184,6 @@ namespace Gaia.SceneGraph.GameEntities
             // For testing:
             //result = "G[+&F][-%F[+&F]]GFF@";
 
-            modelViewStack.Push(Transformation.GetTransform());
-
             initRotationStack();
             initTranslationStack();
 
@@ -166,18 +194,18 @@ namespace Gaia.SceneGraph.GameEntities
                 switch (result[i])
                 {
                     case SYMBOL_FORWARD_F:
-                        drawLine(forwardLength);
-                        translate(forwardLength);
+                        drawLine();
+                        translate();
                         break;
                     case SYMBOL_FORWARD_G:
-                        drawLine(forwardLength);
-                        translate(forwardLength);
+                        drawLine();
+                        translate();
                         break;
                     case SYMBOL_FORWARD_NO_DRAW_F:
-                        translate(forwardLength);
+                        translate();
                         break;
                     case SYMBOL_FORWARD_NO_DRAW_G:
-                        translate(forwardLength);
+                        translate();
                         break;
                     case SYMBOL_PITCH_DOWN:
                         v = vary(turnValue);
@@ -185,13 +213,15 @@ namespace Gaia.SceneGraph.GameEntities
                         break;
                     case SYMBOL_PITCH_UP:
                         v = vary(turnValue);
-                        rotate(v, 0.0f, 1.0f, 0.0f);
+                        rotate(-v, 0.0f, 1.0f, 0.0f);
                         break;
                     case SYMBOL_POP_MATRIX:
                         popMatrix();
+                        forwardLength = forwardLength / 0.7f;
                         break;
                     case SYMBOL_PUSH_MATRIX:
                         pushMatrix();
+                        forwardLength = forwardLength * 0.7f;
                         break;
                     case SYMBOL_ROLL_LEFT:
                         rotate(turnValue, 1.0f, 0.0f, 0.0f);
@@ -199,8 +229,8 @@ namespace Gaia.SceneGraph.GameEntities
                     case SYMBOL_ROLL_RIGHT:
                         rotate(-turnValue, 1.0f, 0.0f, 0.0f);
                         break;
-                    case SYMBOL_SPHERE:
-                        drawSphere(sphereRadius);
+                    case SYMBOL_CLUSTER:
+                        drawLeafCluster(sphereRadius);
                         break;
                     case SYMBOL_TURN_AROUND:
                         rotate(180.0f, 0.0f, 0.0f, 0.0f);
@@ -211,15 +241,21 @@ namespace Gaia.SceneGraph.GameEntities
                     case SYMBOL_TURN_RIGHT:
                         rotate(turnValue, 0.0f, 0.0f, 1.0f);
                         break;
+                    case SYMBOL_TURN_RAND_LEFT:
+                        v = vary(turnValue + (lineCount*40 % 360));
+                     //   float leftRotAngle = (1 + lineCount);
+                        
+                        rotate(-v, 0.0f, 1.0f, 0.0f);
+                        break;
+                    case SYMBOL_TURN_RAND_RIGHT:
+                        v = vary(turnValue + (lineCount * 40 % 360));
+                     //   float rightRotAngle = (1+ lineCount) * 10;
+                        rotate(v, 0.0f, 1.0f, 0.0f);
+                        break;
                 }
 
             }
 
-            cylinderTransforms.Clear();
-            for(int i = 0; i < 3; i++)
-            {
-                cylinderTransforms.Add(Matrix.CreateTranslation(Vector3.Up*i*2));
-            }
             cylinderMesh.Transform = cylinderTransforms.ToArray();
             RenderElement leaves = new RenderElement();
             leaves.StartVertex = 0;
@@ -239,6 +275,15 @@ namespace Gaia.SceneGraph.GameEntities
             return elements;
         }
 
+        // Must be called after generate geometry to get an accurate bounding box
+        public BoundingBox getBoundingBox()
+        {
+            BoundingBox bounds = new BoundingBox();
+            bounds.Max = maxPos;
+            bounds.Min = initPosition;
+            return bounds;
+        }
+
         public void setAxiom(string axiom)
         {
             this.axiom = axiom;
@@ -248,6 +293,16 @@ namespace Gaia.SceneGraph.GameEntities
         public void setForwardLength(float forwardLength)
         {
             this.forwardLength = forwardLength;
+
+            lengths.Clear();
+            lengths = new Stack<float>();
+            lengths.Push(forwardLength);  // Add initial length
+        }
+
+        public void setWidth(float width)
+        {
+            widths.Pop();
+            widths.Push(width);
         }
 
         public void setIterations(int iterations)
@@ -271,33 +326,43 @@ namespace Gaia.SceneGraph.GameEntities
             this.variation = variation;
         }
 
-        /******************************
-         * PROTECTED MEMBER FUNCTIONS *
-         ******************************/
-        double getNoise()
+        public void setWidthRate(float rate)
         {
-            Random rand = new Random();
-            return rand.NextDouble();
+            this.wRate = rate;
         }
 
-        void drawLine(float length)
+        public void setLengthRate(float rate)
         {
-            lineCount++;
-            Matrix preTransform = Matrix.CreateScale(new Vector3(1, 0.5f, 1.0f)) * Matrix.CreateTranslation(Vector3.Up * 0.5f);
-            Vector3 scale = new Vector3(1.0f / 8.0f, 1, 1.0f / 8.0f);
-            Matrix currTransform = Matrix.CreateScale(length * scale) * rotationStack.Peek() * translationStack.Peek();
-            cylinderTransforms.Add(currTransform);
-        }
-
-        void drawSphere(float scaleSize)
-        {
-            Matrix transform = rotationStack.Peek() * translationStack.Peek();
-            leafTransforms.Add(transform);
+            this.lRate = rate;
         }
 
         /****************************
          * PRIVATE MEMBER FUNCTIONS *
          ****************************/
+
+        double getNoise()
+        {
+            return rand.NextDouble();
+        }
+
+        void drawLine()
+        {
+            float length = lengths.Pop() * lRate;
+            lengths.Push(length);
+            float width = widths.Pop() * wRate;
+            widths.Push(width);
+            Vector3 scaleWidth = new Vector3(width, 1, width);
+            Vector3 scaleLength = new Vector3(1, length, 1);
+            Matrix currTransform = Matrix.CreateScale(scaleWidth * scaleLength) * rotationStack.Peek() * translationStack.Peek();
+            cylinderTransforms.Add(currTransform);
+        }
+
+        void drawLeafCluster(float scaleSize)
+        {
+            Matrix transform = Matrix.CreateScale(scaleSize) * rotationStack.Peek() * translationStack.Peek();
+            leafTransforms.Add(transform);
+        }
+
         void eraseStack()
         {
             while (rotationStack.Count != 0)
@@ -352,7 +417,9 @@ namespace Gaia.SceneGraph.GameEntities
         void initTranslationStack()
         {
             translationStack.Clear();
-            translationStack.Push(Matrix.Identity);
+            Matrix initPositionMatrix = Matrix.Identity;
+            Matrix.CreateTranslation(ref initPosition, out initPositionMatrix);
+            translationStack.Push(initPositionMatrix);
         }
 
         void popMatrix()
@@ -384,12 +451,17 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 initTranslationStack();
             }
+
+            widths.Pop();
+            lengths.Pop();
         }
 
         void pushMatrix()
         {
             rotationStack.Push(rotationStack.Peek());
             translationStack.Push(translationStack.Peek());
+            widths.Push(widths.Peek());
+            lengths.Push(lengths.Peek());
         }
 
         void rotate(float r, float rx, float ry, float rz)
@@ -407,14 +479,22 @@ namespace Gaia.SceneGraph.GameEntities
             transDirection.Normalize();
         }
 
-        void translate(float distance)
+        void translate()
         {
+            float distance = lengths.Peek();
             Vector3 axis;
             axis.X = transDirection.X * distance;
             axis.Y = transDirection.Y * distance;
             axis.Z = transDirection.Z * distance;
             Matrix translatedTop = translationStack.Pop() * Matrix.CreateTranslation(axis);
             translationStack.Push(translatedTop);
+
+            Vector3 newPosition = Vector3.Transform(Vector3.Zero, translatedTop);
+            if (newPosition.Y > maxPos.Y)
+            {
+                maxPos = newPosition;
+            }
+
         }
 
         float vary(float v)

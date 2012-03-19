@@ -76,7 +76,12 @@ namespace Gaia.SceneGraph
             MainTerrain = new Terrain();
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            //Entities.Add(new Tree());
+            for (int i = 0; i < 50; i++)
+            {
+                Tree tree = new Tree();
+                tree.setNum(i % 8);
+                Entities.Add(tree);
+            }
             //Entities.Add(new GrassPlacement());
             /*
             Entities.Add(new Cloud());

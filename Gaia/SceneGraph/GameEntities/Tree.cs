@@ -16,55 +16,100 @@ namespace Gaia.SceneGraph.GameEntities
     public class Tree : Entity
     {
         List<RenderElement> Voxels;
-        Material treeMaterial;  // in Gaia.Resources
-        Material leafMaterial;
+        List<Material> treeMaterials;
+        BoundingBox boundingBox;
+        int varyTreeNum;
 
-        void generateTree()
+        public void setNum(int treeNum)
         {
-            // TODO: make a new Lsystem and generateGeometry for it
+            varyTreeNum = treeNum;
+        }
+
+        void generateTree(Vector3 position)
+        {
             Lsystem lSys = new Lsystem();
             lSys.setAxiom("F");
             lSys.setIterations(3);
-            lSys.setSphereRadius(0.0025f);
+            lSys.setSphereRadius(1.0f);
+            lSys.setTurnValue(45);
+            lSys.setForwardLength(5.0f);
 
             Lsystem.ReproductionRule r1;
             r1.from = 'F';
-            r1.to = "G[+&F][-%F]GFF@";
+         //   r1.to = "FF-[\\F+F&F@]+[/F-F%F@]";
+
+            // Regular tree:
+            r1.to = "GF[%-F@]%G[&+F@][&\\F@]&&G[%/F@]F@";  // With randomization
+            r1.to = "GF[-F@]%G[+F@][\\F@]&&G[/F@]F@";  // With some randomization 
+
+          //    r1.to = "G[/GF][+F][-GF][\\F]G@";
+           //  r1.to = "G-%[[F]+&F]+&G[+&GF]-%F";
+            //r1.to = "G[+%F][-&F]GFF@";
             lSys.addRule(r1);
 
             Lsystem.ReproductionRule r2;
             r2.from = 'G';
-            r2.to = "GG";
+            r2.to = "G";
+            //r2.to = "G[+<TTTT]G";
             lSys.addRule(r2);
 
-            Voxels = lSys.generateGeometry();
+            if (varyTreeNum == 2)
+            {
+                lSys.setSphereRadius(2.0f);
+                lSys.setWidth(2.0f);
+            }
+
+            Voxels = lSys.generateGeometry(position, varyTreeNum);
+            boundingBox = lSys.getBoundingBox();
         }
 
         public override void OnAdd(Scene scene)
         {
-            generateTree();
-            treeMaterial = ResourceManager.Inst.GetMaterial("TreeMat");
-            leafMaterial = ResourceManager.Inst.GetMaterial("GrassMat1");
+
+            treeMaterials = new List<Material>();
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat0"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat8"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat2"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat3"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat4"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat5"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat6"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LeafMat7"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat0")); // Tree trunk
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat1"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat2"));
+            treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat3"));
+
+            Random randomHelper = new Random();
+            Vector3 randPosition = Vector3.Zero;
+            Vector3 randNormal = Vector3.Zero;
+            randomHelper.NextDouble();
+            scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            generateTree(randPosition);
             base.OnAdd(scene);
+            
         }
 
         public override void OnDestroy()
         {
-
             base.OnDestroy();
         }
 
         public override void OnRender(RenderView view)
         {
+            BoundingFrustum frustum = view.GetFrustum();
+            if (frustum.Contains(boundingBox) != ContainmentType.Disjoint)
+            {
+                int barkNum = varyTreeNum / 2;
 
-            view.AddElement(treeMaterial, Voxels[0]);
-            view.AddElement(leafMaterial, Voxels[1]);
+                view.AddElement(treeMaterials[8 + barkNum], Voxels[0]);
+                view.AddElement(treeMaterials[varyTreeNum], Voxels[1]);
+            }
             base.OnRender(view);
         }
 
         public override void OnUpdate()
         {
-
             base.OnUpdate();
         }
     }
