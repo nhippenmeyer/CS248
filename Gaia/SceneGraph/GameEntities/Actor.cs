@@ -332,6 +332,8 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
+                DrawHealthBar();
+
                 for (int i = 0; i < lives; i++)
                 {
                     Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
@@ -424,16 +426,21 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
-        public void DrawProgressBar()
+        public void DrawHealthBar()
         {
             float percentHealth = health / MAX_HEALTH;
             float barBottom = -0.98f;
-            float barTop = 0.98f;
-            float healthBarTop = Math.Max(0.0f, barBottom + percentHealth * (barTop - barBottom));
+            float barTop = 0.8f;
+            float healthBarTop = barBottom + percentHealth * (barTop - barBottom);
+
+            Vector3 color;
+            if (percentHealth > 0.5) color = new Vector3(0.0f, 0.8f, 0.2f);
+            else if (percentHealth > 0.25) color = new Vector3(0.8f, 0.8f, 0.0f);
+            else color = new Vector3(0.8f, 0.0f, 0.0f);
 
             GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(0.0f, 0.8f, 0.2f, 0.5f));
-            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(0.0f, 0.8f, 0.2f, 1.0f));
+            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(color, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(healthBar);
             GFX.Inst.GetGUI().AddElement(healthBarLine);
