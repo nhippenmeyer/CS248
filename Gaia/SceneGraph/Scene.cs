@@ -86,7 +86,7 @@ namespace Gaia.SceneGraph
             Entities.Add(MainPlayer);
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            for (int i = 0; i < 50; i++)
+            for (int i = 0; i < 100; i++)
             {
                 Tree tree = new Tree();
                 tree.setNum(i % 8);

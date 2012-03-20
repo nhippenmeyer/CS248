@@ -29,7 +29,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected static float MAX_HEALTH = 100;
 
-        protected float health = MAX_HEALTH - 75;
+        protected float health = MAX_HEALTH;
         
         protected Vector3 rotation = Vector3.Zero;
 
