@@ -67,5 +67,8 @@ float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 	
 	float3 reflectColor = texCUBE(ReflectMap, reflect(V, normalize(IN.Normal)));
 	
-	return float4(lerp(reflectColor, float3(0.23,0.42,0.6)*refractColor, 0.5), 1.0f);
+	float4 finalColor = 1.0f;
+	finalColor.rgb = lerp(reflectColor, float3(0.23,0.42,0.6)*refractColor, 0.5);
+	
+	return finalColor;
 }

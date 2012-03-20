@@ -5,7 +5,8 @@
   <Texture filename="Textures/Trees/ruby_Color.png"/>
   <Texture filename="Textures/Trees/ruby2_Color.jpg"/>
 
+  <Texture filename="Textures/Animal/hair_normal.tga"/>
+
   <Material name="GemMaterial" shader="GemShader"
-            texture_3 = "Textures/Trees/ruby2_Color.jpg"
-            texture_4 = "Textures/Animal/hair_normal.tga" refract="true"/>
+            texture_3 = "Textures/Animal/hair_normal.tga" refract="true"/>
 </Resources>

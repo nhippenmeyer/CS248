@@ -253,7 +253,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (projectile != null)
             {
                 Matrix transform = this.Transformation.GetTransform();
-                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - transform.Up * 0.15f;
+                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - Vector3.Up * 0.15f;
                 projectile.SetMagnitude(explosionMagnitude); 
                 projectile.Transformation.SetPosition(projPos);
             }
