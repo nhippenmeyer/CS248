@@ -17,6 +17,8 @@ namespace Gaia.SceneGraph
         
         public RenderView MainCamera;
 
+        public Player MainPlayer;
+
         public Terrain MainTerrain;
 
         BoundingBox sceneDimensions;
@@ -71,7 +73,6 @@ namespace Gaia.SceneGraph
 
         void InitializeScene()
         {
-            Entities.Add(new Player());
             Vector3[] directions = new Vector3[] { Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward, Vector3.Up };
             foreach (Vector3 dir in directions)
             {
@@ -80,6 +81,9 @@ namespace Gaia.SceneGraph
             Entities.Add(new Sky());
             MainLight = new Sunlight();
             MainTerrain = new Terrain();
+            MainPlayer = new Player(Vector3.Up * 0.25f);
+
+            Entities.Add(MainPlayer);
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
             for (int i = 0; i < 50; i++)
