@@ -139,9 +139,16 @@ namespace Gaia.Rendering
 
         public void SetTextureFilter(int index, TextureFilter filter)
         {
+            TextureFilter mipFilter = filter;
+            if (filter == TextureFilter.Anisotropic)
+            {
+                GFX.Device.SamplerStates[index].MaxAnisotropy = 16;
+                mipFilter = TextureFilter.Linear;
+            }
             GFX.Device.SamplerStates[index].MagFilter = filter;
             GFX.Device.SamplerStates[index].MinFilter = filter;
-            GFX.Device.SamplerStates[index].MipFilter = filter;
+            GFX.Device.SamplerStates[index].MipFilter = mipFilter;
+            
         }
 
         public void SetTextureAddressMode(int index, TextureAddressMode mode)

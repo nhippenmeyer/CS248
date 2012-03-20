@@ -22,6 +22,12 @@ namespace Gaia.Rendering.RenderViews
 
         public SceneRenderView planarReflection;
 
+        public SceneRenderView[] reflectionViews;
+
+        int CubeMapSize = 256;
+
+        public RenderTargetCube CubeMap; 
+
         Matrix TexGen;
         public Scene scene;
 
@@ -61,19 +67,69 @@ namespace Gaia.Rendering.RenderViews
 
             ParticleBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
 
-            BackBufferTexture = new ResolveTexture2D(GFX.Device, width, height, 1, SurfaceFormat.Color);//GFX.Device.PresentationParameters.BackBufferFormat);
+            BackBufferTexture = new ResolveTexture2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
+
+            CubeMap = new RenderTargetCube(GFX.Device, CubeMapSize, 1, SurfaceFormat.Color);
         }
 
         void InitializeRenderViews()
         {
             planarReflection = new SceneRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.1f, 1000.0f, 512, 512);
+
+            reflectionViews = new SceneRenderView[6];
+            for (int i = 0; i < reflectionViews.Length; i++)
+            {
+                reflectionViews[i] = new SceneRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.1f, 1000.0f, CubeMapSize, CubeMapSize);
+                reflectionViews[i].SetCubeMapTarget(CubeMap, (CubeMapFace)i);
+                scene.AddRenderView(reflectionViews[i]);
+            }
+            
             scene.AddRenderView(planarReflection);
         }
 
         void DestroyRenderViews()
         {
             scene.RemoveRenderView(planarReflection);
+            for (int i = 0; i < reflectionViews.Length; i++)
+            {
+                scene.RemoveRenderView(reflectionViews[i]);
+            }
         }
+
+        Vector3 GetCubeMapDir(CubeMapFace face)
+        {
+            switch (face)
+            {
+                case CubeMapFace.PositiveX:
+                    return Vector3.Right;
+                case CubeMapFace.NegativeX:
+                    return Vector3.Left;
+                case CubeMapFace.PositiveY:
+                    return Vector3.Up;
+                case CubeMapFace.NegativeY:
+                    return Vector3.Down;
+                case CubeMapFace.PositiveZ:
+                    return Vector3.Backward;
+                case CubeMapFace.NegativeZ:
+                    return Vector3.Forward;
+            }
+            return Vector3.Forward;
+        }
+
+        Vector3 GetCubeMapUp(CubeMapFace face)
+        {
+            switch (face)
+            {
+                case CubeMapFace.PositiveY:
+                    return Vector3.Backward;
+                case CubeMapFace.NegativeY:
+                    return Vector3.Backward;
+            }
+
+            return Vector3.Up;
+        }
+
+
 
         public void UpdateRenderViews()
         {
@@ -85,14 +141,25 @@ namespace Gaia.Rendering.RenderViews
             planarReflection.SetView(reflectMat*this.GetView());
             planarReflection.SetProjection(this.GetProjection());
             planarReflection.enableClipPlanes = true;
+
+            for (int i = 0; i < reflectionViews.Length; i++)
+            {
+                Matrix viewMat = Matrix.CreateLookAt(this.GetPosition(), this.GetPosition() + GetCubeMapDir((CubeMapFace)i), GetCubeMapUp((CubeMapFace)i));
+                reflectionViews[i].SetNearPlane(this.GetNearPlane());
+                reflectionViews[i].SetFarPlane(this.GetFarPlane());
+                reflectionViews[i].SetPosition(this.GetPosition());
+                reflectionViews[i].SetView(viewMat);
+                reflectionViews[i].SetProjection(Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2, 1, this.GetNearPlane(), this.GetFarPlane()));
+            }
+            
         }
 
         public override void AddElement(Material material, RenderElement element)
         {
             if (material.IsTranslucent)
             {
-                TransparentElementManager transMgr = (TransparentElementManager)ElementManagers[RenderPass.Translucent];
-                transMgr.AddElement(material, element);
+                PostProcessElementManager ppMgr = (PostProcessElementManager)ElementManagers[RenderPass.PostProcess];
+                ppMgr.AddElement(material, element);
             }
             else
             {

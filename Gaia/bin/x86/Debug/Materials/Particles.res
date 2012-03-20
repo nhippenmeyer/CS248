@@ -58,34 +58,35 @@
 
   <Material name="TracerMaterial" shader="ParticleShader"
             texture_1 = "Textures/Particles/Tracer.dds"/>
+  
+  <Texture filename ="Textures/Particles/Health.dds"/>
 
-  <ParticleEffect name="TracerParticle" size="30" lifetime="10" lifetimeVariance="5" density="0.9"
-                  randomInitSpeed="0.19" initialSpeedVariance="0.5" mass="40" massVariance="5"
-                  initialspeed="100" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="20"
-                  fadeInPercent="0.001" fadeOutPercent="0.7" material="FlameMaterial0"
-                  />
+  <Material name="HealthMaterial" shader="ParticleShader"
+            texture_1 = "Textures/Particles/Health2.dds"/>
 
-  <ParticleEffect name="HealthParticle" size="5" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
-                  randomInitSpeed="0.09" initialSpeedVariance="0.4" mass="20" massVariance="5"
-                  initialspeed="0.26" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="7"
-                  fadeInPercent="0.05" fadeOutPercent="0.5" material="PlayerMaterial"
-                  />
+  <ParticleEffect name="TracerParticle" size="1.52" lifetime="0.82" lifetimeVariance="0.0" density="0.9"
+                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
+                  initialspeed="0.4" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="7"
+                  fadeInPercent="0.05" fadeOutPercent="0.7" material="TracerMaterial"/>
+
+  <ParticleEffect name="HealthParticle" size="10" lifetime="6.0" lifetimeVariance="0.0" density="0.9"
+                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
+                  initialspeed="6.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="3"
+                  fadeInPercent="0.15" fadeOutPercent="0.7" material="HealthMaterial"/>
 
   <ParticleEffect name="Fire0" size="55" lifetime="1.5" lifetimeVariance="0.0"
                   randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
                   initialspeed="0.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="12"
-                  fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial0"
-                  />
+                  fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial0"/>
 
   <ParticleEffect name="Fire1" size="45" lifetime="1.65" lifetimeVariance="0.0"
-                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="0.36" initialDirection="0 1 0" randomoffset="0.5 0.35 0.5" offsetMagnitude="12"
-                  fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial1"
-                  />
+                randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
+                initialspeed="0.36" initialDirection="0 1 0" randomoffset="0.5 0.35 0.5" offsetMagnitude="12"
+                fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial1"/>
+  
   <ParticleEffect name="Fire2" size="35" lifetime="1.45" lifetimeVariance="0.0"
-                  randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="0.36" initialDirection="0 1 0" randomoffset="0.15 1 0.15" offsetMagnitude="8"
-                  fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial2"
-                  />
+                randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
+                initialspeed="0.36" initialDirection="0 1 0" randomoffset="0.15 1 0.15" offsetMagnitude="8"
+                fadeInPercent="0.1" fadeOutPercent="0.7" material="FlameMaterial2"/>
   
 </Resources>

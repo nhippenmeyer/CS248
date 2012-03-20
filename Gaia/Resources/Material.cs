@@ -129,7 +129,10 @@ namespace Gaia.Resources
             for (int i = 0; i < textures.Length; i++)
             {
                 if (textures[i] != null)
+                {
                     GFX.Device.Textures[i] = textures[i].GetTexture();
+                    GFX.Device.SamplerStates[i].MaxMipLevel = textures[i].GetTexture().LevelOfDetail;
+                }
             }
         }
 

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+using Gaia.Voxels;
+
 namespace Gaia.Rendering
 {
     public class Cylinder
@@ -371,18 +373,69 @@ namespace Gaia.Rendering
         }
     }
 
+    public class Sphere
+    {
+        public VoxelGeometry Geometry;
+
+        public Sphere()
+        {
+            GenerateGeometry();
+        }
+
+        void GenerateGeometry()
+        {
+            byte[] DensityField;
+            int DensityFieldSize = 17;
+            byte IsoValue = 127;
+
+            DensityField = new byte[DensityFieldSize * DensityFieldSize * DensityFieldSize];
+            Vector3 center = Vector3.One * DensityFieldSize * 0.5f;
+            Vector3 minPos = center;
+            Vector3 maxPos = center;
+
+            float radius = DensityFieldSize / 2;
+
+            for (int x = 0; x < DensityFieldSize; x++)
+            {
+                for (int y = 1; y < (DensityFieldSize - 1); y++)
+                {
+                    for (int z = 0; z < DensityFieldSize; z++)
+                    {
+                        Vector3 pos = new Vector3(x, y, z);
+
+                        float density = MathHelper.Clamp(1.0f-(pos-center).Length()/radius, 0, 1);
+                        if (density > 0.0f)
+                        {
+                            pos = (pos / DensityFieldSize) * 2.0f - Vector3.One;
+                            minPos = Vector3.Min(pos, minPos);
+                            maxPos = Vector3.Max(pos, maxPos);
+                        }
+                        DensityField[x + (y + z * DensityFieldSize) * DensityFieldSize] = (byte)(density * 255.0f);
+                    }
+                }
+            }
+
+            Geometry = new VoxelGeometry();
+            Geometry.GenerateGeometry(ref DensityField, IsoValue, DensityFieldSize, DensityFieldSize, DensityFieldSize, DensityFieldSize - 1, DensityFieldSize - 1, DensityFieldSize - 1, 0, 0, 0, 2.0f / (float)(DensityFieldSize - 1));
+        }
+    }
+
     public static class GFXPrimitives
     {
         public static ParticleGeometry Particle;
         public static ScreenAlignedQuad Quad;
         public static RenderCube CubePT;
         public static LightCube Cube;
+        public static Cylinder CylinderGeometry;
+        public static Sphere SphereGeometry;
         public static void Initialize()
         {
             Quad = new ScreenAlignedQuad();
             Cube = new LightCube();
             CubePT = new RenderCube();
             Particle = new ParticleGeometry();
+            CylinderGeometry = new Cylinder(12);
+            SphereGeometry = new Sphere();
         }
     }
 }

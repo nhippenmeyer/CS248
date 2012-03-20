@@ -76,7 +76,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         List<Matrix> cylinderTransforms = new List<Matrix>();
         List<Matrix> leafTransforms = new List<Matrix>();
-        Cylinder cylinderGeometry;
+        
 
         // Debugging variables:
         int lineCount = 1;
@@ -159,7 +159,6 @@ namespace Gaia.SceneGraph.GameEntities
         {
             cylinderTransforms = new List<Matrix>();
             leafTransforms = new List<Matrix>();
-            cylinderGeometry = new Cylinder(20);
             Vector3 offset = Vector3.Zero;
             offset.Y = -2.0f * forwardLength;
             initPosition = position + offset;
@@ -167,18 +166,17 @@ namespace Gaia.SceneGraph.GameEntities
             minPos = initPosition;
 
             RenderElement cylinderMesh = new RenderElement();
-            cylinderMesh.VertexBuffer = cylinderGeometry.GetVertexBufferInstanced();
-            cylinderMesh.IndexBuffer = cylinderGeometry.GetIndexBufferInstanced();
+            cylinderMesh.VertexBuffer = GFXPrimitives.CylinderGeometry.GetVertexBufferInstanced();
+            cylinderMesh.IndexBuffer = GFXPrimitives.CylinderGeometry.GetIndexBufferInstanced();
             cylinderMesh.StartVertex = 0;
             cylinderMesh.VertexDec = GFXVertexDeclarations.PNTTIDec;
             cylinderMesh.VertexStride = VertexPNTTI.SizeInBytes;
-            cylinderMesh.VertexCount = cylinderGeometry.GetVertexCount();
-            cylinderMesh.PrimitiveCount = cylinderGeometry.GetPrimitiveCount();
+            cylinderMesh.VertexCount = GFXPrimitives.CylinderGeometry.GetVertexCount();
+            cylinderMesh.PrimitiveCount = GFXPrimitives.CylinderGeometry.GetPrimitiveCount();
 
             if (dirty)
             {
                 result = generateResult(axiom, 0);
-                Console.Write(result);
                 dirty = false;
             }
 
@@ -271,8 +269,6 @@ namespace Gaia.SceneGraph.GameEntities
             List<RenderElement> elements = new List<RenderElement>();
             elements.Add(cylinderMesh);
             elements.Add(leaves);
-
-            Console.Write(lineCount);
 
             return elements;
         }

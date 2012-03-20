@@ -88,7 +88,6 @@
   <ItemGroup>
     <Compile Include="Core\MathUtils.cs" />
     <Compile Include="Core\PriorityQueue.cs" />
-    <Compile Include="Core\RandomHelper.cs" />
     <Compile Include="Core\Time.cs" />
     <Compile Include="Core\Transform.cs" />
     <Compile Include="Input\InputManager.cs" />
@@ -126,14 +125,11 @@
     <Compile Include="Resources\Shader.cs" />
     <Compile Include="Resources\TextureResource.cs" />
     <Compile Include="SceneGraph\GameEntities\Cloud.cs" />
-    <Compile Include="SceneGraph\GameEntities\Health.cs" />
     <Compile Include="SceneGraph\GameEntities\FoliageCluster.cs" />
-    <Compile Include="SceneGraph\GameEntities\Gem.cs" />
     <Compile Include="SceneGraph\GameEntities\GrassPlacement.cs" />
     <Compile Include="SceneGraph\GameEntities\Light.cs" />
     <Compile Include="SceneGraph\GameEntities\Lsystem.cs" />
     <Compile Include="SceneGraph\GameEntities\ParticleEmitter.cs" />
-    <Compile Include="SceneGraph\GameEntities\Actor.cs" />
     <Compile Include="SceneGraph\Entity.cs" />
     <Compile Include="SceneGraph\GameEntities\Projectile.cs" />
     <Compile Include="SceneGraph\GameEntities\Sky.cs" />
@@ -141,7 +137,6 @@
     <Compile Include="SceneGraph\GameEntities\Terrain.cs" />
     <Compile Include="SceneGraph\GameEntities\TerrainGenerator.cs" />
     <Compile Include="SceneGraph\GameEntities\Tree.cs" />
-    <Compile Include="SceneGraph\GameEntities\WarpGate.cs" />
     <Compile Include="SceneGraph\Scene.cs" />
     <Compile Include="Voxels\VoxelGeometry.cs" />
     <Compile Include="Voxels\VoxelHelper.cs" />

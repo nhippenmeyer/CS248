@@ -1,4 +1,5 @@
 #include "../ShaderConst.h"
+#include "../Prepass.h"
 struct PSIN
 {
     float4 Position : POSITION0;
@@ -35,6 +36,25 @@ Derivative evaluate(State initial, float3 acceleration, float dt, Derivative d)
 	return output;
 }
 
+State Integrate(State state, float3 accel, float timeDT)
+{
+	Derivative orig;
+	orig.dx = 0;
+	orig.dv = 0;
+	Derivative a = evaluate(state, accel, 0, orig);
+	Derivative b = evaluate(state, accel, timeDT*0.5f, a);
+	Derivative c = evaluate(state, accel, timeDT*0.5f, b);
+	Derivative d = evaluate(state, accel, timeDT, c);
+
+	float3 dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
+	float3 dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
+	
+	State newState;
+	newState.position = state.position + dxdt*timeDT;
+	newState.velocity = state.velocity + dvdt*timeDT;
+	return newState;
+}
+
 /**
  * This uses the following data structure for particles:
  * emitOrigin - contains the position where particles will spawn from
@@ -44,7 +64,9 @@ Derivative evaluate(State initial, float3 acceleration, float dt, Derivative d)
 */
 PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 			uniform sampler VelocityMap : register(S1),
-			uniform sampler RandomMap[3] : register(S2),
+			uniform sampler DepthMap : register(S2),
+			uniform sampler NormalMap : register(S3),
+			uniform sampler RandomMap[3] : register(S4),
 			uniform float4 emitOrigin : register(C0),
 			uniform float4 lifetimeParams : register(C1),
 			uniform float4 dataParams0 : register(C2),
@@ -52,14 +74,16 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 			uniform float timeDT : register(C4),
 			uniform float4 randOffsetParams : register(C5),
 			uniform float3x3 rotationMatrix : register(C6),
-			uniform float3 forces[MAX_PARTICLEFORCES] : register(C9)
+			uniform float3 forces[MAX_PARTICLEFORCES] : register(C9),
+			uniform float4 eyePos : register(PC_EYEPOSPHYSICS),
+			uniform float4x4 viewMatrix : register(PC_VIEWMATRIXPHYSICS)
 ) : COLOR
 {
 	PHYSICS OUT;
 	float4 position = tex2D(PositionMap, IN.TexCoord);
 	float4 velocity = tex2D(VelocityMap, IN.TexCoord); //w contains mass
 	
-	if(position.w >= lifetimeParams.x && dataParams1.z < 0.5f) //Uh oh! Gotta reset the particle!
+	if(position.w >= lifetimeParams.x+timeDT && dataParams1.z < 0.5f) //Uh oh! Gotta reset the particle!
 	{
 		float3 randOffset;
 		randOffset.x = tex2D(RandomMap[2], IN.RandCoord*2.6).r;
@@ -75,7 +99,49 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 		velocity.xyz += randDir*dataParams0.w;
 		velocity.w = lifetimeParams.z + lifetimeParams.w*tex2D(RandomMap[2], IN.RandCoord).r;
 	}
+		
+	State state;
+	state.position = position.xyz;
+	state.velocity = velocity.xyz;
 	
+	float4 tcProj = mul(float4(position.xyz,1.0f), viewMatrix);
+	tcProj /= float4(1,-1,1,1)*tcProj.w; 
+	tcProj.xy = tcProj.xy * 0.5 + 0.5;
+	
+	if(tcProj.x >= 0.0 && tcProj.x <= 1.0 && tcProj.y >= 0.0 && tcProj.y <= 1.0)
+	{
+		float3 V = normalize(eyePos.xyz - position.xyz);// - eyePos.xyz);
+		
+		float depth = tex2D(DepthMap, tcProj.xy).r*eyePos.w;
+		if(depth > EPS)
+		{
+			float3 worldPos = V*depth+eyePos.xyz;
+			
+			float3 normal = DecompressNormal(tex2D(NormalMap, tcProj).xy);
+			
+			if(length(eyePos.xyz-position.xyz) >= depth)
+			{
+				velocity.xyz = reflect(velocity.xyz, normal);
+				state = Integrate(state, 0, timeDT);
+			}
+			/*
+			float d = -dot(worldPos, normal);
+			
+			float3 vP = normalize(velocity.xyz);
+			
+			float t = (-dot(position.xyz,normal)+d)/dot(normal, vP);
+			
+			if(t <= length(velocity.xyz*timeDT))
+			{
+				velocity.xyz = -velocity.xyz;//reflect(velocity.xyz, normal);
+				state = Integrate(state, 0, timeDT);
+			}
+			*/
+			
+		}
+	
+	}
+		
 	float3 netForce = 0;
 	for(int i = 0; i < MAX_PARTICLEFORCES; i++)
 	{
@@ -83,23 +149,9 @@ PHYSICS main(PSIN IN, uniform sampler PositionMap : register(S0),
 	}
 	float3 accel = netForce / velocity.w; //A = F/M
 	
-	State state;
-	state.position = position.xyz;
-	state.velocity = velocity.xyz;
-	Derivative orig;
-	orig.dx = 0;
-	orig.dv = 0;
-	Derivative a = evaluate(state, accel, 0, orig);
-	Derivative b = evaluate(state, accel, timeDT*0.5f, a);
-	Derivative c = evaluate(state, accel, timeDT*0.5f, b);
-	Derivative d = evaluate(state, accel, timeDT, c);
-
-	float3 dxdt = 1.0f/6.0f * (a.dx + 2.0f*(b.dx + c.dx) + d.dx);
-	float3 dvdt = 1.0f/6.0f * (a.dv + 2.0f*(b.dv + c.dv) + d.dv);
-		
-	//float3 Ia = accel*timeDT;	 //integral of acceleration
-	position.xyz += dxdt*timeDT; //velocity.xyz*timeDT + 0.5*Ia*timeDT;
-	velocity.xyz += dvdt*timeDT; //Ia; //update velocity term
+	state = Integrate(state, accel, timeDT);
+	position.xyz = state.position;
+	velocity.xyz = state.velocity;
 	position.w += timeDT;
 	
 	OUT.Position = position;

@@ -28,14 +28,17 @@ namespace Gaia.Rendering
             GFX.Device.DepthStencilBuffer = GFX.Inst.dsBufferLarge;
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
+            GFX.Inst.SetTextureFilter(1, TextureFilter.Anisotropic);
             GFX.Device.RenderState.CullMode = CullMode.None;
 
             GFX.Device.RenderState.DepthBufferEnable = false; 
             GFX.Device.RenderState.DepthBufferWriteEnable = false; 
             GFX.Device.RenderState.AlphaBlendEnable = true;
 
+            /*
             GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
             GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+            */
 
             /*
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
@@ -48,9 +51,13 @@ namespace Gaia.Rendering
 
             GFX.Device.RenderState.DepthBufferEnable = false;
             */
+
+            GFX.Device.RenderState.SourceBlend = Blend.One;
+            GFX.Device.RenderState.DestinationBlend = Blend.One;
+            /*
             GFX.Device.RenderState.SourceBlend = Blend.SourceColor;
             GFX.Device.RenderState.DestinationBlend = Blend.DestinationColor;
-
+            */
 
             GFX.Device.VertexDeclaration = GFXVertexDeclarations.ParticlesDec;
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjection());
@@ -75,10 +82,12 @@ namespace Gaia.Rendering
                     
                     GFX.Device.SetPixelShaderConstant(1, new Vector4(effect.lifetime, effect.lifetimeVariance, effect.densityRatio, 0));
                     GFX.Device.SetPixelShaderConstant(2, new Vector4(effect.fadeInPercent, effect.fadeInCoeff, effect.fadeOutPercent, effect.fadeOutCoeff));
+                    GFX.Device.SetPixelShaderConstant(3, emitter.GetParticleColor());
                     GFX.Device.DrawUserPrimitives<VertexParticles>(PrimitiveType.PointList, GFXPrimitives.Particle.particles, 0, emitter.GetParticleCount());
                 }
             }
-
+            
+            GFX.Inst.SetTextureFilter(0, TextureFilter.Anisotropic);
             GFX.Device.VertexTextures[0] = null;
             GFX.Device.Textures[0] = null;
             GFX.Device.RenderState.SeparateAlphaBlendEnabled = false;

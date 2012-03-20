@@ -27,6 +27,17 @@ namespace Gaia.Rendering.RenderViews
 
         public bool enableClipPlanes = false;
 
+        RenderTargetCube cubeMapRef = null;
+        CubeMapFace cubeMapFace;
+
+        public void SetCubeMapTarget(RenderTargetCube cubemap, CubeMapFace faceMode)
+        {
+            this.cubeMapRef = cubemap;
+            this.cubeMapFace = faceMode;
+            this.ReflectionMap.Dispose();
+            this.ReflectionMap = null;
+        }
+
         public Vector2 GetResolution()
         {
             return new Vector2(width, height);
@@ -57,7 +68,7 @@ namespace Gaia.Rendering.RenderViews
             DataMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
             LightMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
 
-            ParticleBuffer = new RenderTarget2D(GFX.Device, width / 8, height / 8, 1, SurfaceFormat.Color);
+            ParticleBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
 
             ReflectionMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
         }
@@ -66,8 +77,8 @@ namespace Gaia.Rendering.RenderViews
         {
             if (material.IsTranslucent)
             {
-                TransparentElementManager transMgr = (TransparentElementManager)ElementManagers[RenderPass.Translucent];
-                transMgr.AddElement(material, element);
+                //TransparentElementManager transMgr = (TransparentElementManager)ElementManagers[RenderPass.Translucent];
+                //transMgr.AddElement(material, element);
             }
             else
             {
@@ -145,7 +156,14 @@ namespace Gaia.Rendering.RenderViews
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Device.SetPixelShaderConstant(3, scene.MainLight.Transformation.GetPosition()); //Light Direction for sky
             SkyElementManager skyMgr = (SkyElementManager)ElementManagers[RenderPass.Sky];
-            skyMgr.Render(ReflectionMap);//This'll change the modelview
+            if (cubeMapRef == null)
+            {
+                skyMgr.Render(ReflectionMap);//This'll change the modelview
+            }
+            else
+            {
+                skyMgr.Render(cubeMapRef, cubeMapFace);
+            }
             ElementManagers[RenderPass.PostProcess].Render();
             GFX.Device.SetRenderTarget(0, null);
         }

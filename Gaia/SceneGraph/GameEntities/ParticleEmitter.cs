@@ -40,7 +40,19 @@ namespace Gaia.SceneGraph.GameEntities
             return textureSize;
         }
 
+        public Scene GetScene()
+        {
+            return scene;
+        }
+
         int textureSize;
+
+        Vector3 particleColor = Vector3.One;
+
+        public Vector3 GetParticleColor()
+        {
+            return particleColor;
+        }
 
         public ParticleEmitter(ParticleEffect particleEffect, int particleCount)
             : base()
@@ -57,6 +69,11 @@ namespace Gaia.SceneGraph.GameEntities
             velocityTarget = new RenderTarget2D(GFX.Device, textureSize, textureSize, 1, SurfaceFormat.Vector4);
             colorData = new RenderTarget2D(GFX.Device, textureSize, textureSize, 1, SurfaceFormat.Color);
             sizeData = new RenderTarget2D(GFX.Device, textureSize, textureSize, 1, SurfaceFormat.Single);
+        }
+
+        public void SetColor(Vector3 color)
+        {
+            particleColor = color;
         }
 
         public override void OnAdd(Scene scene)
