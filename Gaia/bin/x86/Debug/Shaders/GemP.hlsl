@@ -4,28 +4,68 @@
 struct PSIN
 {
     float4 Position : POSITION0;
-    float2 TexCoord : TEXCOORD0;
-    float3 Normal	: TEXCOORD1;
-    float3 Tangent  : TEXCOORD2;
-    float3 WorldPos : TEXCOORD3;
+    float3 Normal	: TEXCOORD0;
+    float3 WorldPos : TEXCOORD1;
+    float4 RefractTC: TEXCOORD2;
 };
 
-GBUFFER main(PSIN IN, uniform sampler BaseMap : register(S0),
-			uniform sampler NormalMap : register(S1), 
+float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
+			uniform sampler DepthMap : register(S1),
+			uniform samplerCUBE ReflectMap : register(S2),
+			uniform sampler BaseMap : register(S3),
+			uniform sampler NormalMap : register(S4), 
 			uniform float4 EyePos : register(PC_EYEPOS)
 ) : COLOR
 {
-	GBUFFER OUT;
-	float4 baseColor = tex2D(BaseMap, IN.TexCoord);
-    float3 N = normalize(IN.Normal);
-	float3 T = normalize(IN.Tangent);
-	float3x3 TBN = float3x3(T,cross(N,T), N);
+	float3 V = IN.WorldPos.xyz-EyePos.xyz;
+	float z = length(V);
 	
-	//N = normalize(mul(tex2D(NormalMap, IN.TexCoord).rgb*2-1, TBN));
+	float2 refractTC = IN.RefractTC.xy / IN.RefractTC.w;
 	
-    OUT.Color = baseColor;
-    OUT.Normal = float4(CompressNormal(N),0,0);
-    OUT.Depth = length(IN.WorldPos-EyePos.xyz)/EyePos.w;
-    OUT.Data = 0;
-    return OUT;
+	float depth = tex2D(DepthMap, refractTC).r * EyePos.w;
+	if(depth - EPS < 0.0)
+		depth = EyePos.w;
+	clip(depth-z);
+	
+	V = normalize(V);
+	
+	float3 N = normalize(IN.Normal);
+	
+	float3 blend_weights = 7*(abs(N.xyz)-0.2);   // Tighten up the blending zone:  
+	blend_weights = pow(blend_weights,3);
+	//blend_weights = (blend_weights - 0.06) * 3;  
+	blend_weights = max(blend_weights, 0);      
+	// Force weights to sum to 1.0 (very important!)  
+	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
+	float3 TC = IN.WorldPos*0.25;
+	
+	float3 col1 = tex2D(BaseMap, TC.zy);
+	float3 col2 = tex2D(BaseMap, TC.xz);
+	float3 col3 = tex2D(BaseMap, TC.xy);
+	
+	float2 b1 = tex2D(NormalMap, TC.zy).xy-0.5;
+	float2 b2 = tex2D(NormalMap, TC.xz).xy-0.5;
+	float2 b3 = tex2D(NormalMap, TC.xy).xy-0.5;
+	
+	float3 n1 = float3(0, b1.x, b1.y);
+	float3 n2 = float3(b2.y, 0, b2.x);
+	float3 n3 = float3(b3.x, b3.y, 0);
+	// Finally, blend the results of the 3 planar projections.  
+	float3 blendColor = col1 * blend_weights.x +  
+                col2 * blend_weights.y +  
+                col3 * blend_weights.z;  
+	float3 blendBump = n1.xyz * blend_weights.x +  
+                   n2.xyz * blend_weights.y +  
+                   n3.xyz * blend_weights.z;
+    N = normalize(blendBump+N);
+    
+    float refractCoeff = saturate(1.0-length(EyePos.xyz-IN.WorldPos)/50)+0.15;
+    
+    refractTC.xy += N.xz*refractCoeff;
+	
+	float3 refractColor = tex2D(RefractMap, refractTC.xy);
+	
+	float3 reflectColor = texCUBE(ReflectMap, reflect(V, normalize(IN.Normal)));
+	
+	return float4(lerp(reflectColor, blendColor * refractColor, 0.25), 1.0f);
 }

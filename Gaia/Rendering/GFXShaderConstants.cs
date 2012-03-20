@@ -19,6 +19,8 @@ namespace Gaia.Rendering
         public static int PC_LIGHTCOLOR = 11;
         public static int PC_LIGHTPARAMS = 12;
 
+        
+
         public static int NUM_SPLITS = 4;
         
         public static int NUM_INSTANCES = 60;
@@ -42,6 +44,10 @@ namespace Gaia.Rendering
         public static int PC_LIGHTCLIPPOS = PC_LIGHTCLIPPLANE + NUM_SPLITS;
 
         public static int PC_INVSHADOWRES = PC_LIGHTCLIPPOS + NUM_SPLITS;
+
+        public static int PC_EYEPOSPHYSICS = 10 + MAX_PARTICLEFORCES;
+
+        public static int PC_VIEWMATRIXPHYSICS = PC_EYEPOSPHYSICS + 1;
 
         static void WriteCommand(StreamWriter writer, string commandName, int index)
         {
@@ -90,6 +96,8 @@ namespace Gaia.Rendering
                     WriteCommand(wr, "PC_PARTICLECOLORS", PC_PARTICLECOLORS);
                     WriteCommand(wr, "PC_PARTICLETIMES", PC_PARTICLETIMES);
                     WriteCommand(wr, "PC_PARTICLEVARS", PC_PARTICLEVARS);
+                    WriteCommand(wr, "PC_EYEPOSPHYSICS", PC_EYEPOSPHYSICS);
+                    WriteCommand(wr, "PC_VIEWMATRIXPHYSICS", PC_VIEWMATRIXPHYSICS);
                 }
             }
 

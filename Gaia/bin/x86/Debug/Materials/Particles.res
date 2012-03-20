@@ -59,16 +59,22 @@
   <Material name="TracerMaterial" shader="ParticleShader"
             texture_1 = "Textures/Particles/Tracer.dds"/>
 
-  <ParticleEffect name="TracerParticle" size="7" lifetime="1.2" lifetimeVariance="0.0" density="0.9"
+  <Texture filename ="Textures/Particles/Health.dds"/>
+
+  <Material name="HealthMaterial" shader="ParticleShader"
+            texture_1 = "Textures/Particles/Health2.dds"/>
+
+
+  <ParticleEffect name="TracerParticle" size="1.52" lifetime="0.82" lifetimeVariance="0.0" density="0.9"
                   randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="100" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="7"
+                  initialspeed="0.4" initialDirection="0 0 -1" randomoffset="1 1 0" offsetMagnitude="7"
                   fadeInPercent="0.05" fadeOutPercent="0.7" material="TracerMaterial"
                   />
 
-  <ParticleEffect name="HealthParticle" size="20" lifetime="1.0" lifetimeVariance="0.0" density="0.9"
+  <ParticleEffect name="HealthParticle" size="10" lifetime="6.0" lifetimeVariance="0.0" density="0.9"
                   randomInitSpeed="0.19" initialSpeedVariance="0.4" mass="40" massVariance="5"
-                  initialspeed="0.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="7"
-                  fadeInPercent="0.05" fadeOutPercent="0.5" material="TracerMaterial"
+                  initialspeed="6.36" initialDirection="0 1 0" randomoffset="1 0 1" offsetMagnitude="3"
+                  fadeInPercent="0.15" fadeOutPercent="0.7" material="HealthMaterial"
                   />
 
   <ParticleEffect name="Fire0" size="55" lifetime="1.5" lifetimeVariance="0.0"

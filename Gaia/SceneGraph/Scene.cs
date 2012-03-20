@@ -10,6 +10,7 @@ namespace Gaia.SceneGraph
     public class Scene
     {
         public List<Entity> Entities = new List<Entity>();
+        public List<Actor> Actors = new List<Actor>();
         PriorityQueue<int, RenderView> RenderViews = new PriorityQueue<int, RenderView>();
 
         public Light MainLight; //Our sunlight
@@ -87,7 +88,8 @@ namespace Gaia.SceneGraph
                 tree.setNum(i % 8);
                 Entities.Add(tree);
 
-                Entities.Add(new Health());
+                //Entities.Add(new Health());
+                Entities.Add(new Gem());
             }
            // Entities.Add(new Gem());
             //Entities.Add(new GrassPlacement());

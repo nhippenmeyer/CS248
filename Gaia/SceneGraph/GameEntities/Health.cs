@@ -39,10 +39,9 @@ namespace Gaia.SceneGraph.GameEntities
 
             physicsState.position = randPosition;
 
-            tracerEmitter = new ParticleEmitter(tracerEffect, 200);
+            tracerEmitter = new ParticleEmitter(tracerEffect, 8);
             scene.Entities.Add(tracerEmitter);
             tracerEmitter.OnAdd(scene);
-            Console.WriteLine("Added particle at position: \n {0}", physicsState.position);
             base.OnAdd(scene);
         }
 
@@ -52,18 +51,7 @@ namespace Gaia.SceneGraph.GameEntities
             tracerEmitter.OnDestroy();
             base.OnDestroy();
         }
-        /*
-        public override void OnRender(RenderView view)
-        {
-            BoundingFrustum frustum = view.GetFrustum();
-            if (frustum.Contains(boundingBox) != ContainmentType.Disjoint && !collected)
-            {
-             //   view.AddElement(gemMaterial, gemGeometry.renderElement);
-                
-            }
-            base.OnRender(view);
-        }*/
-
+        
         public void SetVelocity(Vector3 velocity)
         {
             physicsState.velocity = velocity * tracerEffect.initialSpeed;

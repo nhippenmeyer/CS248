@@ -9,7 +9,8 @@ struct PSIN_Voxel
     float3 LocalPos : TEXCOORD2;
 };
 
-PSIN_Voxel main(VS_COMMON input, uniform float4x4 ModelView : register(VC_MODELVIEW), uniform float4x4 World : register(VC_WORLD))
+PSIN_Voxel main(VS_COMMON input, uniform float4x4 ModelView : register(VC_MODELVIEW), uniform float4x4 World : register(VC_WORLD)
+)
 {
     PSIN_Voxel output;
 
