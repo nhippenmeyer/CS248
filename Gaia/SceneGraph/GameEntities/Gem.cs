@@ -125,7 +125,7 @@ namespace Gaia.SceneGraph.GameEntities
                 collected = true;
                 scene.Entities.Remove(this);
                 this.OnDestroy();
-                scene.MainPlayer.BoostSpeed();
+                scene.MainPlayer.collectGem(1.25f);
             }
             base.OnUpdate();
         }

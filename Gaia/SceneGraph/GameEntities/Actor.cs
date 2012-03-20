@@ -17,10 +17,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float speed = 160f;
-        protected float forwardAcceleration = 20; //15 units/second^2
+        protected float forwardAcceleration = 20;
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
+
+        protected float speedBonus = 1.0f;
+
+        protected float MAX_SPEED_DURATION = 20;
+
+        protected float speedTime;
 
         protected static float MAX_HEALTH = 100;
 
@@ -149,6 +154,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected virtual void OnDeath()
         {
+            physicsState.velocity = Vector3.Zero;
             emitter.EmitOnce = true;
             emitterLight.Color = Vector3.Zero;
             lives--;
@@ -220,6 +226,15 @@ namespace Gaia.SceneGraph.GameEntities
                 delayTime -= Time.GameTime.ElapsedTime;
             }
 
+            if (speedTime > 0)
+            {
+                speedTime -= Time.GameTime.ElapsedTime;
+                if (speedTime <= 0.0f)
+                {
+                    speedBonus = 1.0f;
+                }
+            }
+
             if (respawnTime > 0)
             {
                 respawnTime -= Time.GameTime.ElapsedTime;
@@ -273,6 +288,12 @@ namespace Gaia.SceneGraph.GameEntities
 
         }
 
+        public void collectGem(float percent)
+        {
+            speedTime = MAX_SPEED_DURATION;
+            speedBonus = percent;
+        }
+
         protected override void OnDeath()
         {
             base.OnDeath();
@@ -311,6 +332,8 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
+                DrawHealthBar();
+
                 for (int i = 0; i < lives; i++)
                 {
                     Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
@@ -318,10 +341,15 @@ namespace Gaia.SceneGraph.GameEntities
                     Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
-                    DrawProgressBar();
                 }
+                DrawProgressBar();
             }
             base.OnRender(view);
+        }
+
+        public void SetSpeed(float percent)
+        {
+
         }
 
         public override void OnUpdate()
@@ -347,14 +375,14 @@ namespace Gaia.SceneGraph.GameEntities
 
             Vector3 vel = Vector3.Zero;
             if (InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
-                vel += transform.Forward * forwardAcceleration * (Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
+                vel += transform.Forward * forwardAcceleration * speedBonus * (Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
             if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
-                vel -= transform.Forward * backwardAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
+                vel -= transform.Forward * backwardAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
 
             if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
-                vel += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
+                vel += transform.Right * strafeAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
             if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
-                vel -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
+                vel -= transform.Right * strafeAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
 
             physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.45f) + (float)Math.Sin(hoverAngle) * hoverMagnitude * transform.Up;
 
@@ -398,16 +426,21 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
-        public void DrawProgressBar()
+        public void DrawHealthBar()
         {
             float percentHealth = health / MAX_HEALTH;
             float barBottom = -0.98f;
-            float barTop = 0.98f;
-            float healthBarTop = Math.Max(0.0f, barBottom + percentHealth * (barTop - barBottom));
+            float barTop = 0.8f;
+            float healthBarTop = barBottom + percentHealth * (barTop - barBottom);
+
+            Vector3 color;
+            if (percentHealth > 0.5) color = new Vector3(0.0f, 0.8f, 0.2f);
+            else if (percentHealth > 0.25) color = new Vector3(0.8f, 0.8f, 0.0f);
+            else color = new Vector3(0.8f, 0.0f, 0.0f);
 
             GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(0.0f, 0.8f, 0.2f, 0.5f));
-            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(0.0f, 0.8f, 0.2f, 1.0f));
+            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(color, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(healthBar);
             GFX.Inst.GetGUI().AddElement(healthBarLine);
@@ -417,6 +450,8 @@ namespace Gaia.SceneGraph.GameEntities
     public class Opponent : Actor
     {
         Vector3 aiVelocityVector = Vector3.Zero;
+
+        protected float speed = 160f;
 
         public enum EnemyState
         {
