@@ -13,7 +13,7 @@ namespace Gaia.Rendering
     {
         Shader basicImageShader;
         Shader compositeShader;
-
+        
         SceneRenderView mainRenderView; //Used to access GBuffer
 
         public PostProcessReflectionsElementManager(SceneRenderView renderView)

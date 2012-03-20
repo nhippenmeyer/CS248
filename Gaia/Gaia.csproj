@@ -104,6 +104,7 @@
     <Compile Include="Rendering\GFXPrimitives.cs" />
     <Compile Include="Rendering\GFXShaderConstants.cs" />
     <Compile Include="Rendering\GFXVertexDeclarations.cs" />
+    <Compile Include="Rendering\RenderElementManagers\GUIElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\PostProcessReflectionsElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\ParticleElementManager.cs" />
     <Compile Include="Rendering\RenderElementManagers\PostProcessElementManager.cs" />

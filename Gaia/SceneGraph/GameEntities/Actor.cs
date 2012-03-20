@@ -58,12 +58,28 @@ namespace Gaia.SceneGraph.GameEntities
         protected static float ATTACK_DELAY_TIME = 1.5f;
         protected float delayTime = 0;
 
+        protected static float MAX_PROJECTILE_TIME = 4.0f;
+
         protected float explosionMagnitude = 0;
+
+        protected float colorTime = 0;
+
+        protected float maxColorTime = HIT_COLOR_TIME;
+
+        protected Vector3 blendColor;
+
+        protected static Vector3 HIT_COLOR = new Vector3(1.0f, 0.3f, 0.0f);
+
+        protected static float HIT_COLOR_TIME = 0.7f;
+
+        protected static float PLAYER_SIZE = 5;
 
         public virtual void ApplyDamage(Projectile projectile, Vector3 impulseVector)
         {
             physicsState.velocity += impulseVector;
             health -= projectile.GetDamage();
+            colorTime = HIT_COLOR_TIME;
+            blendColor = HIT_COLOR;
         }
 
         public virtual void ApplyHealth(float amount)
@@ -102,7 +118,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (delayTime > 0.0)
                 return;
 
-            delayTime = ATTACK_DELAY_TIME + explosionMagnitude;
+            delayTime = ATTACK_DELAY_TIME + ATTACK_DELAY_TIME * (explosionMagnitude - 1) / Projectile.EXPLOSION_MAX_MAGNITUDE;
 
             if (projectile == null)
                 CreateProjectile();
@@ -146,17 +162,34 @@ namespace Gaia.SceneGraph.GameEntities
             this.Transformation.SetPosition(physicsState.position);
             this.Transformation.SetRotation(rotation);
 
-            bounds.Min = Vector3.Transform(Vector3.One * -1, emitter.Transformation.GetTransform());
-            bounds.Max = Vector3.Transform(Vector3.One, emitter.Transformation.GetTransform());
+            bounds.Min = Vector3.Transform(Vector3.One * -PLAYER_SIZE, emitter.Transformation.GetTransform());
+            bounds.Max = Vector3.Transform(Vector3.One * PLAYER_SIZE, emitter.Transformation.GetTransform());
 
             if (delayTime > 0)
             {
                 delayTime -= Time.GameTime.ElapsedTime;
             }
 
+            if (colorTime > 0.0)
+            {
+                colorTime -= Time.GameTime.ElapsedTime;
+                Vector3 color = Vector3.Lerp(GetTeamColor(), blendColor, colorTime / maxColorTime);
+                emitter.SetColor(color);
+                emitterLight.Color = color;
+
+                if(colorTime <= 0.0f)
+                {
+                    emitter.SetColor(GetTeamColor());
+                    emitterLight.Color = GetTeamColor();
+                }
+            }
+
             if (projectile != null)
             {
-                projectile.Transformation.SetPosition(this.Transformation.GetPosition());
+                Matrix transform = this.Transformation.GetTransform();
+                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - transform.Up * 0.15f;
+                projectile.SetMagnitude(explosionMagnitude); 
+                projectile.Transformation.SetPosition(projPos);
             }
 
             base.OnUpdate();
@@ -198,6 +231,19 @@ namespace Gaia.SceneGraph.GameEntities
         {
             scene.RemoveRenderView(renderView);
             base.OnDestroy();
+        }
+
+        public override void OnRender(RenderView view)
+        {
+            if (view.GetRenderType() == RenderViewType.MAIN)
+            {
+                Vector2 max = new Vector2(-1, 1);
+                Vector2 min = new Vector2(0.0f, 0.0f);
+                Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png");
+                GUIElement element = new GUIElement(min, max, image);
+                GFX.Inst.GetGUI().AddElement(element);
+            }
+            base.OnRender(view);
         }
 
         public override void OnUpdate()
@@ -248,7 +294,7 @@ namespace Gaia.SceneGraph.GameEntities
 
             if (delayTime <= 0 && InputManager.Inst.IsKeyDown(GameKey.Fire))
             {
-                explosionMagnitude = 1 + Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.Fire) / 6.0f) * Projectile.EXPLOSION_MAX_MAGNITUDE;
+                explosionMagnitude = 1 + Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.Fire) / MAX_PROJECTILE_TIME) * Projectile.EXPLOSION_MAX_MAGNITUDE;
                 if (projectile == null)
                 {
                     CreateProjectile();
@@ -256,7 +302,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
             if (InputManager.Inst.IsLeftJustReleased())
             {
-                FireGun(transform.Forward);
+                //FireGun(transform.Forward);
             }
             
 

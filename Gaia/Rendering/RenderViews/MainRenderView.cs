@@ -109,9 +109,9 @@ namespace Gaia.Rendering.RenderViews
                 case CubeMapFace.NegativeY:
                     return Vector3.Down;
                 case CubeMapFace.PositiveZ:
-                    return Vector3.Backward;
-                case CubeMapFace.NegativeZ:
                     return Vector3.Forward;
+                case CubeMapFace.NegativeZ:
+                    return Vector3.Backward;
             }
             return Vector3.Forward;
         }
@@ -123,7 +123,7 @@ namespace Gaia.Rendering.RenderViews
                 case CubeMapFace.PositiveY:
                     return Vector3.Backward;
                 case CubeMapFace.NegativeY:
-                    return Vector3.Backward;
+                    return Vector3.Forward;
             }
 
             return Vector3.Up;
@@ -142,12 +142,16 @@ namespace Gaia.Rendering.RenderViews
             planarReflection.SetProjection(this.GetProjection());
             planarReflection.enableClipPlanes = true;
 
+
+            Vector3 cubemapPos = this.GetPosition() + this.GetWorldMatrix().Forward * 8.0f;
+
             for (int i = 0; i < reflectionViews.Length; i++)
             {
-                Matrix viewMat = Matrix.CreateLookAt(this.GetPosition(), this.GetPosition() + GetCubeMapDir((CubeMapFace)i), GetCubeMapUp((CubeMapFace)i));
+
+                Matrix viewMat = Matrix.CreateLookAt(cubemapPos, cubemapPos + GetCubeMapDir((CubeMapFace)i), GetCubeMapUp((CubeMapFace)i));
                 reflectionViews[i].SetNearPlane(this.GetNearPlane());
                 reflectionViews[i].SetFarPlane(this.GetFarPlane());
-                reflectionViews[i].SetPosition(this.GetPosition());
+                reflectionViews[i].SetPosition(cubemapPos);
                 reflectionViews[i].SetView(viewMat);
                 reflectionViews[i].SetProjection(Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2, 1, this.GetNearPlane(), this.GetFarPlane()));
             }

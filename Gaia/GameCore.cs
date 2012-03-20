@@ -195,6 +195,7 @@ namespace Gaia
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_TIME, Vector4.One*Time.RenderTime.TotalTime);
             GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_TIME, Vector4.One * Time.RenderTime.TotalTime);
             mainScene.Render();
+            GFX.Inst.RenderGUI();
 
             base.Draw(gameTime);
         }
