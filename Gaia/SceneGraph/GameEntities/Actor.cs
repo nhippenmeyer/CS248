@@ -345,6 +345,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
+                DrawLives();
                 DrawHealthBar();
                 DrawGemProgressBar();
 
@@ -358,15 +359,6 @@ namespace Gaia.SceneGraph.GameEntities
                 {
                     deathFadeTimer++;
                     DrawDeathFade();
-                }
-
-                for (int i = 0; i < lives; i++)
-                {
-                    Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
-                    Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
-                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
-                    GUIElement element = new GUIElement(min, max, image);
-                    GFX.Inst.GetGUI().AddElement(element);
                 }
             }
             base.OnRender(view);
@@ -457,19 +449,16 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
-        public void DrawHitFlash()
+        public void DrawLives()
         {
-            float alpha = 1.0f - Math.Abs((float)MAX_FLASH_TIMER / 2.0f - (float)hitFlashTimer) / (float)(MAX_FLASH_TIMER / 2.0f);
-            GUIElement flash = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(1.0f, 1.0f, 1.0f, alpha));
-            GFX.Inst.GetGUI().AddElement(flash);
-        }
-
-        public void DrawDeathFade()
-        {
-            float alpha = Math.Min((float)deathFadeTimer / 20.0f, 1.0f);
-            Console.WriteLine(alpha);
-            GUIElement fade = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(0.0f, 0.0f, 0.0f, alpha));
-            GFX.Inst.GetGUI().AddElement(fade);
+            for (int i = 0; i < lives; i++)
+            {
+                Vector2 max = new Vector2(0.99f - 0.08f * i, 0.98f);
+                Vector2 min = new Vector2(0.91f - 0.08f * i, 0.83f);
+                Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
+                GUIElement element = new GUIElement(min, max, image);
+                GFX.Inst.GetGUI().AddElement(element);
+            }
         }
 
         public void DrawHealthBar()
@@ -498,7 +487,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
             float barBottom = -0.98f;
-            float barTop = 0.96f;
+            float barTop = 0.8f;
             float barLeft = -0.98f;
             float barRight = -0.93f;
             float progressBarTop = barBottom + percentGemsCollected * (barTop - barBottom);
@@ -508,9 +497,25 @@ namespace Gaia.SceneGraph.GameEntities
             GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
             GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
             GUIElement progressBarLine = new GUIElement(new Vector2(barLeft, progressBarTop), new Vector2(barRight, progressBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GUIElement gemIcon = new GUIElement(new Vector2(-1.0f, 0.82f), new Vector2(-0.91f, 0.98f), Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png"));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(progressBar);
             GFX.Inst.GetGUI().AddElement(progressBarLine);
+            GFX.Inst.GetGUI().AddElement(gemIcon);
+        }
+
+        public void DrawHitFlash()
+        {
+            float alpha = 1.0f - Math.Abs((float)MAX_FLASH_TIMER / 2.0f - (float)hitFlashTimer) / (float)(MAX_FLASH_TIMER / 2.0f);
+            GUIElement flash = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(1.0f, 1.0f, 1.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(flash);
+        }
+
+        public void DrawDeathFade()
+        {
+            float alpha = Math.Min((float)deathFadeTimer / 20.0f, 1.0f);
+            GUIElement fade = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(0.0f, 0.0f, 0.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(fade);
         }
     }
 
