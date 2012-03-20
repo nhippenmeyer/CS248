@@ -105,6 +105,7 @@ namespace Gaia.SceneGraph.GameEntities
             BoundingFrustum frustum = view.GetFrustum();
             if (frustum.Contains(boundingBox) != ContainmentType.Disjoint)
             {
+                Console.WriteLine("See trees");
                 int barkNum = varyTreeNum / 2;
 
                 view.AddElement(treeMaterials[8 + barkNum], Voxels[0]);

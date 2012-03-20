@@ -3,6 +3,8 @@
   <Texture filename ="Textures/Particles/BasicBlue.dds"/>
   <Texture filename ="Textures/Particles/BasicPlain.dds"/>
   <Texture filename ="Textures/Details/heart.png"/>
+  <Texture filename ="Textures/Details/GameOver.png"/>
+  <Texture filename ="Textures/Details/Congrats.png"/>
 
   <Material name="PlayerMaterial" shader="ParticleShader"
             texture_1 = "Textures/Particles/BasicPlain.dds"/>

@@ -14,6 +14,7 @@ namespace Gaia.SceneGraph
         PriorityQueue<int, RenderView> RenderViews = new PriorityQueue<int, RenderView>();
 
         public int NUM_GEMS = 20;
+        public int NUM_GEMS_Required = 17;
 
         public Light MainLight; //Our sunlight
         

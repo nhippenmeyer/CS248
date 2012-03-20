@@ -26,6 +26,7 @@ namespace Gaia.SceneGraph.GameEntities
         protected float speedTime;
 
         protected static float MAX_HEALTH = 100;
+
         protected float health = MAX_HEALTH;
         
         protected Vector3 rotation = Vector3.Zero;
@@ -77,7 +78,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected static float HIT_COLOR_TIME = 0.7f;
         protected static float PLAYER_SIZE = 5;
-        protected static int DEFAULT_PLAYER_LIVES = 5;
+        protected static int DEFAULT_PLAYER_LIVES = 3;
         protected static int DEFAULT_AI_LIVES = 8;
         protected int lives = DEFAULT_AI_LIVES;
 
@@ -253,7 +254,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (projectile != null)
             {
                 Matrix transform = this.Transformation.GetTransform();
-                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - transform.Up * 0.15f;
+                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - Vector3.Up * 0.15f;
                 projectile.SetMagnitude(explosionMagnitude); 
                 projectile.Transformation.SetPosition(projPos);
             }
@@ -359,6 +360,22 @@ namespace Gaia.SceneGraph.GameEntities
                 {
                     deathFadeTimer++;
                     DrawDeathFade();
+                }
+                if (lives < 0)
+                {
+                    Vector2 max = new Vector2(1, 1);
+                    Vector2 min = new Vector2(-1, -1);
+                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/GameOver.png");
+                    GUIElement element = new GUIElement(min, max, image);
+                    GFX.Inst.GetGUI().AddElement(element);
+                }
+                if (numGemsCollected >= scene.NUM_GEMS_Required)
+                {
+                    Vector2 max = new Vector2(1, 1);
+                    Vector2 min = new Vector2(-1, -1);
+                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/Congrats.png");
+                    GUIElement element = new GUIElement(min, max, image);
+                    GFX.Inst.GetGUI().AddElement(element);
                 }
             }
             base.OnRender(view);
@@ -485,7 +502,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         public void DrawGemProgressBar()
         {
-            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
+            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS_Required;
             float barBottom = -0.98f;
             float barTop = 0.8f;
             float barLeft = -0.98f;

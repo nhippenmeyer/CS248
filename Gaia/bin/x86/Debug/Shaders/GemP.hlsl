@@ -12,8 +12,7 @@ struct PSIN
 float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 			uniform sampler DepthMap : register(S1),
 			uniform samplerCUBE ReflectMap : register(S2),
-			uniform sampler BaseMap : register(S3),
-			uniform sampler NormalMap : register(S4), 
+			uniform sampler NormalMap : register(S3), 
 			uniform float4 EyePos : register(PC_EYEPOS)
 ) : COLOR
 {
@@ -39,10 +38,6 @@ float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
 	float3 TC = IN.WorldPos*0.25;
 	
-	float3 col1 = tex2D(BaseMap, TC.zy);
-	float3 col2 = tex2D(BaseMap, TC.xz);
-	float3 col3 = tex2D(BaseMap, TC.xy);
-	
 	float2 b1 = tex2D(NormalMap, TC.zy).xy-0.5;
 	float2 b2 = tex2D(NormalMap, TC.xz).xy-0.5;
 	float2 b3 = tex2D(NormalMap, TC.xy).xy-0.5;
@@ -50,10 +45,6 @@ float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 	float3 n1 = float3(0, b1.x, b1.y);
 	float3 n2 = float3(b2.y, 0, b2.x);
 	float3 n3 = float3(b3.x, b3.y, 0);
-	// Finally, blend the results of the 3 planar projections.  
-	float3 blendColor = col1 * blend_weights.x +  
-                col2 * blend_weights.y +  
-                col3 * blend_weights.z;  
 	float3 blendBump = n1.xyz * blend_weights.x +  
                    n2.xyz * blend_weights.y +  
                    n3.xyz * blend_weights.z;
@@ -67,5 +58,5 @@ float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 	
 	float3 reflectColor = texCUBE(ReflectMap, reflect(V, normalize(IN.Normal)));
 	
-	return float4(lerp(reflectColor, blendColor * refractColor, 0.25), 1.0f);
+	return float4(lerp(float3(172,24,24)/255.0f, lerp(reflectColor, refractColor, 0.25),0.78), 1.0f);
 }

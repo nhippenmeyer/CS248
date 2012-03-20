@@ -27,6 +27,8 @@ namespace Gaia.Rendering
         Shader skyShader;
         RenderTarget2D skyTexture;
 
+        TextureResource nightTexture;
+
         RenderTarget2D targetToRenderTo = null;
         RenderTargetCube targetToRenderToCube = null;
         CubeMapFace faceToRenderOn;
@@ -36,6 +38,8 @@ namespace Gaia.Rendering
         {
             skyShaderPrepass = ResourceManager.Inst.GetShader("SkyShaderPrepass");
             skyShader = ResourceManager.Inst.GetShader("SkyShader");
+
+            nightTexture = ResourceManager.Inst.GetTexture("Textures/Sky/StarrySky.dds");
 
             skyTexture = new RenderTarget2D(GFX.Device, 64, 64, 1, SurfaceFormat.Color);
         }
@@ -88,6 +92,7 @@ namespace Gaia.Rendering
             skyShader.SetupShader();
  
             GFX.Device.Textures[0] = skyTexture.GetTexture();
+            GFX.Device.Textures[1] = nightTexture.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, Vector2.One / new Vector2(skyTexture.Width, skyTexture.Height));
 
             GFXPrimitives.Cube.Render();
