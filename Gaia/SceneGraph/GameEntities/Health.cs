@@ -40,10 +40,9 @@ namespace Gaia.SceneGraph.GameEntities
 
             physicsState.position = randPosition;
 
-            tracerEmitter = new ParticleEmitter(tracerEffect, 200);
+            tracerEmitter = new ParticleEmitter(tracerEffect, 8);
             scene.Entities.Add(tracerEmitter);
             tracerEmitter.OnAdd(scene);
-            Console.WriteLine("Added particle at position: \n {0}", physicsState.position);
 
             boundingBox = new BoundingBox();
             float size = tracerEmitter.GetTextureSize();

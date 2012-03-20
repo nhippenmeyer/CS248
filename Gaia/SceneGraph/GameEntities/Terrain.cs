@@ -460,6 +460,16 @@ namespace Gaia.SceneGraph.GameEntities
             }
         }
 
+        public BoundingBox GetWorldSpaceBoundsAtPoint(Vector3 point, int size)
+        {
+            Vector3 offset = TerrainSize * Vector3.One * (float)size / (float)(DensityFieldSize-1);
+            BoundingBox bounds = new BoundingBox();
+            bounds.Min = point - offset;
+            bounds.Max = point + offset;
+
+            return bounds;
+        }
+
         public void CarveTerrainAtPoint(Vector3 point, int size, int isoBrush)
         {
             List<VoxelGeometry> UpdateVoxels = new List<VoxelGeometry>();

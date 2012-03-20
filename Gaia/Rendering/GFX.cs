@@ -45,6 +45,13 @@ namespace Gaia.Rendering
             get { return Inst.device; }
         }
 
+        GUIElementManager guiManager;
+
+        public GUIElementManager GetGUI()
+        {
+            return guiManager;
+        }
+
         public SurfaceFormat ByteSurfaceFormat = SurfaceFormat.Luminance8;
         public GFXTextureDataType ByteSurfaceDataType = GFXTextureDataType.BYTE;
 
@@ -58,6 +65,7 @@ namespace Gaia.Rendering
             Inst = this;
             GFXShaderConstants.AuthorShaderConstantFile();
             RegisterDevice(device);
+            guiManager = new GUIElementManager();
 
         }
         ~GFX()
@@ -139,9 +147,16 @@ namespace Gaia.Rendering
 
         public void SetTextureFilter(int index, TextureFilter filter)
         {
+            TextureFilter mipFilter = filter;
+            if (filter == TextureFilter.Anisotropic)
+            {
+                GFX.Device.SamplerStates[index].MaxAnisotropy = 16;
+                mipFilter = TextureFilter.Linear;
+            }
             GFX.Device.SamplerStates[index].MagFilter = filter;
             GFX.Device.SamplerStates[index].MinFilter = filter;
-            GFX.Device.SamplerStates[index].MipFilter = filter;
+            GFX.Device.SamplerStates[index].MipFilter = mipFilter;
+            
         }
 
         public void SetTextureAddressMode(int index, TextureAddressMode mode)
@@ -172,6 +187,11 @@ namespace Gaia.Rendering
             DSBufferScene = new DepthStencilBuffer(GFX.Device, width, height, Device.DepthStencilBuffer.Format);
 
             dsBufferLarge = new DepthStencilBuffer(Device, 2048, 2048, Device.DepthStencilBuffer.Format);
+        }
+
+        public void RenderGUI()
+        {
+            guiManager.Render();   
         }
     }
 }

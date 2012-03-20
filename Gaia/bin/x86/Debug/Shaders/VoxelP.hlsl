@@ -27,7 +27,7 @@ uniform float4 EyePos : register(PC_EYEPOS)
 	blend_weights = max(blend_weights, 0);      
 	// Force weights to sum to 1.0 (very important!)  
 	blend_weights /= (blend_weights.x + blend_weights.y + blend_weights.z );
-	float3 TC = input.WorldPos*0.125;
+	float3 TC = input.WorldPos*0.07125;
 	
 	float altitude = input.LocalPos.y * 0.5 + 0.5;
 	float minSandAlt = 0.26;

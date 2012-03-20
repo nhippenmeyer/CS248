@@ -20,33 +20,179 @@ namespace Gaia.SceneGraph.GameEntities
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
-        protected Vector3 position = Vector3.Zero;
+        protected static float MAX_HEALTH = 100;
+
+        protected float health = MAX_HEALTH;
+        
         protected Vector3 rotation = Vector3.Zero;
-        protected Vector3 prevForward = Vector3.Forward;
+
+        protected ParticleEmitter emitter;
+        protected Light emitterLight;
+
+        protected BoundingBox bounds;
+
+        public BoundingBox GetBounds()
+        {
+            return bounds;
+        }
+
+        public int GetTeam()
+        {
+            return team;
+        }
+
+        public bool IsDead()
+        {
+            return (health <= 0.0f);
+        }
+
+        public float GetHealth()
+        {
+            return health;
+        }
+
+        protected int team;
+
+        protected Projectile projectile = null;
+
+        protected static float ATTACK_DELAY_TIME = 1.5f;
+        protected float delayTime = 0;
+
+        protected static float MAX_PROJECTILE_TIME = 4.0f;
+
+        protected float explosionMagnitude = 0;
+
+        protected float colorTime = 0;
+
+        protected float maxColorTime = HIT_COLOR_TIME;
+
+        protected Vector3 blendColor;
+
+        protected static Vector3 HIT_COLOR = new Vector3(1.0f, 0.3f, 0.0f);
+
+        protected static float HIT_COLOR_TIME = 0.7f;
+
+        protected static float PLAYER_SIZE = 5;
+
+        public virtual void ApplyDamage(Projectile projectile, Vector3 impulseVector)
+        {
+            physicsState.velocity += impulseVector;
+            health -= projectile.GetDamage();
+            colorTime = HIT_COLOR_TIME;
+            blendColor = HIT_COLOR;
+        }
+
+        public virtual void ApplyHealth(float amount)
+        {
+            if (IsDead())
+                return;
+            health += amount;
+        }
+
+        public Vector3 GetTeamColor()
+        {
+            switch (team)
+            {
+                case 0: //Blue team
+                    return new Vector3(0.13f, 0.86f, 1.26f);
+                case 1: //Red team
+                    return new Vector3(1.13f, 0.46f, 0.0f);
+                case 2: //Green team
+                    return new Vector3(0.2f, 1.0f, 0.2f);
+                default:
+                    return Vector3.One;
+            }
+        }
+
+        protected void CreateProjectile()
+        {
+            projectile = new Projectile(this, "TracerParticle", "ExplosionParticle");
+            projectile.Transformation.SetPosition(physicsState.position);
+            projectile.Transformation.SetRotation(rotation);
+            this.scene.Entities.Add(projectile);
+            projectile.OnAdd(this.scene);
+        }
+
+        protected void FireGun(Vector3 forwardVector)
+        {
+            if (delayTime > 0.0)
+                return;
+
+            delayTime = ATTACK_DELAY_TIME + ATTACK_DELAY_TIME * (explosionMagnitude - 1) / Projectile.EXPLOSION_MAX_MAGNITUDE;
+
+            if (projectile == null)
+                CreateProjectile();
+            projectile.SetVelocity(forwardVector);
+
+            projectile.SetMagnitude(explosionMagnitude);
+
+            projectile = null;
+        }
 
         public override void OnAdd(Scene scene)
         {
+            emitter = new ParticleEmitter(Resources.ResourceManager.Inst.GetParticleEffect("PlayerParticles"), 60);
+            emitter.SetColor(GetTeamColor());
+            emitterLight = new Light(LightType.Point, GetTeamColor(), this.Transformation.GetPosition(), false);
+            emitterLight.Parameters = new Vector4(55, 50, 0, 0);
+            scene.Entities.Add(emitter);
+            scene.Entities.Add(emitterLight);
+            scene.Actors.Add(this);
+
             base.OnAdd(scene);
         }
 
         public override void OnDestroy()
         {
+            scene.Actors.Remove(this);
+            scene.Entities.Remove(emitter);
+            scene.Entities.Remove(emitterLight);
+            emitter.OnDestroy();
+            emitterLight.OnDestroy();
             base.OnDestroy();
         }
 
         public override void OnUpdate()
         {
-            base.OnUpdate();
-        }
+            
+            emitter.Transformation.SetPosition(physicsState.position);
+            emitter.Transformation.SetRotation(rotation);
+            emitterLight.Transformation.SetPosition(physicsState.position);
 
-        public void FireGun(Vector3 forwardVector)
-        {
-            Projectile proj = new Projectile("TracerParticle", "ExplosionParticle");
-            proj.Transformation.SetPosition(physicsState.position);
-            proj.Transformation.SetRotation(rotation);
-            proj.SetVelocity(forwardVector);
-            this.scene.Entities.Add(proj);
-            proj.OnAdd(this.scene);
+            this.Transformation.SetPosition(physicsState.position);
+            this.Transformation.SetRotation(rotation);
+
+            bounds.Min = Vector3.Transform(Vector3.One * -PLAYER_SIZE, emitter.Transformation.GetTransform());
+            bounds.Max = Vector3.Transform(Vector3.One * PLAYER_SIZE, emitter.Transformation.GetTransform());
+
+            if (delayTime > 0)
+            {
+                delayTime -= Time.GameTime.ElapsedTime;
+            }
+
+            if (colorTime > 0.0)
+            {
+                colorTime -= Time.GameTime.ElapsedTime;
+                Vector3 color = Vector3.Lerp(GetTeamColor(), blendColor, colorTime / maxColorTime);
+                emitter.SetColor(color);
+                emitterLight.Color = color;
+
+                if(colorTime <= 0.0f)
+                {
+                    emitter.SetColor(GetTeamColor());
+                    emitterLight.Color = GetTeamColor();
+                }
+            }
+
+            if (projectile != null)
+            {
+                Matrix transform = this.Transformation.GetTransform();
+                Vector3 projPos = this.Transformation.GetPosition() + transform.Forward * (8f + explosionMagnitude) - transform.Up * 0.15f;
+                projectile.SetMagnitude(explosionMagnitude); 
+                projectile.Transformation.SetPosition(projPos);
+            }
+
+            base.OnUpdate();
         }
     }
 
@@ -60,18 +206,21 @@ namespace Gaia.SceneGraph.GameEntities
         float aspectRatio;
         float fieldOfView;
 
+        Vector3 position = Vector3.Zero;
+
         public override void OnAdd(Scene scene)
         {
+            this.team = 0;
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
-            position = Vector3.Transform(Vector3.Up * 0.25f, scene.MainTerrain.Transformation.GetTransform());
+            this.Transformation.SetPosition(Vector3.Transform(Vector3.Up * 0.25f, scene.MainTerrain.Transformation.GetTransform()));
             scene.MainCamera = renderView;
             scene.AddRenderView(renderView);
 
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
-            physicsState.position = position;
+            physicsState.position = this.Transformation.GetPosition();
             physicsState.velocity = Vector3.Zero;
 
             base.OnAdd(scene);
@@ -129,10 +278,19 @@ namespace Gaia.SceneGraph.GameEntities
                 acceleration -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
             */
 
-            if (InputManager.Inst.IsKeyDownOnce(GameKey.Fire))
+            if (delayTime <= 0 && InputManager.Inst.IsKeyDown(GameKey.Fire))
             {
-                FireGun(transform.Forward);
+                explosionMagnitude = 1 + Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.Fire) / MAX_PROJECTILE_TIME) * Projectile.EXPLOSION_MAX_MAGNITUDE;
+                if (projectile == null)
+                {
+                    CreateProjectile();
+                }
             }
+            if (InputManager.Inst.IsLeftJustReleased())
+            {
+                //FireGun(transform.Forward);
+            }
+            
 
             State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
@@ -143,7 +301,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
             else
             {
-                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 1.5f;
+                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 2.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
            // position = physicsState.position - transform.Forward * 30;
@@ -165,14 +323,56 @@ namespace Gaia.SceneGraph.GameEntities
 
             base.OnUpdate();
         }
+
+        public override void OnRender(RenderView view)
+        {
+            if (view.GetRenderType() == RenderViewType.MAIN)
+            {
+                Vector2 min = new Vector2(0.0f, 0.0f);
+                Vector2 max = new Vector2(1.0f, 1.0f);
+                GUIElement element = new GUIElement(min, max, Resources.ResourceManager.Inst.GetTexture("Textures/Particles/SmokeWhite.dds"));
+                GFX.Inst.GetGUI().AddElement(element);
+            }
+
+            base.OnRender(view);
+        }
     }
 
     public class Opponent : Actor
     {
         private Vector3 initialPos;
 
-        protected ParticleEmitter emitter;
-        protected Light emitterLight;
+        Vector3 aiVelocityVector = Vector3.Zero;
+
+        public enum EnemyState
+        {
+            Wander = 0,
+            ChasePlayer,
+            AttackPlayer,
+            Dead
+        }
+
+        static float DISTANCE_EPSILON = 1.0f;
+
+        static int WANDER_MAX_MOVES = 3;
+        static int WANDER_DISTANCE = 160;
+        static float WANDER_DELAY_SECONDS = 4.0f;
+        static float ATTACK_DELAY_SECONDS = 1.5f;
+        static float SIGHT_DISTANCE = 120;
+        static float ATTACK_DISTANCE = 60;
+        static float MIN_ATTACK_DISTANCE = 30;
+
+        int wanderMovesCount;
+        Vector3 wanderPosition;
+        Vector3 wanderStartPosition;
+        float wanderDelayTime;
+
+        Actor enemy = null;
+
+        // Attack
+        bool isHit = false;
+
+        EnemyState state = EnemyState.Wander;
 
         private bool hasFired = false;
 
@@ -183,16 +383,10 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
-            emitter = new ParticleEmitter(Resources.ResourceManager.Inst.GetParticleEffect("PlayerParticles"), 60);
-            emitterLight = new Light(LightType.Point, new Vector3(1.26f, 0.06f, 0.06f), position, false);
-            emitterLight.Parameters = new Vector4(55, 50, 0, 0);
-
-            position = Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform());
-            physicsState.position = position;
+            this.team = 2;
+            physicsState.position = Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform());
+            this.Transformation.SetPosition(physicsState.position);
             physicsState.velocity = Vector3.Down * speed;
-
-            scene.Entities.Add(emitter);
-            scene.Entities.Add(emitterLight);
 
             base.OnAdd(scene);
         }
@@ -202,41 +396,194 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnDestroy();
         }
 
-        public override void OnUpdate()
+        public override void ApplyDamage(Projectile projectile, Vector3 impulseVector)
         {
-            Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
-            Vector2 delta = InputManager.Inst.GetMouseDisplacement();
-
-            rotation.Y += delta.X;
-            rotation.X = MathHelper.Clamp(rotation.X + delta.Y, -1.4f, 1.4f);
-            if (rotation.Y > MathHelper.TwoPi)
-                rotation.Y -= MathHelper.TwoPi;
-            if (rotation.Y < 0)
-                rotation.Y += MathHelper.TwoPi;
-
-            Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
-
-            Vector3 acceleration = Vector3.Zero;
-            prevForward = transform.Forward;
-
-            Vector3 dir = scene.MainCamera.GetPosition() - position;
-            Vector3 vel = dir;
-            Random rand = new Random();
-            if (dir.Length() < 100)
+            Actor sender = projectile.GetSender();
+            if (sender.GetTeam() != this.GetTeam() && !sender.IsDead())
             {
-                vel.X = (float)rand.NextDouble();
-                vel.Y = (float)rand.NextDouble();
-                vel.Z = (float)rand.NextDouble();
-                if (!hasFired)
+                if (enemy != null)
                 {
-                    FireGun(dir);
-                    hasFired = true;
+                    enemy = (enemy.GetHealth() <= sender.GetHealth()) ? enemy : sender;
+                }
+                else
+                {
+                    enemy = sender;
                 }
             }
-            vel.Normalize();
-            vel *= speed * 2.0f;
+            base.ApplyDamage(projectile, impulseVector);
+        }
 
-            physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.2f);
+        private void Wander()
+        {
+            // Calculate wander vector on X, Z axis
+            Vector3 wanderVector = wanderPosition - physicsState.position;
+            wanderVector.Y = 0;
+            float wanderVectorLength = wanderVector.Length();
+
+            // Reached the destination position
+            if (wanderVectorLength < DISTANCE_EPSILON)
+            {
+                Random rand = new Random();
+                // Generate new random position
+                if (wanderMovesCount < WANDER_MAX_MOVES)
+                {
+                    wanderPosition = physicsState.position +
+                        WANDER_DISTANCE * (2.0f*new Vector3((float)rand.NextDouble(), (float)rand.NextDouble(), (float)rand.NextDouble())-Vector3.One);
+
+                    wanderMovesCount++;
+                }
+                // Go back to the start position
+                else
+                {
+                    wanderPosition = wanderStartPosition;
+                    wanderMovesCount = 0;
+                }
+
+                // Next time wander
+                wanderDelayTime = WANDER_DELAY_SECONDS +
+                    WANDER_DELAY_SECONDS * (float)rand.NextDouble();
+
+                aiVelocityVector = Vector3.Zero;
+            }
+
+            wanderDelayTime -= Time.GameTime.ElapsedTime;
+
+            // Wait for the next action time
+            if (wanderDelayTime <= 0.0f)
+            {
+                Move(Vector3.Normalize(wanderVector));
+            }
+        }
+
+        void Move(Vector3 moveDir)
+        {
+            Vector3 forwardVec = this.Transformation.GetTransform().Forward;
+            Vector3 strafeVec = this.Transformation.GetTransform().Right;
+            float radianAngle = (float)Math.Acos(forwardVec.Y * moveDir.Y);
+            if (radianAngle >= 0.075f)
+            {
+                if (Vector3.Dot(strafeVec, moveDir) < 0)
+                    rotation.Y += radianAngle * 0.02f;
+                else
+                    rotation.Y -= radianAngle * 0.02f;
+            }
+            aiVelocityVector = moveDir * speed;
+        }
+
+        void ResetStates()
+        {
+            isHit = false;
+            wanderMovesCount = 0;
+            // Unit configurations
+            health = MAX_HEALTH;
+            enemy = null;
+          
+            wanderPosition = physicsState.position;
+            wanderStartPosition = physicsState.position;
+            state = EnemyState.Wander;
+        }
+
+        void AcquireEnemy()
+        {
+            enemy = null;
+            float minDist = float.PositiveInfinity;
+            for (int i = 0; i < scene.Actors.Count; i++)
+            {
+                Actor currActor = scene.Actors[i];
+                if (currActor.GetTeam() != this.GetTeam() && !currActor.IsDead())
+                {
+                    float dist = Vector3.DistanceSquared(currActor.Transformation.GetPosition(), this.Transformation.GetPosition());
+                    if (dist < minDist)
+                    {
+                        Console.WriteLine("We acquired an enemy on team {0}", currActor.GetTeam());
+                        enemy = currActor;
+                        minDist = dist;
+                    }
+                }
+            }
+        }
+
+        void PerformBehavior()
+        {
+            if (this.IsDead())
+            {
+                aiVelocityVector = Vector3.Zero;
+                state = EnemyState.Dead;
+                physicsState.velocity = Vector3.Zero;
+                emitter.EmitOnce = true;
+                emitterLight.Color = Vector3.Zero;
+                return;
+            }
+
+            if (enemy == null || enemy.IsDead())
+            {
+                AcquireEnemy();
+            }
+            float distanceToTarget = float.PositiveInfinity;
+            Vector3 targetVec = Vector3.Forward;
+
+            if (enemy != null)
+            {
+                
+                targetVec = enemy.Transformation.GetPosition() - physicsState.position;
+                distanceToTarget = targetVec.Length();
+                targetVec *= 1.0f/distanceToTarget; //Normalize the vector
+            }
+
+            switch (state)
+            {
+                case EnemyState.Wander:
+                    if (distanceToTarget < SIGHT_DISTANCE)
+                        // Change state
+                        state = EnemyState.ChasePlayer;
+                    else
+                        Wander();
+                    break;
+
+                case EnemyState.ChasePlayer:
+                    if (distanceToTarget <= ATTACK_DISTANCE)
+                    {
+                        // Change state
+                        state = EnemyState.AttackPlayer;
+                        wanderDelayTime = 0;
+                    }
+                    if (distanceToTarget > SIGHT_DISTANCE * 1.05f)
+                        state = EnemyState.Wander;
+                    else if (distanceToTarget > MIN_ATTACK_DISTANCE)
+                    {
+                        Move(targetVec);
+                    }
+                    else
+                    {
+                        Move(-targetVec);
+                    }
+                    break;
+
+                case EnemyState.AttackPlayer:
+                    if (distanceToTarget > ATTACK_DISTANCE * 1.5f || distanceToTarget < MIN_ATTACK_DISTANCE)
+                    {
+                        state = EnemyState.ChasePlayer;
+                    }
+                    else
+                    {
+                        Move(targetVec);
+                        explosionMagnitude = 1.0f + (float)RandomHelper.RandomGen.NextDouble() * Projectile.EXPLOSION_MAX_MAGNITUDE;
+                        FireGun(targetVec);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        public override void OnUpdate()
+        {
+            Vector3 acceleration = Vector3.Zero;
+
+            PerformBehavior();
+
+            physicsState.velocity = Vector3.Lerp(aiVelocityVector, physicsState.velocity, 0.8f);
             State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
             Vector3 collNormal = Vector3.Zero;
@@ -246,15 +593,9 @@ namespace Gaia.SceneGraph.GameEntities
             }
             else
             {
-                physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 3.5f;
+                physicsState.velocity = -physicsState.velocity;// Vector3.Reflect(physicsState.velocity, collNormal) * 3.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
-            position = physicsState.position;
-
-            emitter.Transformation.SetPosition(physicsState.position);
-            emitter.Transformation.SetRotation(rotation);
-
-            emitterLight.Transformation.SetPosition(physicsState.position);
 
             base.OnUpdate();
         }

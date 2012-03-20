@@ -120,6 +120,9 @@ namespace Gaia.Rendering
             GFX.Device.ResolveBackBuffer(mainRenderView.BackBufferTexture);
 
             motionBlurShader.SetupShader();
+
+            GFX.Inst.SetTextureAddressMode(0, TextureAddressMode.Clamp);
+
             GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
             GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
             GFX.Device.SetPixelShaderConstant(0, mainRenderView.GetViewProjection());
@@ -223,6 +226,96 @@ namespace Gaia.Rendering
 
         }
 
+        SortedList<Material, Queue<RenderElement>> Elements = new SortedList<Material, Queue<RenderElement>>();
+        Matrix[] tempTransforms = new Matrix[GFXShaderConstants.NUM_INSTANCES];
+
+        public void AddElement(Material material, RenderElement element)
+        {
+            if (!Elements.ContainsKey(material))
+                Elements.Add(material, new Queue<RenderElement>());
+            Elements[material].Enqueue(element);
+        }
+
+        void DrawElement(Material key)
+        {
+            while (Elements[key].Count > 0)
+            {
+                RenderElement currElem = Elements[key].Dequeue();
+                if (currElem.VertexDec != GFX.Device.VertexDeclaration)
+                    GFX.Device.VertexDeclaration = currElem.VertexDec;
+                GFX.Device.Indices = currElem.IndexBuffer;
+                GFX.Device.Vertices[0].SetSource(currElem.VertexBuffer, 0, currElem.VertexStride);
+                for (int j = 0; j < currElem.Transform.Length; j += GFXShaderConstants.NUM_INSTANCES)
+                {
+                    int binLength = currElem.Transform.Length - j;
+
+                    if (binLength > GFXShaderConstants.NUM_INSTANCES)
+                        binLength = GFXShaderConstants.NUM_INSTANCES;
+                    if (currElem.Transform.Length > 1)
+                    {
+                        // Upload transform matrices as shader constants.
+                        Array.Copy(currElem.Transform, j, tempTransforms, 0, binLength);
+                        GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, tempTransforms);
+                    }
+                    else
+                    {
+                        GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_WORLD, currElem.Transform);
+                    }
+                    GFX.Device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, currElem.StartVertex, currElem.VertexCount * binLength, 0, currElem.PrimitiveCount * binLength);
+                }
+            }
+        }
+
+        void RenderRefractive()
+        {
+            GFX.Device.ResolveBackBuffer(mainRenderView.BackBufferTexture);
+            GFX.Device.Clear(Color.TransparentBlack);
+
+            GFX.Device.Textures[0] = mainRenderView.BackBufferTexture;
+            GFX.Device.Textures[1] = mainRenderView.DepthMap.GetTexture();
+            GFX.Device.Textures[2] = mainRenderView.CubeMap.GetTexture();
+            GFX.Inst.SetTextureAddressMode(0, TextureAddressMode.Clamp);
+            GFX.Inst.SetTextureAddressMode(1, TextureAddressMode.Clamp);
+            GFX.Inst.SetTextureAddressMode(2, TextureAddressMode.Wrap);
+
+            GFX.Device.RenderState.SourceBlend = Blend.One;
+            GFX.Device.RenderState.DestinationBlend = Blend.One;
+
+            basicImageShader.SetupShader();
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / GFX.Inst.DisplayRes);
+            GFXPrimitives.Quad.Render();
+
+
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, this.renderView.GetViewProjection());
+            GFX.Device.SetPixelShaderConstant(GFXShaderConstants.VC_EYEPOS, this.renderView.GetEyePosShader());
+
+            GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
+            GFX.Device.RenderState.DestinationBlend = Blend.InverseSourceAlpha;
+
+            GFX.Device.RenderState.CullMode = CullMode.CullCounterClockwiseFace;
+            GFX.Device.RenderState.DepthBufferEnable = true;
+            GFX.Device.RenderState.DepthBufferWriteEnable = true;
+            GFX.Device.RenderState.DepthBufferFunction = CompareFunction.Less;
+
+            for (int i = 0; i < Elements.Keys.Count; i++)
+            {
+                Material key = Elements.Keys[i];
+
+                if (Elements[key].Count > 0)
+                    key.SetupMaterial();
+
+                DrawElement(key);
+            }
+
+            GFX.Device.RenderState.DepthBufferWriteEnable = false;
+            GFX.Device.RenderState.DepthBufferEnable = false;
+            GFX.Device.RenderState.CullMode = CullMode.None;
+
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, mainRenderView.GetInverseViewProjectionLocal());
+            
+            
+        }
+
         public override void Render()
         {
             for(int i = 0; i < 4; i++)
@@ -242,6 +335,8 @@ namespace Gaia.Rendering
             RenderOcean();
 
             RenderCompositeParticles();
+
+            RenderRefractive();
 
             //RenderFog();
 

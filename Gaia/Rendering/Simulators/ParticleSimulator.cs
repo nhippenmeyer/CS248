@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using Gaia.Resources;
 using Gaia.SceneGraph.GameEntities;
+using Gaia.Rendering.RenderViews;
 
 namespace Gaia.Rendering.Simulators
 {
@@ -104,10 +105,29 @@ namespace Gaia.Rendering.Simulators
             particleForces[0] = new Vector3(0,-1,0)*9.821765f;
             GFX.Inst.SetTextureFilter(0, TextureFilter.Point);
             GFX.Inst.SetTextureFilter(1, TextureFilter.Point);
+            GFX.Inst.SetTextureFilter(2, TextureFilter.Point);
+            GFX.Inst.SetTextureFilter(3, TextureFilter.Point);
 
             for (int i = 0; i < randomTextures.Length; i++)
             {
-                GFX.Device.Textures[2 + i] = randomTextures[i];
+                GFX.Device.Textures[4 + i] = randomTextures[i];
+            }
+
+            MainRenderView renderView = (MainRenderView)emitters[0].GetScene().MainCamera;
+
+            if(renderView != null && Core.Time.RenderTime.TotalTime > 0.1f)
+            {
+                GFX.Device.Textures[2] = renderView.DepthMap.GetTexture();
+                GFX.Device.Textures[3] = renderView.NormalMap.GetTexture();
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_EYEPOSPHYSICS, renderView.GetEyePosShader());
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_VIEWMATRIXPHYSICS, renderView.GetViewProjection());
+            }
+            else
+            {
+                GFX.Device.Textures[2] = null;
+                GFX.Device.Textures[3] = null;
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_EYEPOSPHYSICS, new Vector4(0, 0, 0, 999));
+                GFX.Device.SetPixelShaderConstant(GFXShaderConstants.PC_VIEWMATRIXPHYSICS, Matrix.Identity);
             }
 
             for(int i = 0; i < emitters.Count; i++)
@@ -148,6 +168,8 @@ namespace Gaia.Rendering.Simulators
             }
             GFX.Inst.SetTextureFilter(0, TextureFilter.Anisotropic);
             GFX.Inst.SetTextureFilter(1, TextureFilter.Anisotropic);
+            GFX.Inst.SetTextureFilter(2, TextureFilter.Anisotropic);
+            GFX.Inst.SetTextureFilter(3, TextureFilter.Anisotropic);
         }
 
         public void ComputeParticleSizes(Matrix viewProjection, float screenSize)

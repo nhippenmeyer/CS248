@@ -102,6 +102,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnDestroy()
         {
+            scene.Entities.Remove(emitterLight);
             base.OnDestroy();
         }
 
@@ -122,7 +123,8 @@ namespace Gaia.SceneGraph.GameEntities
             if (boundingBox.Contains(scene.MainCamera.GetPosition()) != ContainmentType.Disjoint && !collected)
             {
                 collected = true;
-                scene.Entities.Remove(emitterLight);
+                scene.Entities.Remove(this);
+                this.OnDestroy();
                 // increase player's speed
             }
             base.OnUpdate();
