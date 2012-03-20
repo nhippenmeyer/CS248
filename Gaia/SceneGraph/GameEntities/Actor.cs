@@ -17,10 +17,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float speed = 160f;
-        protected float forwardAcceleration = 20; //15 units/second^2
+        protected float forwardAcceleration = 20;
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
+
+        protected float speedBonus = 1.0f;
+
+        protected float MAX_SPEED_DURATION = 20;
+
+        protected float speedTime;
 
         protected static float MAX_HEALTH = 100;
 
@@ -97,6 +102,12 @@ namespace Gaia.SceneGraph.GameEntities
             physicsState.position = initialPos;
             emitter.EmitOnce = false;
             emitterLight.Color = GetTeamColor();
+        }
+
+        public virtual void ApplySpeedBonus(float percent)
+        {
+            speedTime = MAX_SPEED_DURATION;
+            speedBonus = percent;
         }
 
         public virtual void ApplyDamage(Projectile projectile, Vector3 impulseVector)
@@ -220,6 +231,15 @@ namespace Gaia.SceneGraph.GameEntities
                 delayTime -= Time.GameTime.ElapsedTime;
             }
 
+            if (speedTime > 0)
+            {
+                speedTime -= Time.GameTime.ElapsedTime;
+                if (speedTime <= 0.0f)
+                {
+                    speedBonus = 1.0f;
+                }
+            }
+
             if (respawnTime > 0)
             {
                 respawnTime -= Time.GameTime.ElapsedTime;
@@ -325,6 +345,11 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnRender(view);
         }
 
+        public void SetSpeed(float percent)
+        {
+
+        }
+
         public override void OnUpdate()
         {
             Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
@@ -348,14 +373,14 @@ namespace Gaia.SceneGraph.GameEntities
 
             Vector3 vel = Vector3.Zero;
             if (InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
-                vel += transform.Forward * forwardAcceleration * (Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
+                vel += transform.Forward * forwardAcceleration * speedBonus * (Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
             if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
-                vel -= transform.Forward * backwardAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
+                vel -= transform.Forward * backwardAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f);
 
             if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
-                vel += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
+                vel += transform.Right * strafeAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
             if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
-                vel -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
+                vel -= transform.Right * strafeAcceleration * speedBonus * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
 
             physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.45f) + (float)Math.Sin(hoverAngle) * hoverMagnitude * transform.Up;
 
@@ -423,6 +448,8 @@ namespace Gaia.SceneGraph.GameEntities
     public class Opponent : Actor
     {
         Vector3 aiVelocityVector = Vector3.Zero;
+
+        protected float speed = 160f;
 
         public enum EnemyState
         {
