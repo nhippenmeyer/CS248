@@ -41,8 +41,11 @@ namespace Gaia.Rendering
 
         public void SetDimensions(Vector2 min, Vector2 max)
         {
-            Vector2 scale = (max-min)*0.5f;
-            Vector2 offset= (max+min)*0.5f;
+            Vector2 tempMin = Vector2.Min(min, max);
+            Vector2 tempMax = Vector2.Max(min, max);
+
+            Vector2 scale = (tempMax - tempMin) * 0.5f;
+            Vector2 offset = (tempMax + tempMin) * 0.5f;
             ScaleOffset = new Vector4(scale.X, scale.Y, offset.X, offset.Y);
         }
     };
