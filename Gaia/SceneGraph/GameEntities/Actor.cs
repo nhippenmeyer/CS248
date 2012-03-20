@@ -17,14 +17,12 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float forwardAcceleration = 20;
+        protected float forwardAcceleration = 40;
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
         protected float speedBonus = 1.0f;
-
         protected float MAX_SPEED_DURATION = 20;
-
         protected float speedTime;
 
         protected static float MAX_HEALTH = 100;
@@ -64,43 +62,37 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected static float ATTACK_DELAY_TIME = 0.85f;
         protected float delayTime = 0;
-
         protected static float MAX_PROJECTILE_TIME = 4.0f;
-
         protected float explosionMagnitude = 0;
 
         protected static float RESPAWN_TIME_AI = 15;
-
         protected static float RESPAWN_TIME_PLAYER = 6;
-
         protected float respawnTime = -1;
 
         protected float colorTime = 0;
-
         protected float maxColorTime = HIT_COLOR_TIME;
 
         protected Vector3 blendColor;
-
         protected static Vector3 HIT_COLOR = new Vector3(1.0f, 0.3f, 0.0f);
-
         protected static Vector3 HEALTH_COLOR = new Vector3(1.0f, 0.1f, 0.95f);
 
         protected static float HIT_COLOR_TIME = 0.7f;
-
         protected static float PLAYER_SIZE = 5;
-
-        protected static int DEFAULT_PLAYER_LIVES = 5;
-
+        protected static int DEFAULT_PLAYER_LIVES = 3;
         protected static int DEFAULT_AI_LIVES = 8;
-
         protected int lives = DEFAULT_AI_LIVES;
 
         protected virtual void ResetStates()
         {
+            respawnTime = -1;
             health = MAX_HEALTH;
+            this.Transformation.SetPosition(Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform()));
+            physicsState.position = this.Transformation.GetPosition();
             physicsState.velocity = Vector3.Zero;
-            physicsState.position = initialPos;
+            emitter.OnDestroy();
+            emitter.OnAdd(this.scene);
             emitter.EmitOnce = false;
+            emitter.SetColor(GetTeamColor());
             emitterLight.Color = GetTeamColor();
         }
 
@@ -156,6 +148,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             physicsState.velocity = Vector3.Zero;
             emitter.EmitOnce = true;
+            
             emitterLight.Color = Vector3.Zero;
             lives--;
             if (lives >= 0)
@@ -280,6 +273,8 @@ namespace Gaia.SceneGraph.GameEntities
         float aspectRatio;
         float fieldOfView;
 
+        int numGemsCollected = 0;
+
         Vector3 cameraPosition = Vector3.Zero;
 
         public Player(Vector3 spawnPos)
@@ -288,10 +283,11 @@ namespace Gaia.SceneGraph.GameEntities
 
         }
 
-        public void collectGem(float percent)
+        public void OnGemCollected(float speedupPercent)
         {
             speedTime = MAX_SPEED_DURATION;
-            speedBonus = percent;
+            speedBonus = speedupPercent;
+            numGemsCollected++;
         }
 
         protected override void OnDeath()
@@ -306,20 +302,20 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
+            base.OnAdd(scene);
+
             this.team = 0;
+            this.lives = DEFAULT_PLAYER_LIVES;
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
-            this.Transformation.SetPosition(Vector3.Transform(Vector3.Up * 0.25f, scene.MainTerrain.Transformation.GetTransform()));
+            ResetStates();
             scene.MainCamera = renderView;
             scene.AddRenderView(renderView);
 
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
-            physicsState.position = this.Transformation.GetPosition();
-            physicsState.velocity = Vector3.Zero;
-
-            base.OnAdd(scene);
+            ResetStates();
         }
 
         public override void OnDestroy()
@@ -333,6 +329,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
                 DrawHealthBar();
+                DrawGemProgressBar();
 
                 for (int i = 0; i < lives; i++)
                 {
@@ -342,16 +339,20 @@ namespace Gaia.SceneGraph.GameEntities
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
                 }
+                if (lives < 0)
+                {
+                    Vector2 max = new Vector2(1, 1);
+                    Vector2 min = new Vector2(-1, -1);
+                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/GameOver.png");
+                    GUIElement element = new GUIElement(min, max, image);
+                    GFX.Inst.GetGUI().AddElement(element);
+                }
             }
             base.OnRender(view);
         }
 
-        public void SetSpeed(float percent)
-        {
 
-        }
-
-        public override void OnUpdate()
+        void HandleControls()
         {
             Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
             Vector2 delta = InputManager.Inst.GetMouseDisplacement();
@@ -365,8 +366,6 @@ namespace Gaia.SceneGraph.GameEntities
             Mouse.SetPosition((int)(centerCrd.X + GFX.Inst.Origin.X), (int)(centerCrd.Y + GFX.Inst.Origin.Y));
 
             Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
-
-            Vector3 acceleration = Vector3.Zero;
 
             hoverAngle += Time.GameTime.ElapsedTime;
             if (hoverAngle >= MathHelper.TwoPi)
@@ -397,7 +396,20 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 FireGun(transform.Forward);
             }
-            
+        }
+
+        public override void OnUpdate()
+        {
+
+            if (!this.IsDead())
+            {
+                HandleControls();
+            }
+
+            Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
+
+            Vector3 acceleration = Vector3.Zero;
+
             State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
             Vector3 collNormal = Vector3.Zero;
@@ -430,6 +442,8 @@ namespace Gaia.SceneGraph.GameEntities
             float percentHealth = health / MAX_HEALTH;
             float barBottom = -0.98f;
             float barTop = 0.8f;
+            float barLeft = 0.93f;
+            float barRight = 0.98f;
             float healthBarTop = barBottom + percentHealth * (barTop - barBottom);
 
             Vector3 color;
@@ -437,12 +451,31 @@ namespace Gaia.SceneGraph.GameEntities
             else if (percentHealth > 0.25) color = new Vector3(0.8f, 0.8f, 0.0f);
             else color = new Vector3(0.8f, 0.0f, 0.0f);
 
-            GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(color, 0.5f));
-            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement healthBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, healthBarTop), null, new Vector4(color, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(barLeft, healthBarTop), new Vector2(barRight, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(healthBar);
             GFX.Inst.GetGUI().AddElement(healthBarLine);
+        }
+
+        public void DrawGemProgressBar()
+        {
+            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
+            float barBottom = -0.98f;
+            float barTop = 0.96f;
+            float barLeft = -0.98f;
+            float barRight = -0.93f;
+            float progressBarTop = barBottom + percentGemsCollected * (barTop - barBottom);
+
+            Vector3 color = new Vector3(0.0f, 0.2f, 0.8f);
+
+            GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
+            GUIElement progressBarLine = new GUIElement(new Vector2(barLeft, progressBarTop), new Vector2(barRight, progressBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GFX.Inst.GetGUI().AddElement(bar);
+            GFX.Inst.GetGUI().AddElement(progressBar);
+            GFX.Inst.GetGUI().AddElement(progressBarLine);
         }
     }
 
@@ -450,7 +483,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         Vector3 aiVelocityVector = Vector3.Zero;
 
-        protected float speed = 160f;
+        protected float speed = 50f;
 
         public enum EnemyState
         {
@@ -477,7 +510,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         Actor enemy = null;
 
-        EnemyState state = EnemyState.Wander;
+        EnemyState state;
 
 
         public Opponent(Vector3 pos) : base(pos)
@@ -486,12 +519,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
+            base.OnAdd(scene);
             this.team = 2;
+            this.ResetStates();
+            /*
             physicsState.position = Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform());
             this.Transformation.SetPosition(physicsState.position);
             physicsState.velocity = Vector3.Down * speed;
-
-            base.OnAdd(scene);
+            */
+            
         }
 
         public override void OnDestroy()
@@ -575,6 +611,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected override void ResetStates()
         {
+            base.ResetStates();
             wanderMovesCount = 0;
             // Unit configurations
             enemy = null;
@@ -582,7 +619,7 @@ namespace Gaia.SceneGraph.GameEntities
             wanderPosition = physicsState.position;
             wanderStartPosition = physicsState.position;
             state = EnemyState.Wander;
-            base.ResetStates();
+            
         }
 
         void AcquireEnemy()
@@ -613,6 +650,7 @@ namespace Gaia.SceneGraph.GameEntities
             physicsState.velocity = Vector3.Zero;
             base.OnDeath();
         }
+
         void PerformBehavior()
         {
             if (this.IsDead())
@@ -684,6 +722,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnUpdate()
         {
+            base.OnUpdate();
+
             Vector3 acceleration = Vector3.Zero;
 
             PerformBehavior();
@@ -701,8 +741,6 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState.velocity = -physicsState.velocity;// Vector3.Reflect(physicsState.velocity, collNormal) * 3.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
-
-            base.OnUpdate();
         }
     }
 }

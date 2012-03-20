@@ -13,6 +13,8 @@ namespace Gaia.SceneGraph
         public List<Actor> Actors = new List<Actor>();
         PriorityQueue<int, RenderView> RenderViews = new PriorityQueue<int, RenderView>();
 
+        public int NUM_GEMS = 20;
+
         public Light MainLight; //Our sunlight
         
         public RenderView MainCamera;
@@ -86,7 +88,7 @@ namespace Gaia.SceneGraph
             Entities.Add(MainPlayer);
             Entities.Add(MainTerrain);
             Entities.Add(MainLight);
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 50; i++)
             {
                 Tree tree = new Tree();
                 tree.setNum(i % 8);
@@ -94,7 +96,7 @@ namespace Gaia.SceneGraph
             }
 
             Random randomHelper = new Random();
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < NUM_GEMS; i++)
             {     
                 Entities.Add(new Gem(randomHelper));
                 Entities.Add(new Health(randomHelper));

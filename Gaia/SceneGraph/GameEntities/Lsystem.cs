@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
+using Gaia.Core;
 using Gaia.Resources;
 using Gaia.Voxels;
 using Gaia.Input;
@@ -70,7 +71,7 @@ namespace Gaia.SceneGraph.GameEntities
         float lRate;
         Stack<float> widths;
         Stack<float> lengths;
-        Random rand = new Random();
+        //Random rand = new Random();
         Vector3 initPosition;
         Vector3 maxPos, minPos;
 
@@ -340,7 +341,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         double getNoise()
         {
-            return rand.NextDouble();
+            return RandomHelper.RandomGen.NextDouble();
         }
 
         void drawLine()
