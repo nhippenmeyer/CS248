@@ -241,7 +241,7 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 for (int i = 0; i < numLives; i++)
                 {
-                    Vector2 max = new Vector2(1 - 0.08f * i, 1);
+                    Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
                     Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
                     Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
                     GUIElement element = new GUIElement(min, max, image);
