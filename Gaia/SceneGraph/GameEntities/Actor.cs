@@ -339,8 +339,8 @@ namespace Gaia.SceneGraph.GameEntities
                     Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
-                    DrawProgressBar();
                 }
+                DrawProgressBar();
             }
             base.OnRender(view);
         }
