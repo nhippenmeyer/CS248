@@ -14,7 +14,6 @@ namespace Gaia.Rendering.RenderViews
         public RenderTarget2D NormalMap;
         public RenderTarget2D DataMap;
         public RenderTarget2D LightMap;
-        public RenderTarget2D GlowBuffer;
 
         public RenderTarget2D ParticleBuffer;
 
@@ -63,8 +62,6 @@ namespace Gaia.Rendering.RenderViews
             DataMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
             LightMap = new RenderTarget2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
 
-            GlowBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
-
             ParticleBuffer = new RenderTarget2D(GFX.Device, width / 4, height / 4, 1, SurfaceFormat.Color);
 
             BackBufferTexture = new ResolveTexture2D(GFX.Device, width, height, 1, SurfaceFormat.Color);
@@ -74,7 +71,7 @@ namespace Gaia.Rendering.RenderViews
 
         void InitializeRenderViews()
         {
-            planarReflection = new SceneRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.1f, 1000.0f, 512, 512);
+            planarReflection = new SceneRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 0.1f, 1000.0f, 512, 256);
 
             reflectionViews = new SceneRenderView[6];
             for (int i = 0; i < reflectionViews.Length; i++)
@@ -217,6 +214,8 @@ namespace Gaia.Rendering.RenderViews
             GFX.Device.Clear(Color.TransparentBlack);
             ElementManagers[RenderPass.Particles].Render();
             GFX.Device.SetRenderTarget(0, null);
+            PostProcessElementManager mgr = (PostProcessElementManager)ElementManagers[RenderPass.PostProcess];
+            mgr.BlurParticles();
 
             GFX.Device.Clear(Color.TransparentBlack);
             GFX.Device.SetPixelShaderConstant(3, scene.MainLight.Transformation.GetPosition()); //Light Direction for sky

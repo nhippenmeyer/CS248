@@ -17,6 +17,8 @@ namespace Gaia.Rendering
         Shader motionBlurShader;
         Shader colorCorrectShader;
         Shader godRayShader;
+        Shader gaussBlurHShader;
+        Shader gaussBlurVShader;
         TextureResource colorCorrectTexture;
 
         TextureResource oceanTexture;
@@ -46,6 +48,9 @@ namespace Gaia.Rendering
             colorCorrectShader = ResourceManager.Inst.GetShader("ColorCorrect");
             colorCorrectTexture = ResourceManager.Inst.GetTexture("Textures/Color Correction/colorRamp0.dds");
             godRayShader = ResourceManager.Inst.GetShader("GodRay");
+
+            gaussBlurHShader = ResourceManager.Inst.GetShader("GaussH");
+            gaussBlurVShader = ResourceManager.Inst.GetShader("GaussV");
 
             oceanShader = ResourceManager.Inst.GetShader("Ocean");
             oceanScreenSpaceShader = ResourceManager.Inst.GetShader("OceanPP");
@@ -88,6 +93,29 @@ namespace Gaia.Rendering
             GFX.Device.Textures[2] = mainRenderView.DepthMap.GetTexture();
 
             GFXPrimitives.Quad.Render();
+        }
+
+        public void BlurParticles()
+        {
+            GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_INVTEXRES, Vector2.One / new Vector2(mainRenderView.ParticleBuffer.Width, mainRenderView.ParticleBuffer.Height));
+            GFX.Device.SetPixelShaderConstant(0, Vector4.One * 1);
+            GFX.Device.SetPixelShaderConstant(1, Vector2.One / new Vector2(mainRenderView.ParticleBuffer.Width, mainRenderView.ParticleBuffer.Height));
+
+            for (int i = 0; i < 4; i++)
+            {
+                GFX.Device.Textures[0] = mainRenderView.ParticleBuffer.GetTexture();
+                GFX.Device.SetRenderTarget(0, mainRenderView.ParticleBuffer);
+                gaussBlurHShader.SetupShader();
+                GFXPrimitives.Quad.Render();
+                GFX.Device.SetRenderTarget(0, null);
+
+                GFX.Device.Textures[0] = mainRenderView.ParticleBuffer.GetTexture();
+
+                GFX.Device.SetRenderTarget(0, mainRenderView.ParticleBuffer);
+                gaussBlurVShader.SetupShader();
+                GFXPrimitives.Quad.Render();
+                GFX.Device.SetRenderTarget(0, null);
+            }
         }
 
         void RenderCompositeParticles()
@@ -326,6 +354,7 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.CullMode = CullMode.None;
             GFX.Device.RenderState.DepthBufferEnable = false;
             GFX.Device.RenderState.DepthBufferWriteEnable = false;
+
             GFX.Device.RenderState.AlphaBlendEnable = true;
 
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, mainRenderView.GetInverseViewProjectionLocal());

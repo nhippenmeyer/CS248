@@ -105,6 +105,11 @@ namespace Gaia.Rendering
             Elements.Enqueue(element);
         }
 
+        public void AddElement(GUITextElement element)
+        {
+            TextElements.Enqueue(element);
+        }
+
         public void Render()
         {
             for(int i = 0; i < 4; i++)
