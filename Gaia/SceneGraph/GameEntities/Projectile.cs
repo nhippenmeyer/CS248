@@ -47,7 +47,7 @@ namespace Gaia.SceneGraph.GameEntities
             renderElement.StartVertex = GFXPrimitives.SphereGeometry.Geometry.renderElement.StartVertex;
             renderElement.PrimitiveCount = GFXPrimitives.SphereGeometry.Geometry.renderElement.PrimitiveCount;
 
-            projectileMaterial = ResourceManager.Inst.GetMaterial("TerrainMaterial");
+            projectileMaterial = ResourceManager.Inst.GetMaterial("GateMaterial");
 
             //tracerEffect = ResourceManager.Inst.GetParticleEffect(tracerEffectName);
             explosionEffect = ResourceManager.Inst.GetParticleEffect(explosionEffectName);
@@ -61,6 +61,7 @@ namespace Gaia.SceneGraph.GameEntities
         public void SetMagnitude(float magnitude)
         {
             explosionMagnitude = magnitude;
+            this.Transformation.SetScale(Vector3.One * magnitude);
         }
 
         public override void OnAdd(Scene scene)
@@ -127,7 +128,7 @@ namespace Gaia.SceneGraph.GameEntities
             Vector3 collNormal = Vector3.Zero;
 
             bool collision = CheckCollision(newState, out collNormal);
-            if (collision)
+            if (released && collision)
             {
                 if(!exploded)
                 {

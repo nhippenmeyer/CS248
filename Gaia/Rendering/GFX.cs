@@ -45,6 +45,13 @@ namespace Gaia.Rendering
             get { return Inst.device; }
         }
 
+        GUIElementManager guiManager;
+
+        public GUIElementManager GetGUI()
+        {
+            return guiManager;
+        }
+
         public SurfaceFormat ByteSurfaceFormat = SurfaceFormat.Luminance8;
         public GFXTextureDataType ByteSurfaceDataType = GFXTextureDataType.BYTE;
 
@@ -58,6 +65,7 @@ namespace Gaia.Rendering
             Inst = this;
             GFXShaderConstants.AuthorShaderConstantFile();
             RegisterDevice(device);
+            guiManager = new GUIElementManager();
 
         }
         ~GFX()
@@ -179,6 +187,11 @@ namespace Gaia.Rendering
             DSBufferScene = new DepthStencilBuffer(GFX.Device, width, height, Device.DepthStencilBuffer.Format);
 
             dsBufferLarge = new DepthStencilBuffer(Device, 2048, 2048, Device.DepthStencilBuffer.Format);
+        }
+
+        public void RenderGUI()
+        {
+            guiManager.Render();   
         }
     }
 }
