@@ -342,7 +342,6 @@ namespace Gaia.SceneGraph.GameEntities
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
                 }
-                DrawProgressBar();
             }
             base.OnRender(view);
         }
