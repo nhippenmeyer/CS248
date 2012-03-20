@@ -288,7 +288,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
             if (InputManager.Inst.IsLeftJustReleased())
             {
-                //FireGun(transform.Forward);
+                FireGun(transform.Forward);
             }
             
 
@@ -330,7 +330,8 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 Vector2 min = new Vector2(0.0f, 0.0f);
                 Vector2 max = new Vector2(1.0f, 1.0f);
-                GUIElement element = new GUIElement(min, max, Resources.ResourceManager.Inst.GetTexture("Textures/Particles/SmokeWhite.dds"));
+                Vector3 color = new Vector3(0.0f, 0.0f, 1.0f);
+                GUIElement element = new GUIElement(min, max, null, color);
                 GFX.Inst.GetGUI().AddElement(element);
             }
 
