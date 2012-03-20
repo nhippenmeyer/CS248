@@ -71,7 +71,6 @@ namespace Gaia.SceneGraph.GameEntities
             //tracerEmitter = new ParticleEmitter(tracerEffect, 200);
             //scene.Entities.Add(tracerEmitter);
             //tracerEmitter.OnAdd(scene);
-            Console.WriteLine("Added particle at position: \n {0}", physicsState.position);
             base.OnAdd(scene);
         }
 
@@ -152,7 +151,6 @@ namespace Gaia.SceneGraph.GameEntities
                     //tracerEmitter.EmitOnce = true;
                     this.scene.Entities.Remove(this);
                     this.OnDestroy();
-                    Console.WriteLine("Destroyed some terrain!");
                 }
             }
             else

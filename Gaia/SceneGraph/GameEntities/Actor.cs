@@ -690,7 +690,6 @@ namespace Gaia.SceneGraph.GameEntities
                     float dist = Vector3.DistanceSquared(currActor.Transformation.GetPosition(), this.Transformation.GetPosition());
                     if (dist < minDist)
                     {
-                        Console.WriteLine("We acquired an enemy on team {0}", currActor.GetTeam());
                         enemy = currActor;
                         minDist = dist;
                     }

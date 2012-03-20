@@ -9,6 +9,11 @@ struct PSIN
     float4 RefractTC: TEXCOORD2;
 };
 
+float fresnel(float NdotV, float bias, float power)
+{
+   return bias + (1.0-bias)*pow(1.0 - max(NdotV, 0), power);
+}
+
 float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 			uniform sampler DepthMap : register(S1),
 			uniform samplerCUBE ReflectMap : register(S2),
@@ -67,8 +72,10 @@ float4 main(PSIN IN, uniform sampler RefractMap : register(S0),
 	
 	float3 reflectColor = texCUBE(ReflectMap, reflect(V, normalize(IN.Normal)));
 	
+	float3 fresnelTerm = fresnel(dot(N, -V), 0.2, 2.58) * float3(1.0, 0.1555, 0.6155);
+	
 	float4 finalColor = 1.0f;
-	finalColor.rgb = lerp(reflectColor, float3(0.23,0.42,0.6)*refractColor, 0.5);
+	finalColor.rgb = lerp(reflectColor, refractColor, 0.5) + fresnelTerm;
 	
 	return finalColor;
 }
