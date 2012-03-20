@@ -71,7 +71,7 @@ namespace Gaia.SceneGraph
 
         void InitializeScene()
         {
-            Entities.Add(new Player());
+            Entities.Add(new Player(Vector3.Up*0.25f));
             Vector3[] directions = new Vector3[] { Vector3.Left, Vector3.Right, Vector3.Forward, Vector3.Backward, Vector3.Up };
             foreach (Vector3 dir in directions)
             {

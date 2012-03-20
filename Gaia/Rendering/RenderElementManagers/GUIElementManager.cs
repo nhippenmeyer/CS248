@@ -92,7 +92,7 @@ namespace Gaia.Rendering
             basicImageShader = new Shader();
             basicImageShader.CompileFromFiles("Shaders/PostProcess/GUIP.hlsl", "Shaders/PostProcess/GUIV.hlsl");
             whiteTexture = new Texture2D(GFX.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
-            Color[] color = new Color[] { Color.TransparentWhite };
+            Color[] color = new Color[] { Color.White };
             whiteTexture.SetData<Color>(color);
         }
 
