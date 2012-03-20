@@ -274,12 +274,22 @@ namespace Gaia.SceneGraph.GameEntities
 
         int numGemsCollected = 0;
 
+        // used to create white flash after being hit
+        int MAX_FLASH_TIMER = 8;
+        int hitFlashTimer = 0;
+        int deathFadeTimer = 0;
+
         Vector3 cameraPosition = Vector3.Zero;
 
         public Player(Vector3 spawnPos)
             : base(spawnPos)
-        {
+        {}
 
+        protected override void ResetStates()
+        {
+            hitFlashTimer = 0;
+            deathFadeTimer = 0;
+            base.ResetStates();
         }
 
         public void OnGemCollected(float speedupPercent)
@@ -291,6 +301,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected override void OnDeath()
         {
+            deathFadeTimer = 1;
+
             base.OnDeath();
             if (lives >= 0)
             {
@@ -323,25 +335,34 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnDestroy();
         }
 
+        public override void ApplyDamage(Projectile projectile, Vector3 impulseVector)
+        {
+            hitFlashTimer = 1;
+            base.ApplyDamage(projectile, impulseVector);
+        }
+
         public override void OnRender(RenderView view)
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
+                DrawLives();
                 DrawHealthBar();
                 DrawGemProgressBar();
 
-                for (int i = 0; i < lives; i++)
+                if (hitFlashTimer >= MAX_FLASH_TIMER) hitFlashTimer = 0;
+                else if (hitFlashTimer > 0)
                 {
-                    Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
-                    Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
-                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
-                    GUIElement element = new GUIElement(min, max, image);
-                    GFX.Inst.GetGUI().AddElement(element);
+                    hitFlashTimer++;
+                    DrawHitFlash();
+                }
+                if (deathFadeTimer > 0)
+                {
+                    deathFadeTimer++;
+                    DrawDeathFade();
                 }
             }
             base.OnRender(view);
         }
-
 
         void HandleControls()
         {
@@ -428,6 +449,18 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
+        public void DrawLives()
+        {
+            for (int i = 0; i < lives; i++)
+            {
+                Vector2 max = new Vector2(0.99f - 0.08f * i, 0.98f);
+                Vector2 min = new Vector2(0.91f - 0.08f * i, 0.83f);
+                Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
+                GUIElement element = new GUIElement(min, max, image);
+                GFX.Inst.GetGUI().AddElement(element);
+            }
+        }
+
         public void DrawHealthBar()
         {
             float percentHealth = health / MAX_HEALTH;
@@ -454,7 +487,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
             float barBottom = -0.98f;
-            float barTop = 0.96f;
+            float barTop = 0.8f;
             float barLeft = -0.98f;
             float barRight = -0.93f;
             float progressBarTop = barBottom + percentGemsCollected * (barTop - barBottom);
@@ -464,9 +497,25 @@ namespace Gaia.SceneGraph.GameEntities
             GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
             GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
             GUIElement progressBarLine = new GUIElement(new Vector2(barLeft, progressBarTop), new Vector2(barRight, progressBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GUIElement gemIcon = new GUIElement(new Vector2(-1.0f, 0.82f), new Vector2(-0.91f, 0.98f), Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png"));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(progressBar);
             GFX.Inst.GetGUI().AddElement(progressBarLine);
+            GFX.Inst.GetGUI().AddElement(gemIcon);
+        }
+
+        public void DrawHitFlash()
+        {
+            float alpha = 1.0f - Math.Abs((float)MAX_FLASH_TIMER / 2.0f - (float)hitFlashTimer) / (float)(MAX_FLASH_TIMER / 2.0f);
+            GUIElement flash = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(1.0f, 1.0f, 1.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(flash);
+        }
+
+        public void DrawDeathFade()
+        {
+            float alpha = Math.Min((float)deathFadeTimer / 20.0f, 1.0f);
+            GUIElement fade = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(0.0f, 0.0f, 0.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(fade);
         }
     }
 
@@ -505,8 +554,7 @@ namespace Gaia.SceneGraph.GameEntities
 
 
         public Opponent(Vector3 pos) : base(pos)
-        {
-        }
+        {}
 
         public override void OnAdd(Scene scene)
         {
