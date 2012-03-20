@@ -35,8 +35,10 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.DepthBufferWriteEnable = false; 
             GFX.Device.RenderState.AlphaBlendEnable = true;
 
+            /*
             GFX.Device.RenderState.AlphaSourceBlend = Blend.One;
             GFX.Device.RenderState.AlphaDestinationBlend = Blend.One;
+            */
 
             /*
             GFX.Device.RenderState.SourceBlend = Blend.SourceAlpha;
@@ -49,9 +51,13 @@ namespace Gaia.Rendering
 
             GFX.Device.RenderState.DepthBufferEnable = false;
             */
+
+            GFX.Device.RenderState.SourceBlend = Blend.One;
+            GFX.Device.RenderState.DestinationBlend = Blend.One;
+            /*
             GFX.Device.RenderState.SourceBlend = Blend.SourceColor;
             GFX.Device.RenderState.DestinationBlend = Blend.DestinationColor;
-
+            */
 
             GFX.Device.VertexDeclaration = GFXVertexDeclarations.ParticlesDec;
             GFX.Device.SetVertexShaderConstant(GFXShaderConstants.VC_MODELVIEW, renderView.GetViewProjection());

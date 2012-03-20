@@ -40,7 +40,7 @@ namespace Gaia.SceneGraph.GameEntities
             float radiusMax = (DensityFieldSize / 2);
             float radiusMin = (DensityFieldSize / 16);
             Vector3 cylinderCenter = Vector3.One * DensityFieldSize * 0.5f;
-            minPos = maxPos = Vector3.Zero;
+            minPos = maxPos = cylinderCenter;
             DensityField = new byte[DensityFieldSize * DensityFieldSize * DensityFieldSize];
 
             for (int x = 0; x < DensityFieldSize; x++)
