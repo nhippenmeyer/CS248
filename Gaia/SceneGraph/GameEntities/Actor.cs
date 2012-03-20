@@ -209,6 +209,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         Vector3 position = Vector3.Zero;
 
+        float numLives = 3;
+
         public override void OnAdd(Scene scene)
         {
             this.team = 0;
@@ -237,11 +239,14 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
-                Vector2 max = new Vector2(-1, 1);
-                Vector2 min = new Vector2(0.0f, 0.0f);
-                Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png");
-                GUIElement element = new GUIElement(min, max, image);
-                GFX.Inst.GetGUI().AddElement(element);
+                for (int i = 0; i < numLives; i++)
+                {
+                    Vector2 max = new Vector2(1 - 0.08f * i, 1);
+                    Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
+                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
+                    GUIElement element = new GUIElement(min, max, image);
+                    GFX.Inst.GetGUI().AddElement(element);
+                }
             }
             base.OnRender(view);
         }
