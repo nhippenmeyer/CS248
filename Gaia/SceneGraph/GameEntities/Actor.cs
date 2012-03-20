@@ -13,16 +13,18 @@ namespace Gaia.SceneGraph.GameEntities
 {
     public class Actor : Entity
     {
+        protected Vector3 initialPos;
+
         protected State physicsState;
 
-        protected float speed = 16f;
+        protected float speed = 160f;
         protected float forwardAcceleration = 20; //15 units/second^2
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
         protected static float MAX_HEALTH = 100;
 
-        protected float health = MAX_HEALTH;
+        protected float health = MAX_HEALTH - 75;
         
         protected Vector3 rotation = Vector3.Zero;
 
@@ -55,12 +57,18 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected Projectile projectile = null;
 
-        protected static float ATTACK_DELAY_TIME = 1.5f;
+        protected static float ATTACK_DELAY_TIME = 0.85f;
         protected float delayTime = 0;
 
         protected static float MAX_PROJECTILE_TIME = 4.0f;
 
         protected float explosionMagnitude = 0;
+
+        protected static float RESPAWN_TIME_AI = 15;
+
+        protected static float RESPAWN_TIME_PLAYER = 6;
+
+        protected float respawnTime = -1;
 
         protected float colorTime = 0;
 
@@ -70,14 +78,37 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected static Vector3 HIT_COLOR = new Vector3(1.0f, 0.3f, 0.0f);
 
+        protected static Vector3 HEALTH_COLOR = new Vector3(1.0f, 0.1f, 0.95f);
+
         protected static float HIT_COLOR_TIME = 0.7f;
 
         protected static float PLAYER_SIZE = 5;
+
+        protected static int DEFAULT_PLAYER_LIVES = 5;
+
+        protected static int DEFAULT_AI_LIVES = 8;
+
+        protected int lives = DEFAULT_AI_LIVES;
+
+        protected virtual void ResetStates()
+        {
+            health = MAX_HEALTH;
+            physicsState.velocity = Vector3.Zero;
+            physicsState.position = initialPos;
+            emitter.EmitOnce = false;
+            emitterLight.Color = GetTeamColor();
+        }
 
         public virtual void ApplyDamage(Projectile projectile, Vector3 impulseVector)
         {
             physicsState.velocity += impulseVector;
             health -= projectile.GetDamage();
+
+            if (health <= 0.0)
+            {
+                OnDeath();
+            }
+
             colorTime = HIT_COLOR_TIME;
             blendColor = HIT_COLOR;
         }
@@ -86,7 +117,10 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (IsDead())
                 return;
-            health += amount;
+            health = Math.Min(health + amount, MAX_HEALTH);
+
+            colorTime = HIT_COLOR_TIME;
+            blendColor = HEALTH_COLOR;
         }
 
         public Vector3 GetTeamColor()
@@ -113,6 +147,17 @@ namespace Gaia.SceneGraph.GameEntities
             projectile.OnAdd(this.scene);
         }
 
+        protected virtual void OnDeath()
+        {
+            emitter.EmitOnce = true;
+            emitterLight.Color = Vector3.Zero;
+            lives--;
+            if (lives >= 0)
+            {
+                respawnTime = RESPAWN_TIME_AI;
+            }
+        }
+
         protected void FireGun(Vector3 forwardVector)
         {
             if (delayTime > 0.0)
@@ -127,6 +172,11 @@ namespace Gaia.SceneGraph.GameEntities
             projectile.SetMagnitude(explosionMagnitude);
 
             projectile = null;
+        }
+
+        public Actor(Vector3 initPos)
+        {
+            initialPos = initPos;
         }
 
         public override void OnAdd(Scene scene)
@@ -170,6 +220,15 @@ namespace Gaia.SceneGraph.GameEntities
                 delayTime -= Time.GameTime.ElapsedTime;
             }
 
+            if (respawnTime > 0)
+            {
+                respawnTime -= Time.GameTime.ElapsedTime;
+                if (respawnTime <= 0.0f)
+                {
+                    ResetStates();
+                }
+            }
+
             if (colorTime > 0.0)
             {
                 colorTime -= Time.GameTime.ElapsedTime;
@@ -198,7 +257,6 @@ namespace Gaia.SceneGraph.GameEntities
 
     public class Player : Actor
     {
-
         float hoverMagnitude = 2.5f;
         float hoverAngle = 0;
 
@@ -207,9 +265,23 @@ namespace Gaia.SceneGraph.GameEntities
         float aspectRatio;
         float fieldOfView;
 
-        Vector3 position = Vector3.Zero;
+        Vector3 cameraPosition = Vector3.Zero;
 
-        float numLives = 3;
+        public Player(Vector3 spawnPos)
+            : base(spawnPos)
+        {
+
+        }
+
+        protected override void OnDeath()
+        {
+            base.OnDeath();
+            if (lives >= 0)
+            {
+                respawnTime = RESPAWN_TIME_PLAYER;
+                //Add your death-related code here!
+            }
+        }
 
         public override void OnAdd(Scene scene)
         {
@@ -239,13 +311,14 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
-                for (int i = 0; i < numLives; i++)
+                for (int i = 0; i < lives; i++)
                 {
                     Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
                     Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
                     Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
+                    DrawProgressBar();
                 }
             }
             base.OnRender(view);
@@ -285,18 +358,6 @@ namespace Gaia.SceneGraph.GameEntities
 
             physicsState.velocity = Vector3.Lerp(vel, physicsState.velocity, 0.45f) + (float)Math.Sin(hoverAngle) * hoverMagnitude * transform.Up;
 
-            /*
-            if(InputManager.Inst.IsKeyDown(GameKey.MoveFoward))
-                acceleration += transform.Forward * forwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveFoward) / 3.0f));
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveBackward))
-                acceleration -= transform.Forward * backwardAcceleration * (1.0f - Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveBackward) / 1.75f));
-            
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveRight))
-                acceleration += transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveRight) / 1.25f);
-            if (InputManager.Inst.IsKeyDown(GameKey.MoveLeft))
-                acceleration -= transform.Right * strafeAcceleration * Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.MoveLeft) / 1.25f);
-            */
-
             if (delayTime <= 0 && InputManager.Inst.IsKeyDown(GameKey.Fire))
             {
                 explosionMagnitude = 1 + Math.Min(1.0f, InputManager.Inst.GetPressTime(GameKey.Fire) / MAX_PROJECTILE_TIME) * Projectile.EXPLOSION_MAX_MAGNITUDE;
@@ -310,7 +371,6 @@ namespace Gaia.SceneGraph.GameEntities
                 FireGun(transform.Forward);
             }
             
-
             State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
             Vector3 collNormal = Vector3.Zero;
@@ -323,19 +383,13 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState.velocity = Vector3.Reflect(physicsState.velocity, collNormal) * 2.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
-           // position = physicsState.position - transform.Forward * 30;
-            position = physicsState.position + transform.Up * 5f - transform.Forward * 0.25f;
-            //position = physicsState.position -transform.Forward * 30;
+            cameraPosition = physicsState.position + transform.Up * 5f - transform.Forward * 0.25f;
 
             float nearPlane = 0.15f;
             float farPlane = 2000;
 
-
-            renderView.SetPosition(position);
-
-            //renderView.SetView(Matrix.CreateLookAt(position, physicsState.position, Vector3.Up));
-            renderView.SetView(Matrix.CreateLookAt(position, position + transform.Forward, Vector3.Up));
-
+            renderView.SetPosition(cameraPosition);
+            renderView.SetView(Matrix.CreateLookAt(cameraPosition, cameraPosition + transform.Forward, Vector3.Up));
             renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
             renderView.SetNearPlane(nearPlane);
             renderView.SetFarPlane(farPlane);
@@ -344,12 +398,24 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
+        public void DrawProgressBar()
+        {
+            float percentHealth = health / MAX_HEALTH;
+            float barBottom = -0.98f;
+            float barTop = 0.98f;
+            float healthBarTop = Math.Max(0.0f, barBottom + percentHealth * (barTop - barBottom));
+
+            GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(0.0f, 0.8f, 0.2f, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(0.0f, 0.8f, 0.2f, 1.0f));
+            GFX.Inst.GetGUI().AddElement(bar);
+            GFX.Inst.GetGUI().AddElement(healthBar);
+            GFX.Inst.GetGUI().AddElement(healthBarLine);
+        }
     }
 
     public class Opponent : Actor
     {
-        private Vector3 initialPos;
-
         Vector3 aiVelocityVector = Vector3.Zero;
 
         public enum EnemyState
@@ -377,14 +443,11 @@ namespace Gaia.SceneGraph.GameEntities
 
         Actor enemy = null;
 
-        // Attack
-        bool isHit = false;
-
         EnemyState state = EnemyState.Wander;
 
-        public Opponent(Vector3 pos)
+
+        public Opponent(Vector3 pos) : base(pos)
         {
-            initialPos = pos;
         }
 
         public override void OnAdd(Scene scene)
@@ -476,17 +539,16 @@ namespace Gaia.SceneGraph.GameEntities
             aiVelocityVector = moveDir * speed;
         }
 
-        void ResetStates()
+        protected override void ResetStates()
         {
-            isHit = false;
             wanderMovesCount = 0;
             // Unit configurations
-            health = MAX_HEALTH;
             enemy = null;
           
             wanderPosition = physicsState.position;
             wanderStartPosition = physicsState.position;
             state = EnemyState.Wander;
+            base.ResetStates();
         }
 
         void AcquireEnemy()
@@ -509,15 +571,18 @@ namespace Gaia.SceneGraph.GameEntities
             }
         }
 
+
+        protected override void OnDeath()
+        {
+            state = EnemyState.Dead;
+            aiVelocityVector = Vector3.Zero;
+            physicsState.velocity = Vector3.Zero;
+            base.OnDeath();
+        }
         void PerformBehavior()
         {
             if (this.IsDead())
             {
-                aiVelocityVector = Vector3.Zero;
-                state = EnemyState.Dead;
-                physicsState.velocity = Vector3.Zero;
-                emitter.EmitOnce = true;
-                emitterLight.Color = Vector3.Zero;
                 return;
             }
 
