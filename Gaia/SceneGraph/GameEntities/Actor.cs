@@ -17,7 +17,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float forwardAcceleration = 200;
+        protected float forwardAcceleration = 40;
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
