@@ -58,6 +58,8 @@ namespace Gaia
             new ResourceManager();
             ResourceManager.Inst.LoadResources();
 
+            GFX.Inst.GetGUI().DefaultFont = Content.Load<SpriteFont>("SimpleFont");
+
             mainScene = new Scene();
             mainScene.Initialize();
 
