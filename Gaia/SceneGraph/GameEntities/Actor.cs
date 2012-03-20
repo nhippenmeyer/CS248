@@ -17,7 +17,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float forwardAcceleration = 20;
+        protected float forwardAcceleration = 200;
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
 
@@ -439,14 +439,14 @@ namespace Gaia.SceneGraph.GameEntities
 
         public void DrawGemProgressBar()
         {
-            float percentGemsCollected = numGemsCollected / scene.NUM_GEMS;
+            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
             float barBottom = -0.98f;
             float barTop = 0.96f;
             float barLeft = -0.98f;
             float barRight = -0.93f;
             float progressBarTop = barBottom + percentGemsCollected * (barTop - barBottom);
 
-            Vector3 color = new Vector3(0.0f, 0.8f, 0.2f);
+            Vector3 color = new Vector3(0.0f, 0.2f, 0.8f);
 
             GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
             GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
@@ -461,7 +461,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         Vector3 aiVelocityVector = Vector3.Zero;
 
-        protected float speed = 160f;
+        protected float speed = 16f;
 
         public enum EnemyState
         {
