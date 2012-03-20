@@ -85,10 +85,15 @@ namespace Gaia.Rendering
         Queue<GUIElement> Elements = new Queue<GUIElement>();
         Queue<GUITextElement> TextElements = new Queue<GUITextElement>();
 
+        Texture2D whiteTexture;
+
         public GUIElementManager()
         {
             basicImageShader = new Shader();
             basicImageShader.CompileFromFiles("Shaders/PostProcess/GUIP.hlsl", "Shaders/PostProcess/GUIV.hlsl");
+            whiteTexture = new Texture2D(GFX.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
+            Color[] color = new Color[] { Color.TransparentWhite };
+            whiteTexture.SetData<Color>(color);
         }
 
         public void AddElement(GUIElement element)
@@ -122,7 +127,7 @@ namespace Gaia.Rendering
                 }
                 else
                 {
-                    GFX.Device.Textures[0] = null;
+                    GFX.Device.Textures[0] = whiteTexture;
                 }
                 
                 GFX.Device.SetVertexShaderConstant(0, elem.ScaleOffset);
