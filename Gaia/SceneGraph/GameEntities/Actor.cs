@@ -62,33 +62,23 @@ namespace Gaia.SceneGraph.GameEntities
         protected static float ATTACK_DELAY_TIME = 0.85f;
         protected float delayTime = 0;
         protected static float MAX_PROJECTILE_TIME = 4.0f;
-
         protected float explosionMagnitude = 0;
 
         protected static float RESPAWN_TIME_AI = 15;
-
         protected static float RESPAWN_TIME_PLAYER = 6;
-
         protected float respawnTime = -1;
 
         protected float colorTime = 0;
-
         protected float maxColorTime = HIT_COLOR_TIME;
 
         protected Vector3 blendColor;
-
         protected static Vector3 HIT_COLOR = new Vector3(1.0f, 0.3f, 0.0f);
-
         protected static Vector3 HEALTH_COLOR = new Vector3(1.0f, 0.1f, 0.95f);
 
         protected static float HIT_COLOR_TIME = 0.7f;
-
         protected static float PLAYER_SIZE = 5;
-
         protected static int DEFAULT_PLAYER_LIVES = 5;
-
         protected static int DEFAULT_AI_LIVES = 8;
-
         protected int lives = DEFAULT_AI_LIVES;
 
         protected virtual void ResetStates()
@@ -98,12 +88,6 @@ namespace Gaia.SceneGraph.GameEntities
             physicsState.position = initialPos;
             emitter.EmitOnce = false;
             emitterLight.Color = GetTeamColor();
-        }
-
-        public virtual void ApplySpeedBonus(float percent)
-        {
-            speedTime = MAX_SPEED_DURATION;
-            speedBonus = percent;
         }
 
         public virtual void ApplyDamage(Projectile projectile, Vector3 impulseVector)
@@ -124,7 +108,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (IsDead())
                 return;
-            health += amount;
+            health = Math.Min(health + amount, MAX_HEALTH);
 
             colorTime = HIT_COLOR_TIME;
             blendColor = HEALTH_COLOR;
@@ -282,12 +266,21 @@ namespace Gaia.SceneGraph.GameEntities
         float aspectRatio;
         float fieldOfView;
 
+        int numGemsCollected = 0;
+
         Vector3 cameraPosition = Vector3.Zero;
 
         public Player(Vector3 spawnPos)
             : base(spawnPos)
         {
 
+        }
+
+        public void OnGemCollected(float speedupPercent)
+        {
+            speedTime = MAX_SPEED_DURATION;
+            speedBonus = speedupPercent;
+            numGemsCollected++;
         }
 
         protected override void OnDeath()
@@ -329,6 +322,7 @@ namespace Gaia.SceneGraph.GameEntities
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
                 DrawHealthBar();
+                DrawGemProgressBar();
 
                 for (int i = 0; i < lives; i++)
                 {
@@ -426,6 +420,8 @@ namespace Gaia.SceneGraph.GameEntities
             float percentHealth = health / MAX_HEALTH;
             float barBottom = -0.98f;
             float barTop = 0.8f;
+            float barLeft = 0.93f;
+            float barRight = 0.98f;
             float healthBarTop = barBottom + percentHealth * (barTop - barBottom);
 
             Vector3 color;
@@ -433,12 +429,31 @@ namespace Gaia.SceneGraph.GameEntities
             else if (percentHealth > 0.25) color = new Vector3(0.8f, 0.8f, 0.0f);
             else color = new Vector3(0.8f, 0.0f, 0.0f);
 
-            GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
-            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(color, 0.5f));
-            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement healthBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, healthBarTop), null, new Vector4(color, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(barLeft, healthBarTop), new Vector2(barRight, healthBarTop + 0.02f), null, new Vector4(color, 1.0f));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(healthBar);
             GFX.Inst.GetGUI().AddElement(healthBarLine);
+        }
+
+        public void DrawGemProgressBar()
+        {
+            float percentGemsCollected = numGemsCollected / scene.NUM_GEMS;
+            float barBottom = -0.98f;
+            float barTop = 0.96f;
+            float barLeft = -0.98f;
+            float barRight = -0.93f;
+            float progressBarTop = barBottom + percentGemsCollected * (barTop - barBottom);
+
+            Vector3 color = new Vector3(0.0f, 0.8f, 0.2f);
+
+            GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
+            GUIElement progressBarLine = new GUIElement(new Vector2(barLeft, progressBarTop), new Vector2(barRight, progressBarTop + 0.02f), null, new Vector4(color, 1.0f));
+            GFX.Inst.GetGUI().AddElement(bar);
+            GFX.Inst.GetGUI().AddElement(progressBar);
+            GFX.Inst.GetGUI().AddElement(progressBarLine);
         }
     }
 

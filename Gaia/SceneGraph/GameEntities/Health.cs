@@ -47,11 +47,11 @@ namespace Gaia.SceneGraph.GameEntities
             boundingBox = new BoundingBox();
             float size = tracerEmitter.GetTextureSize();
             boundingBox.Min = randPosition - Vector3.One * Vector3.Up * size;
-            boundingBox.Min.X -= (size / 2.0f);
-            boundingBox.Min.Z -= (size / 2.0f);
+            boundingBox.Min.X -= (size);// / 2.0f);
+            boundingBox.Min.Z -= (size); // 2.0f);
             boundingBox.Max = randPosition + Vector3.One * Vector3.Up * size;
-            boundingBox.Max.X += (size / 2.0f);
-            boundingBox.Max.Z += (size / 2.0f);
+            boundingBox.Max.X += (size); // 2.0f);
+            boundingBox.Max.Z += (size); // 2.0f);
 
             base.OnAdd(scene);
         }
@@ -93,6 +93,7 @@ namespace Gaia.SceneGraph.GameEntities
                 collected = true;
                 scene.Entities.Remove(tracerEmitter);
                 Console.WriteLine("Heath absorbed");
+                scene.MainPlayer.ApplyHealth(20.0f);
                 // increase player's health
             }
             base.OnUpdate();
