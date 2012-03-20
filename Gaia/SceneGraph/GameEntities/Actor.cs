@@ -83,10 +83,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected virtual void ResetStates()
         {
+            respawnTime = -1;
             health = MAX_HEALTH;
+            this.Transformation.SetPosition(Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform()));
+            physicsState.position = this.Transformation.GetPosition();
             physicsState.velocity = Vector3.Zero;
-            physicsState.position = initialPos;
+            emitter.OnDestroy();
+            emitter.OnAdd(this.scene);
             emitter.EmitOnce = false;
+            emitter.SetColor(GetTeamColor());
             emitterLight.Color = GetTeamColor();
         }
 
@@ -142,6 +147,7 @@ namespace Gaia.SceneGraph.GameEntities
         {
             physicsState.velocity = Vector3.Zero;
             emitter.EmitOnce = true;
+            
             emitterLight.Color = Vector3.Zero;
             lives--;
             if (lives >= 0)
@@ -307,20 +313,20 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
+            base.OnAdd(scene);
+
             this.team = 0;
+            this.lives = DEFAULT_PLAYER_LIVES;
             renderView = new MainRenderView(scene, Matrix.Identity, Matrix.Identity, Vector3.Zero, 1.0f, 1000);
 
-            this.Transformation.SetPosition(Vector3.Transform(Vector3.Up * 0.25f, scene.MainTerrain.Transformation.GetTransform()));
+            ResetStates();
             scene.MainCamera = renderView;
             scene.AddRenderView(renderView);
 
             fieldOfView = MathHelper.ToRadians(70);
             aspectRatio = GFX.Inst.DisplayRes.X / GFX.Inst.DisplayRes.Y;
 
-            physicsState.position = this.Transformation.GetPosition();
-            physicsState.velocity = Vector3.Zero;
-
-            base.OnAdd(scene);
+            ResetStates();
         }
 
         public override void OnDestroy()
@@ -366,10 +372,7 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnRender(view);
         }
 
-        public void SetSpeed(float percent)
-        {}
-
-        public override void OnUpdate()
+        void HandleControls()
         {
             Vector2 centerCrd = GFX.Inst.DisplayRes / 2.0f;
             Vector2 delta = InputManager.Inst.GetMouseDisplacement();
@@ -383,8 +386,6 @@ namespace Gaia.SceneGraph.GameEntities
             Mouse.SetPosition((int)(centerCrd.X + GFX.Inst.Origin.X), (int)(centerCrd.Y + GFX.Inst.Origin.Y));
 
             Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
-
-            Vector3 acceleration = Vector3.Zero;
 
             hoverAngle += Time.GameTime.ElapsedTime;
             if (hoverAngle >= MathHelper.TwoPi)
@@ -415,7 +416,20 @@ namespace Gaia.SceneGraph.GameEntities
             {
                 FireGun(transform.Forward);
             }
-            
+        }
+
+        public override void OnUpdate()
+        {
+
+            if (!this.IsDead())
+            {
+                HandleControls();
+            }
+
+            Matrix transform = Matrix.CreateRotationX(rotation.X) * Matrix.CreateRotationY(rotation.Y) * Matrix.CreateRotationZ(rotation.Z);
+
+            Vector3 acceleration = Vector3.Zero;
+
             State newState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
 
             Vector3 collNormal = Vector3.Zero;
@@ -504,7 +518,7 @@ namespace Gaia.SceneGraph.GameEntities
     {
         Vector3 aiVelocityVector = Vector3.Zero;
 
-        protected float speed = 16f;
+        protected float speed = 50f;
 
         public enum EnemyState
         {
@@ -531,7 +545,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         Actor enemy = null;
 
-        EnemyState state = EnemyState.Wander;
+        EnemyState state;
 
 
         public Opponent(Vector3 pos) : base(pos)
@@ -539,12 +553,15 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnAdd(Scene scene)
         {
+            base.OnAdd(scene);
             this.team = 2;
+            this.ResetStates();
+            /*
             physicsState.position = Vector3.Transform(initialPos, scene.MainTerrain.Transformation.GetTransform());
             this.Transformation.SetPosition(physicsState.position);
             physicsState.velocity = Vector3.Down * speed;
-
-            base.OnAdd(scene);
+            */
+            
         }
 
         public override void OnDestroy()
@@ -628,6 +645,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected override void ResetStates()
         {
+            base.ResetStates();
             wanderMovesCount = 0;
             // Unit configurations
             enemy = null;
@@ -635,7 +653,7 @@ namespace Gaia.SceneGraph.GameEntities
             wanderPosition = physicsState.position;
             wanderStartPosition = physicsState.position;
             state = EnemyState.Wander;
-            base.ResetStates();
+            
         }
 
         void AcquireEnemy()
@@ -666,6 +684,7 @@ namespace Gaia.SceneGraph.GameEntities
             physicsState.velocity = Vector3.Zero;
             base.OnDeath();
         }
+
         void PerformBehavior()
         {
             if (this.IsDead())
@@ -737,6 +756,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         public override void OnUpdate()
         {
+            base.OnUpdate();
+
             Vector3 acceleration = Vector3.Zero;
 
             PerformBehavior();
@@ -754,8 +775,6 @@ namespace Gaia.SceneGraph.GameEntities
                 physicsState.velocity = -physicsState.velocity;// Vector3.Reflect(physicsState.velocity, collNormal) * 3.5f;
                 physicsState = PhysicsHelper.Integrate(physicsState, acceleration, Time.GameTime.ElapsedTime);
             }
-
-            base.OnUpdate();
         }
     }
 }

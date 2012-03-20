@@ -52,30 +52,26 @@ namespace Gaia.Rendering
 
     public struct GUITextElement
     {
-        public Vector2 Min;
-        public Vector2 Max;
+        public Vector2 Position;
         public string Text;
         public Vector4 Color;
 
-        public GUITextElement(Vector2 min, Vector2 max, string text)
+        public GUITextElement(Vector2 pos, string text)
         {
-            Min = min;
-            Max = max;
+            Position = pos;
             Text = text;
             Color = Vector4.One;
         }
 
-        public GUITextElement(Vector2 min, Vector2 max, string text, Vector3 color)
+        public GUITextElement(Vector2 pos, string text, Vector3 color)
         {
-            Min = min;
-            Max = max;
+            Position = pos;
             Text = text;
             Color = new Vector4(color, 1.0f);
         }
-        public GUITextElement(Vector2 min, Vector2 max, string text, Vector4 color)
+        public GUITextElement(Vector2 pos, string text, Vector4 color)
         {
-            Min = min;
-            Max = max;
+            Position = pos;
             Text = text;
             Color = color;
         }
@@ -107,6 +103,11 @@ namespace Gaia.Rendering
         public void AddElement(GUIElement element)
         {
             Elements.Enqueue(element);
+        }
+
+        public void AddElement(GUITextElement element)
+        {
+            TextElements.Enqueue(element);
         }
 
         public void Render()
@@ -143,11 +144,24 @@ namespace Gaia.Rendering
                 GFXPrimitives.Quad.Render();
             }
 
+            DrawTextElements();
+
             GFX.Device.RenderState.AlphaBlendEnable = false;
 
-            GFX.Inst.ResetState();
+            GFX.Inst.ResetState();            
+        }
 
-            
+        private void DrawTextElements()
+        {
+            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.SaveState);
+            while (TextElements.Count > 0)
+            {
+                GUITextElement element = TextElements.Dequeue();
+                Vector2 pos = element.Position * new Vector2(0.5f, -0.5f) + Vector2.One * 0.5f;
+                pos *= GFX.Inst.DisplayRes;
+                spriteBatch.DrawString(DefaultFont, element.Text, pos, new Color(element.Color));
+            }
+            spriteBatch.End();
         }
     }
 }
