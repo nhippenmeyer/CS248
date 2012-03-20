@@ -347,6 +347,14 @@ namespace Gaia.SceneGraph.GameEntities
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
                 }
+                if (numGemsCollected >= scene.NUM_GEMS_Required)
+                {
+                    Vector2 max = new Vector2(1, 1);
+                    Vector2 min = new Vector2(-1, -1);
+                    Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/Congrats.png");
+                    GUIElement element = new GUIElement(min, max, image);
+                    GFX.Inst.GetGUI().AddElement(element);
+                }
             }
             base.OnRender(view);
         }
