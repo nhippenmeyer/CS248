@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 using Gaia.Resources;
 using Gaia.Physics;
 using Gaia.Core;
+using Gaia.Rendering;
+using Gaia.Rendering.RenderViews;
 
 
 namespace Gaia.SceneGraph.GameEntities
@@ -15,25 +18,23 @@ namespace Gaia.SceneGraph.GameEntities
         public ParticleEffect explosionEffect;
 
         State physicsState;
-        bool exploded = false;
         ParticleEmitter tracerEmitter;
+
+        Random randomHelper;
         
         BoundingBox boundingBox;
-        Vector3 minPos, maxPos;
         bool collected;
 
-        public Health()
+        public Health(Random random)
         {
+            randomHelper = random;
             tracerEffect = ResourceManager.Inst.GetParticleEffect("HealthParticle");
         }
 
         public override void OnAdd(Scene scene)
         {
-           
-            Random randomHelper = new Random();
             Vector3 randPosition = Vector3.Zero;
             Vector3 randNormal = Vector3.Zero;
-            randomHelper.NextDouble();
             randomHelper.NextDouble();
             scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
 
@@ -42,6 +43,16 @@ namespace Gaia.SceneGraph.GameEntities
             tracerEmitter = new ParticleEmitter(tracerEffect, 8);
             scene.Entities.Add(tracerEmitter);
             tracerEmitter.OnAdd(scene);
+
+            boundingBox = new BoundingBox();
+            float size = tracerEmitter.GetTextureSize();
+            boundingBox.Min = randPosition - Vector3.One * Vector3.Up * size;
+            boundingBox.Min.X -= (size / 2.0f);
+            boundingBox.Min.Z -= (size / 2.0f);
+            boundingBox.Max = randPosition + Vector3.One * Vector3.Up * size;
+            boundingBox.Max.X += (size / 2.0f);
+            boundingBox.Max.Z += (size / 2.0f);
+
             base.OnAdd(scene);
         }
 
@@ -52,6 +63,16 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnDestroy();
         }
         
+        public override void OnRender(RenderView view)
+        {
+            BoundingFrustum frustum = view.GetFrustum();
+            if (frustum.Contains(boundingBox) != ContainmentType.Disjoint && !collected)
+            {
+
+            }
+            base.OnRender(view);
+        }
+
         public void SetVelocity(Vector3 velocity)
         {
             physicsState.velocity = velocity * tracerEffect.initialSpeed;
@@ -70,7 +91,8 @@ namespace Gaia.SceneGraph.GameEntities
             if (boundingBox.Contains(scene.MainCamera.GetPosition()) != ContainmentType.Disjoint && !collected)
             {
                 collected = true;
-            //    scene.Entities.Remove(emitterLight);
+                scene.Entities.Remove(tracerEmitter);
+                Console.WriteLine("Heath absorbed");
                 // increase player's health
             }
             base.OnUpdate();
