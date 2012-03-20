@@ -17,7 +17,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected State physicsState;
 
-        protected float speed = 16f;
+        protected float speed = 160f;
         protected float forwardAcceleration = 20; //15 units/second^2
         protected float backwardAcceleration = 8;
         protected float strafeAcceleration = 12;
@@ -257,7 +257,6 @@ namespace Gaia.SceneGraph.GameEntities
 
     public class Player : Actor
     {
-
         float hoverMagnitude = 2.5f;
         float hoverAngle = 0;
 
@@ -283,8 +282,6 @@ namespace Gaia.SceneGraph.GameEntities
                 //Add your death-related code here!
             }
         }
-
-        float numLives = 3;
 
         public override void OnAdd(Scene scene)
         {
@@ -314,13 +311,14 @@ namespace Gaia.SceneGraph.GameEntities
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
-                for (int i = 0; i < numLives; i++)
+                for (int i = 0; i < lives; i++)
                 {
                     Vector2 max = new Vector2(0.99f - 0.08f * i, 1);
                     Vector2 min = new Vector2(0.91f - 0.08f * i, 0.85f);
                     Gaia.Resources.TextureResource image = Resources.ResourceManager.Inst.GetTexture("Textures/Details/heart.png");
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
+                    DrawProgressBar();
                 }
             }
             base.OnRender(view);
@@ -390,7 +388,6 @@ namespace Gaia.SceneGraph.GameEntities
             float nearPlane = 0.15f;
             float farPlane = 2000;
 
-
             renderView.SetPosition(cameraPosition);
             renderView.SetView(Matrix.CreateLookAt(cameraPosition, cameraPosition + transform.Forward, Vector3.Up));
             renderView.SetProjection(Matrix.CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlane, farPlane));
@@ -401,6 +398,20 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
+        public void DrawProgressBar()
+        {
+            float percentHealth = health / MAX_HEALTH;
+            float barBottom = -0.98f;
+            float barTop = 0.98f;
+            float healthBarTop = Math.Max(0.0f, barBottom + percentHealth * (barTop - barBottom));
+
+            GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(0.0f, 0.8f, 0.2f, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(0.0f, 0.8f, 0.2f, 1.0f));
+            GFX.Inst.GetGUI().AddElement(bar);
+            GFX.Inst.GetGUI().AddElement(healthBar);
+            GFX.Inst.GetGUI().AddElement(healthBarLine);
+        }
     }
 
     public class Opponent : Actor
@@ -433,6 +444,7 @@ namespace Gaia.SceneGraph.GameEntities
         Actor enemy = null;
 
         EnemyState state = EnemyState.Wander;
+
 
         public Opponent(Vector3 pos) : base(pos)
         {
