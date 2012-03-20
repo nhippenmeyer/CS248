@@ -289,7 +289,7 @@ namespace Gaia.SceneGraph.GameEntities
             }
             if (InputManager.Inst.IsLeftJustReleased())
             {
-                //FireGun(transform.Forward);
+                FireGun(transform.Forward);
             }
             
 

@@ -96,16 +96,7 @@ namespace Gaia.SceneGraph
                 Entities.Add(new Gem(randomHelper));
                 Entities.Add(new Health(randomHelper));
             }
-            
-           // Entities.Add(new Gem());
-            //Entities.Add(new GrassPlacement());
-            /*
-            Entities.Add(new Cloud()); */
-      //      Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Spark0"), 100));
-           // Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire1"), 100));
-           // Entities.Add(new ParticleEmitter(Gaia.Resources.ResourceManager.Inst.GetParticleEffect("Fire2"), 100));
-            
-            //Entities.Add(new FoliageCluster(1000, 1, 5));
+
             Entities.Add(new Light(LightType.Directional, new Vector3(0.1797f, 0.744f, 1.12f), Vector3.Right, false));
 
 

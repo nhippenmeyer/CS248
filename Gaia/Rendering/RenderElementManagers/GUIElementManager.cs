@@ -13,9 +13,27 @@ namespace Gaia.Rendering
     {
         public Vector4 ScaleOffset;
         public TextureResource Image;
+        public Vector4 Color;
 
         public GUIElement(Vector2 min, Vector2 max, TextureResource image)
         {
+            Color = Vector4.One;
+            ScaleOffset = Vector4.Zero;
+            Image = image;
+            SetDimensions(min, max);
+        }
+
+        public GUIElement(Vector2 min, Vector2 max, TextureResource image, Vector3 color)
+        {
+            Color = new Vector4(color,1.0f);
+            ScaleOffset = Vector4.Zero;
+            Image = image;
+            SetDimensions(min, max);
+        }
+
+        public GUIElement(Vector2 min, Vector2 max, TextureResource image, Vector4 color)
+        {
+            Color = color;
             ScaleOffset = Vector4.Zero;
             Image = image;
             SetDimensions(min, max);
@@ -29,16 +47,48 @@ namespace Gaia.Rendering
         }
     };
 
+    public struct GUITextElement
+    {
+        public Vector2 Min;
+        public Vector2 Max;
+        public string Text;
+        public Vector4 Color;
+
+        public GUITextElement(Vector2 min, Vector2 max, string text)
+        {
+            Min = min;
+            Max = max;
+            Text = text;
+            Color = Vector4.One;
+        }
+
+        public GUITextElement(Vector2 min, Vector2 max, string text, Vector3 color)
+        {
+            Min = min;
+            Max = max;
+            Text = text;
+            Color = new Vector4(color, 1.0f);
+        }
+        public GUITextElement(Vector2 min, Vector2 max, string text, Vector4 color)
+        {
+            Min = min;
+            Max = max;
+            Text = text;
+            Color = color;
+        }
+    }
+
     public class GUIElementManager
     {
         Shader basicImageShader;
 
         Queue<GUIElement> Elements = new Queue<GUIElement>();
+        Queue<GUITextElement> TextElements = new Queue<GUITextElement>();
 
         public GUIElementManager()
         {
             basicImageShader = new Shader();
-            basicImageShader.CompileFromFiles("Shaders/PostProcess/GenericP.hlsl", "Shaders/PostProcess/GUIV.hlsl");
+            basicImageShader.CompileFromFiles("Shaders/PostProcess/GUIP.hlsl", "Shaders/PostProcess/GUIV.hlsl");
         }
 
         public void AddElement(GUIElement element)
@@ -66,9 +116,17 @@ namespace Gaia.Rendering
             while (Elements.Count > 0)
             {
                 GUIElement elem = Elements.Dequeue();
-                GFX.Device.Textures[0] = elem.Image.GetTexture();
+                if (elem.Image != null)
+                {
+                    GFX.Device.Textures[0] = elem.Image.GetTexture();
+                }
+                else
+                {
+                    GFX.Device.Textures[0] = null;
+                }
                 
                 GFX.Device.SetVertexShaderConstant(0, elem.ScaleOffset);
+                GFX.Device.SetPixelShaderConstant(0, elem.Color);
                 GFXPrimitives.Quad.Render();
             }
 
