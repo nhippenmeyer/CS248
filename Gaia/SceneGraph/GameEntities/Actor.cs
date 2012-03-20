@@ -514,7 +514,7 @@ namespace Gaia.SceneGraph.GameEntities
             GUIElement bar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
             GUIElement progressBar = new GUIElement(new Vector2(barLeft, barBottom), new Vector2(barRight, progressBarTop), null, new Vector4(color, 0.5f));
             GUIElement progressBarLine = new GUIElement(new Vector2(barLeft, progressBarTop), new Vector2(barRight, progressBarTop + 0.02f), null, new Vector4(color, 1.0f));
-            GUIElement gemIcon = new GUIElement(new Vector2(-1.0f, 0.82f), new Vector2(-0.91f, 0.98f), Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png"));
+            GUIElement gemIcon = new GUIElement(new Vector2(-1.0f, 0.82f), new Vector2(-0.9f, 0.98f), Resources.ResourceManager.Inst.GetTexture("Textures/Trees/ruby_Color.png"));
             GFX.Inst.GetGUI().AddElement(bar);
             GFX.Inst.GetGUI().AddElement(progressBar);
             GFX.Inst.GetGUI().AddElement(progressBarLine);
