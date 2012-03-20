@@ -502,7 +502,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         public void DrawGemProgressBar()
         {
-            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS;
+            float percentGemsCollected = (float)numGemsCollected / (float)scene.NUM_GEMS_Required;
             float barBottom = -0.98f;
             float barTop = 0.8f;
             float barLeft = -0.98f;
