@@ -160,6 +160,7 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected virtual void OnDeath()
         {
+            physicsState.velocity = Vector3.Zero;
             emitter.EmitOnce = true;
             emitterLight.Color = Vector3.Zero;
             lives--;

@@ -90,6 +90,10 @@ namespace Gaia.Rendering
 
         Texture2D whiteTexture;
 
+        SpriteBatch spriteBatch;
+
+        public SpriteFont DefaultFont;
+
         public GUIElementManager()
         {
             basicImageShader = new Shader();
@@ -97,6 +101,7 @@ namespace Gaia.Rendering
             whiteTexture = new Texture2D(GFX.Device, 1, 1, 1, TextureUsage.None, SurfaceFormat.Color);
             Color[] color = new Color[] { Color.White };
             whiteTexture.SetData<Color>(color);
+            spriteBatch = new SpriteBatch(GFX.Device);
         }
 
         public void AddElement(GUIElement element)
@@ -141,6 +146,8 @@ namespace Gaia.Rendering
             GFX.Device.RenderState.AlphaBlendEnable = false;
 
             GFX.Inst.ResetState();
+
+            
         }
     }
 }
