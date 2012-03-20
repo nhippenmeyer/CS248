@@ -268,12 +268,22 @@ namespace Gaia.SceneGraph.GameEntities
 
         int numGemsCollected = 0;
 
+        // used to create white flash after being hit
+        int MAX_FLASH_TIMER = 8;
+        int hitFlashTimer = 0;
+        int deathFadeTimer = 0;
+
         Vector3 cameraPosition = Vector3.Zero;
 
         public Player(Vector3 spawnPos)
             : base(spawnPos)
-        {
+        {}
 
+        protected override void ResetStates()
+        {
+            hitFlashTimer = 0;
+            deathFadeTimer = 0;
+            base.ResetStates();
         }
 
         public void OnGemCollected(float speedupPercent)
@@ -285,6 +295,8 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected override void OnDeath()
         {
+            deathFadeTimer = 1;
+
             base.OnDeath();
             if (lives >= 0)
             {
@@ -317,12 +329,30 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnDestroy();
         }
 
+        public override void ApplyDamage(Projectile projectile, Vector3 impulseVector)
+        {
+            hitFlashTimer = 1;
+            base.ApplyDamage(projectile, impulseVector);
+        }
+
         public override void OnRender(RenderView view)
         {
             if (view.GetRenderType() == RenderViewType.MAIN)
             {
                 DrawHealthBar();
                 DrawGemProgressBar();
+
+                if (hitFlashTimer >= MAX_FLASH_TIMER) hitFlashTimer = 0;
+                else if (hitFlashTimer > 0)
+                {
+                    hitFlashTimer++;
+                    DrawHitFlash();
+                }
+                if (deathFadeTimer > 0)
+                {
+                    deathFadeTimer++;
+                    DrawDeathFade();
+                }
 
                 for (int i = 0; i < lives; i++)
                 {
@@ -337,9 +367,7 @@ namespace Gaia.SceneGraph.GameEntities
         }
 
         public void SetSpeed(float percent)
-        {
-
-        }
+        {}
 
         public override void OnUpdate()
         {
@@ -413,6 +441,21 @@ namespace Gaia.SceneGraph.GameEntities
             renderView.UpdateRenderViews(); //Update reflections
 
             base.OnUpdate();
+        }
+
+        public void DrawHitFlash()
+        {
+            float alpha = 1.0f - Math.Abs((float)MAX_FLASH_TIMER / 2.0f - (float)hitFlashTimer) / (float)(MAX_FLASH_TIMER / 2.0f);
+            GUIElement flash = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(1.0f, 1.0f, 1.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(flash);
+        }
+
+        public void DrawDeathFade()
+        {
+            float alpha = Math.Min((float)deathFadeTimer / 20.0f, 1.0f);
+            Console.WriteLine(alpha);
+            GUIElement fade = new GUIElement(new Vector2(-1.0f, -1.0f), new Vector2(1.0f, 1.0f), null, new Vector4(0.0f, 0.0f, 0.0f, alpha));
+            GFX.Inst.GetGUI().AddElement(fade);
         }
 
         public void DrawHealthBar()
@@ -492,8 +535,7 @@ namespace Gaia.SceneGraph.GameEntities
 
 
         public Opponent(Vector3 pos) : base(pos)
-        {
-        }
+        {}
 
         public override void OnAdd(Scene scene)
         {
