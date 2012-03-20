@@ -95,6 +95,7 @@ namespace Gaia.SceneGraph
                 Entities.Add(new Gem(randomHelper));
                 Entities.Add(new Health(randomHelper));
             }
+            
            // Entities.Add(new Gem());
             //Entities.Add(new GrassPlacement());
             /*

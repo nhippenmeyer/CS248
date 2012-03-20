@@ -8,8 +8,8 @@ PSIN main(float4 Position : POSITION0, float2 TexCoord : TEXCOORD0, uniform floa
 {
     PSIN OUT;
 
+	OUT.Position = Position;
 	OUT.Position.xy = Position * MinMax.xy + MinMax.zw;
-    OUT.Position = Position;
     OUT.TexCoord = TexCoord;
     return OUT;
 }
