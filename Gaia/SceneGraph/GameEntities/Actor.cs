@@ -324,17 +324,24 @@ namespace Gaia.SceneGraph.GameEntities
             base.OnUpdate();
         }
 
+        public void DrawProgressBar()
+        {
+            float percentHealth = health / MAX_HEALTH;
+            float barBottom = -0.98f;
+            float barTop = 0.98f;
+            float healthBarTop = Math.Max(0.0f, barBottom + percentHealth * (barTop - barBottom));
+
+            GUIElement bar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, barTop), null, new Vector4(0.0f, 0.0f, 0.0f, 0.5f));
+            GUIElement healthBar = new GUIElement(new Vector2(0.93f, barBottom), new Vector2(0.98f, healthBarTop), null, new Vector4(0.0f, 0.8f, 0.2f, 0.5f));
+            GUIElement healthBarLine = new GUIElement(new Vector2(0.93f, healthBarTop), new Vector2(0.98f, healthBarTop + 0.02f), null, new Vector4(0.0f, 0.8f, 0.2f, 1.0f));
+            GFX.Inst.GetGUI().AddElement(bar);
+            GFX.Inst.GetGUI().AddElement(healthBar);
+            GFX.Inst.GetGUI().AddElement(healthBarLine);
+        }
+
         public override void OnRender(RenderView view)
         {
-            if (view.GetRenderType() == RenderViewType.MAIN)
-            {
-                Vector2 min = new Vector2(0.0f, 0.0f);
-                Vector2 max = new Vector2(1.0f, 1.0f);
-                Vector3 color = new Vector3(0.0f, 0.0f, 1.0f);
-                GUIElement element = new GUIElement(min, max, null, color);
-                GFX.Inst.GetGUI().AddElement(element);
-            }
-
+            if (view.GetRenderType() == RenderViewType.MAIN) DrawProgressBar();
             base.OnRender(view);
         }
     }
