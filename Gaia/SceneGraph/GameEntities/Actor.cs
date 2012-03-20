@@ -22,13 +22,10 @@ namespace Gaia.SceneGraph.GameEntities
         protected float strafeAcceleration = 12;
 
         protected float speedBonus = 1.0f;
-
         protected float MAX_SPEED_DURATION = 20;
-
         protected float speedTime;
 
         protected static float MAX_HEALTH = 100;
-
         protected float health = MAX_HEALTH;
         
         protected Vector3 rotation = Vector3.Zero;
@@ -64,7 +61,6 @@ namespace Gaia.SceneGraph.GameEntities
 
         protected static float ATTACK_DELAY_TIME = 0.85f;
         protected float delayTime = 0;
-
         protected static float MAX_PROJECTILE_TIME = 4.0f;
 
         protected float explosionMagnitude = 0;
@@ -342,7 +338,6 @@ namespace Gaia.SceneGraph.GameEntities
                     GUIElement element = new GUIElement(min, max, image);
                     GFX.Inst.GetGUI().AddElement(element);
                 }
-                DrawProgressBar();
             }
             base.OnRender(view);
         }
