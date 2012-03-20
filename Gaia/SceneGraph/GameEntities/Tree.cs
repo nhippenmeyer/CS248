@@ -9,6 +9,7 @@ using Gaia.Input;
 using Gaia.Rendering;
 using Gaia.Rendering.RenderViews;
 using Gaia.SceneGraph.GameEntities;
+using Gaia.Core;
 
 
 namespace Gaia.SceneGraph.GameEntities
@@ -81,14 +82,13 @@ namespace Gaia.SceneGraph.GameEntities
             treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat2"));
             treeMaterials.Add(ResourceManager.Inst.GetMaterial("LTreeMat3"));
 
-            Random randomHelper = new Random();
             Vector3 randPosition = Vector3.Zero;
             Vector3 randNormal = Vector3.Zero;
-            randomHelper.NextDouble();
-            scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+            RandomHelper.RandomGen.NextDouble();
+            scene.MainTerrain.GenerateRandomTransform(RandomHelper.RandomGen, out randPosition, out randNormal);
             while (randPosition.Y < 5.0f || Vector3.Dot(randNormal, Vector3.Up) < 0.5f)
             {
-                scene.MainTerrain.GenerateRandomTransform(randomHelper, out randPosition, out randNormal);
+                scene.MainTerrain.GenerateRandomTransform(RandomHelper.RandomGen, out randPosition, out randNormal);
             }
             generateTree(randPosition);
             base.OnAdd(scene);
