@@ -58,7 +58,6 @@ namespace Gaia.Rendering
         DepthStencilBuffer DSBufferScene;
 
         public ParticleSimulator particleSystem;
-        
 
         public GFX(GraphicsDevice device)
         {
@@ -191,7 +190,8 @@ namespace Gaia.Rendering
 
         public void RenderGUI()
         {
-            guiManager.Render();   
+            guiManager.Render();
+            
         }
     }
 }

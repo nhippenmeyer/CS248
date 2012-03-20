@@ -129,8 +129,6 @@ namespace Gaia.Rendering.RenderViews
             return Vector3.Up;
         }
 
-
-
         public void UpdateRenderViews()
         {
             Plane waterPlane = new Plane(Vector3.Up, 0);
@@ -142,12 +140,10 @@ namespace Gaia.Rendering.RenderViews
             planarReflection.SetProjection(this.GetProjection());
             planarReflection.enableClipPlanes = true;
 
-
-            Vector3 cubemapPos = this.GetPosition() + this.GetWorldMatrix().Forward * 8.0f;
+            Vector3 cubemapPos = this.GetPosition() + this.GetWorldMatrix().Forward * 10.0f;
 
             for (int i = 0; i < reflectionViews.Length; i++)
             {
-
                 Matrix viewMat = Matrix.CreateLookAt(cubemapPos, cubemapPos + GetCubeMapDir((CubeMapFace)i), GetCubeMapUp((CubeMapFace)i));
                 reflectionViews[i].SetNearPlane(this.GetNearPlane());
                 reflectionViews[i].SetFarPlane(this.GetFarPlane());
